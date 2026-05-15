@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -107,15 +107,24 @@ export function SolutionsCarousel() {
     [active]
   );
 
-  useEffect(() => {
+  // Single positioning effect: first run = immediate (set positions before
+  // first paint via useLayoutEffect), subsequent runs = animated.
+  // useEffect would let one frame paint at (0,0) before positioning.
+  const isFirstLayout = useRef(true);
+  useLayoutEffect(() => {
     if (!isMounted || !isDesktop) return;
-    layout(true);
-  }, [isMounted, isDesktop, layout]);
+    if (isFirstLayout.current) {
+      layout(true);
+      isFirstLayout.current = false;
+    } else {
+      layout(false); // animated
+    }
+  }, [active, isMounted, isDesktop, layout]);
 
+  // Reset first-paint flag when desktop mode toggles (e.g. on resize)
   useEffect(() => {
-    if (!isDesktop) return;
-    layout();
-  }, [active, isDesktop, layout]);
+    if (!isDesktop) isFirstLayout.current = true;
+  }, [isDesktop]);
 
   // Autoplay + circular progress
   useEffect(() => {
@@ -342,7 +351,10 @@ export function SolutionsCarousel() {
               />
             </svg>
 
-            {/* Planet buttons — absolute, positioned by GSAP via slot transforms */}
+            {/* Planet buttons — positioned EXCLUSIVELY by GSAP. We must NOT
+                pass any style={{ left, top, transform, opacity }} on the JSX
+                because React would re-apply them on every render and instantly
+                teleport the planets, killing the animation. */}
             {expertises.map((s, i) => (
               <button
                 type="button"
@@ -352,17 +364,10 @@ export function SolutionsCarousel() {
                 aria-label={`Voir ${s.title}`}
                 data-cursor="hover"
                 className={cn(
-                  "planet group absolute h-[clamp(280px,30vw,420px)] w-[clamp(280px,30vw,420px)] overflow-visible rounded-full",
+                  "planet group absolute left-0 top-0 h-[clamp(280px,30vw,420px)] w-[clamp(280px,30vw,420px)] overflow-visible rounded-full",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0e0e11]"
                 )}
-                style={{
-                  // Initial placement (overridden by GSAP layout())
-                  left: `${SLOTS[(i - active + N) % N]?.x ?? 50}%`,
-                  top: `${SLOTS[(i - active + N) % N]?.y ?? 50}%`,
-                  transform: `translate(-50%, -50%) scale(${SLOTS[(i - active + N) % N]?.scale ?? 1})`,
-                  opacity: SLOTS[(i - active + N) % N]?.opacity ?? 1,
-                  zIndex: SLOTS[(i - active + N) % N]?.z ?? 10,
-                }}
+                /* No inline style — GSAP owns left/top/transform/opacity */
               >
                 {/* Active glow ring (rotating) */}
                 {i === active && (
