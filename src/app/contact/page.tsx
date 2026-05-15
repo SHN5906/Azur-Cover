@@ -39,6 +39,8 @@ export default function ContactPage() {
                       Adresse
                     </dt>
                     <dd className="mt-2 text-ink" style={{ fontSize: "1.0625rem", lineHeight: 1.5 }}>
+                      {site.address.building}
+                      <br />
                       {site.address.street}
                       <br />
                       {site.address.postal} {site.address.city}, {site.address.country}

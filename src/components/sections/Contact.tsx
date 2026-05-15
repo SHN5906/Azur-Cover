@@ -51,6 +51,8 @@ export function Contact() {
                     Adresse
                   </dt>
                   <dd className="mt-2 text-sm leading-relaxed text-ink">
+                    {site.address.building}
+                    <br />
                     {site.address.street}
                     <br />
                     {site.address.postal} {site.address.city}

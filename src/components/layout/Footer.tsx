@@ -152,6 +152,8 @@ export function Footer() {
               Contact
             </h3>
             <address className="mt-5 not-italic text-sm leading-relaxed text-white/70">
+              {site.address.building}
+              <br />
               {site.address.street}
               <br />
               {site.address.postal} {site.address.city}, {site.address.country}
