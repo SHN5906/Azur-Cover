@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { Play, Pause } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { expertises } from "@/content/expertises";
@@ -62,11 +61,8 @@ export function SolutionsCarousel() {
   const progressRef = useRef<SVGCircleElement>(null);
 
   const [active, setActive] = useState(0);
-  // Two distinct pause sources : manual click via the pause button (survives
-  // mouse moves) and transient hover/focus pause. Effective state is OR of both.
-  const [manuallyPaused, setManuallyPaused] = useState(false);
-  const [hoverPaused, setHoverPaused] = useState(false);
-  const paused = manuallyPaused || hoverPaused;
+  // Hover/focus pauses the auto-play (the manual pause button has been removed).
+  const [paused, setPaused] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -192,10 +188,10 @@ export function SolutionsCarousel() {
       ref={sectionRef}
       id="solutions"
       aria-labelledby="solutions-h"
-      onMouseEnter={() => setHoverPaused(true)}
-      onMouseLeave={() => setHoverPaused(false)}
-      onFocus={() => setHoverPaused(true)}
-      onBlur={() => setHoverPaused(false)}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
       className="relative overflow-hidden text-white bg-[#0e0e11]"
       style={{
         background: isDesktop
@@ -287,34 +283,20 @@ export function SolutionsCarousel() {
                   ←
                 </button>
 
-                <div className="relative">
-                  <svg viewBox="0 0 40 40" className="h-11 w-11 -rotate-90" aria-hidden>
-                    <circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
-                    <circle
-                      ref={progressRef}
-                      cx="20"
-                      cy="20"
-                      r="18"
-                      stroke="var(--color-azur)"
-                      strokeWidth="1.5"
-                      fill="none"
-                      strokeLinecap="round"
-                      style={{ strokeDasharray: CIRC, strokeDashoffset: CIRC }}
-                    />
-                  </svg>
-                  <button
-                    type="button"
-                    onClick={() => setManuallyPaused((p) => !p)}
-                    aria-label={manuallyPaused ? "Reprendre l'auto-play" : "Mettre en pause"}
-                    className="absolute inset-0 flex items-center justify-center text-white/80 transition hover:text-white"
-                  >
-                    {manuallyPaused ? (
-                      <Play className="h-3.5 w-3.5 translate-x-px fill-current" aria-hidden />
-                    ) : (
-                      <Pause className="h-3.5 w-3.5 fill-current" aria-hidden />
-                    )}
-                  </button>
-                </div>
+                <svg viewBox="0 0 40 40" className="h-11 w-11 -rotate-90" aria-hidden>
+                  <circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
+                  <circle
+                    ref={progressRef}
+                    cx="20"
+                    cy="20"
+                    r="18"
+                    stroke="var(--color-azur)"
+                    strokeWidth="1.5"
+                    fill="none"
+                    strokeLinecap="round"
+                    style={{ strokeDasharray: CIRC, strokeDashoffset: CIRC }}
+                  />
+                </svg>
 
                 <button
                   type="button"
