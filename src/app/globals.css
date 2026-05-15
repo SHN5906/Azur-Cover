@@ -28,11 +28,14 @@
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
     background: var(--color-bg);
+    overflow-x: hidden;
   }
 
   body {
     color: var(--color-ink);
+    background: var(--color-bg);
     font-family: var(--font-sans);
+    overflow-x: hidden;
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

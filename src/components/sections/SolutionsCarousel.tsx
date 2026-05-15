@@ -54,8 +54,6 @@ export function SolutionsCarousel() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const planetRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const dotRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const pathRef = useRef<SVGPathElement>(null);
   const progressRef = useRef<SVGCircleElement>(null);
 
@@ -76,30 +74,6 @@ export function SolutionsCarousel() {
     (immediate = false) => {
       const path = pathRef.current;
       if (!path) return;
-
-      // Position the small dots and labels at fixed slot positions for ALL items
-      expertises.forEach((_, i) => {
-        const dot = dotRefs.current[i];
-        const label = labelRefs.current[i];
-        const offset = (i - active + N) % N;
-        const slot = slotForOffset(offset);
-        if (dot) {
-          gsap.to(dot, {
-            motionPath: { path, align: path, alignOrigin: [0.5, 0.5], start: slot, end: slot },
-            duration: immediate ? 0 : 0.85,
-            ease: "expo.out",
-            overwrite: "auto",
-          });
-        }
-        if (label) {
-          gsap.to(label, {
-            motionPath: { path, align: path, alignOrigin: [0.5, 0], start: slot, end: slot },
-            duration: immediate ? 0 : 0.85,
-            ease: "expo.out",
-            overwrite: "auto",
-          });
-        }
-      });
 
       planetRefs.current.forEach((el, i) => {
         if (!el) return;
@@ -205,8 +179,8 @@ export function SolutionsCarousel() {
               Nos solutions
             </Eyebrow>
 
-            {/* Crossfade key */}
-            <div key={current.slug} className="mt-8 motion-fade-in">
+            {/* Crossfade key — short opacity-only fade, no translate */}
+            <div key={current.slug} className="mt-8 motion-soft-fade">
               <h2
                 className="text-white"
                 style={{
@@ -273,38 +247,6 @@ export function SolutionsCarousel() {
             />
           </svg>
 
-          {/* Dots: small marker for each position */}
-          {expertises.map((s, i) => (
-            <span
-              key={`dot-${s.slug}`}
-              ref={(el) => { dotRefs.current[i] = el; }}
-              aria-hidden
-              className={cn(
-                "absolute left-0 top-0 block h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-500",
-                i === active
-                  ? "h-2 w-2 bg-azur shadow-[0_0_12px_rgba(0,166,166,0.6)]"
-                  : "bg-white/30"
-              )}
-              style={{ zIndex: 5 }}
-            />
-          ))}
-
-          {/* Labels: text under each curve point */}
-          {expertises.map((s, i) => (
-            <span
-              key={`label-${s.slug}`}
-              ref={(el) => { labelRefs.current[i] = el; }}
-              aria-hidden
-              className={cn(
-                "absolute left-0 top-0 block translate-y-6 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.18em] transition-colors duration-500",
-                i === active ? "text-azur" : "text-white/35"
-              )}
-              style={{ zIndex: 6, transform: "translate(-50%, 24px)" }}
-            >
-              {s.index} · {s.title}
-            </span>
-          ))}
-
           {/* Planets (image discs) */}
           {expertises.map((s, i) => (
             <button
@@ -341,8 +283,47 @@ export function SolutionsCarousel() {
           ))}
         </div>
 
+        {/* Labels row — clickable + active highlighted */}
+        <div className="mt-12 grid grid-cols-4 gap-2">
+          {expertises.map((s, i) => {
+            const selected = i === active;
+            return (
+              <button
+                key={s.slug}
+                id={`tab-${s.slug}`}
+                role="tab"
+                aria-selected={selected}
+                aria-controls={`panel-${s.slug}`}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => goTo(i)}
+                data-cursor="hover"
+                className={cn(
+                  "group relative flex flex-col items-start gap-1 px-1 py-4 text-left transition-colors",
+                  selected ? "text-white" : "text-white/45 hover:text-white"
+                )}
+              >
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
+                  {s.index}
+                </span>
+                <span className="text-base font-medium" style={{ letterSpacing: "-0.01em" }}>
+                  {s.title}
+                </span>
+                {/* Underline */}
+                <span aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-white/10" />
+                <span
+                  aria-hidden
+                  className={cn(
+                    "absolute inset-x-0 bottom-0 h-px origin-left bg-azur transition-transform duration-500 ease-out",
+                    selected ? "scale-x-100" : "scale-x-0"
+                  )}
+                />
+              </button>
+            );
+          })}
+        </div>
+
         {/* Controls — centered under the active position */}
-        <div className="mt-20 flex items-center justify-center gap-6">
+        <div className="mt-12 flex items-center justify-center gap-6">
           <button
             type="button"
             onClick={() => goTo(active - 1)}
@@ -393,12 +374,12 @@ export function SolutionsCarousel() {
           </span>
         </div>
 
-        {/* Tab list (a11y) — visually we have dots+labels above already; this is the keyboard tabs */}
+        {/* Hidden a11y placeholder, real tabs are above */}
         <div role="tablist" aria-label="Choisir une solution" className="sr-only">
           {expertises.map((s, i) => (
             <button
-              key={s.slug}
-              id={`tab-${s.slug}`}
+              key={`a11y-${s.slug}`}
+              id={`tab-a11y-${s.slug}`}
               role="tab"
               aria-selected={i === active}
               aria-controls={`panel-${s.slug}`}
@@ -417,16 +398,15 @@ export function SolutionsCarousel() {
       </div>
 
       <style>{`
-        .motion-fade-in {
-          animation: fade-in-up 600ms cubic-bezier(0.16,1,0.3,1) both;
-          animation-delay: 120ms;
+        .motion-soft-fade {
+          animation: soft-fade 360ms ease-out both;
         }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(8px); }
-          to   { opacity: 1; transform: translateY(0); }
+        @keyframes soft-fade {
+          from { opacity: 0.55; }
+          to   { opacity: 1; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .motion-fade-in { animation: none !important; }
+          .motion-soft-fade { animation: none !important; }
         }
       `}</style>
     </section>

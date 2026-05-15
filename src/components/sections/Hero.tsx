@@ -1,8 +1,6 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
-import { site } from "@/content/site";
 
 export function Hero() {
   return (
@@ -44,13 +42,9 @@ export function Hero() {
       {/* Text panel */}
       <Container className="relative pt-24 pb-24 lg:pt-32 lg:pb-32">
         <div className="max-w-[640px]">
-          <Eyebrow tone="muted" className="text-ink/65">
-            Azur Cover · Expert national
-          </Eyebrow>
-
           <h1
             id="hero-h1"
-            className="mt-8 text-ink"
+            className="text-ink"
             style={{
               fontSize: "clamp(3.25rem, 6.4vw, 7.5rem)",
               fontWeight: 600,
@@ -77,12 +71,6 @@ export function Hero() {
             <Button href="/realisations" variant="ghost" arrow>
               Voir nos références
             </Button>
-          </div>
-
-          <div className="mt-16 max-w-md border-t border-ink/10 pt-5">
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
-              {site.trust.qualibat} · {site.trust.siret} · Depuis {site.trust.since}
-            </p>
           </div>
         </div>
       </Container>

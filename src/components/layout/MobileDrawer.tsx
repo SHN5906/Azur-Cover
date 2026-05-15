@@ -26,9 +26,9 @@ export function MobileDrawer({ open, onClose }: Props) {
       aria-modal="true"
       aria-label="Menu de navigation"
       aria-hidden={!open}
+      data-state={open ? "open" : "closed"}
       className={cn(
-        "fixed inset-0 z-[70] flex flex-col bg-bg",
-        "transition-[opacity,visibility] duration-300",
+        "drawer fixed inset-0 z-[70] flex flex-col bg-bg",
         open ? "visible opacity-100" : "invisible opacity-0"
       )}
     >
@@ -54,14 +54,8 @@ export function MobileDrawer({ open, onClose }: Props) {
           {site.nav.map((item, i) => (
             <li
               key={item.href}
-              style={{
-                transitionDelay: open ? `${80 + i * 60}ms` : "0ms",
-                opacity: open ? 1 : 0,
-                transform: open ? "translateY(0)" : "translateY(8px)",
-                transitionProperty: "opacity, transform",
-                transitionDuration: "400ms",
-                transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
-              }}
+              className="drawer-item"
+              style={{ ["--i" as string]: i }}
             >
               <Link
                 href={item.href}
@@ -76,17 +70,11 @@ export function MobileDrawer({ open, onClose }: Props) {
         </ul>
 
         <div
-          style={{
-            transitionDelay: open ? "440ms" : "0ms",
-            opacity: open ? 1 : 0,
-            transform: open ? "translateY(0)" : "translateY(8px)",
-            transition:
-              "opacity 400ms cubic-bezier(0.16,1,0.3,1), transform 400ms cubic-bezier(0.16,1,0.3,1)",
-          }}
-          className="mt-12"
+          className="drawer-item mt-12"
+          style={{ ["--i" as string]: site.nav.length }}
         >
           <Link
-            href="#contact"
+            href="/contact"
             onClick={onClose}
             className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-ink px-7 text-sm font-medium text-white"
           >
@@ -104,6 +92,24 @@ export function MobileDrawer({ open, onClose }: Props) {
           </a>
         </div>
       </nav>
+
+      <style>{`
+        .drawer { transition: opacity 240ms cubic-bezier(0.16,1,0.3,1), visibility 240ms; }
+        .drawer-item {
+          opacity: 0;
+          transform: translateY(8px);
+          transition: opacity 360ms cubic-bezier(0.16,1,0.3,1), transform 360ms cubic-bezier(0.16,1,0.3,1);
+          transition-delay: 0ms;
+        }
+        .drawer[data-state="open"] .drawer-item {
+          opacity: 1;
+          transform: translateY(0);
+          transition-delay: calc(80ms + var(--i, 0) * 60ms);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .drawer, .drawer-item { transition: opacity 0.01ms !important; transform: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRef, useState } from "react";
 import { Play, Volume2, VolumeX, Maximize } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -41,9 +40,8 @@ export function VideoSection() {
   return (
     <section
       id="video"
-      data-bg="3"
       aria-labelledby="video-h"
-      className="py-[clamp(120px,18vw,200px)]"
+      className="bg-bg py-[clamp(120px,18vw,200px)]"
     >
       <Container>
         <div className="text-center">
@@ -63,45 +61,6 @@ export function VideoSection() {
         </div>
 
         <div className="relative mx-auto mt-16 max-w-[1100px]">
-          {/* Decorative characters — flank the player at its mid-height (xl+) */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-0 hidden h-[80%] w-[200px] -translate-x-[calc(100%-12px)] -translate-y-1/2 xl:block"
-            style={{
-              opacity: started ? 0.25 : 1,
-              transform: `translateY(-50%) translateX(${started ? "calc(-100% - 12px)" : "calc(-100% + 12px)"})`,
-              transition:
-                "opacity 600ms cubic-bezier(0.16,1,0.3,1), transform 600ms cubic-bezier(0.16,1,0.3,1)",
-            }}
-          >
-            <Image
-              src="/images/characters/left.png"
-              alt=""
-              fill
-              sizes="200px"
-              className="object-contain object-right-bottom"
-            />
-          </div>
-          <div
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 right-0 hidden h-[80%] w-[200px] translate-x-[calc(100%-12px)] -translate-y-1/2 xl:block"
-            style={{
-              opacity: started ? 0.25 : 1,
-              transform: `translateY(-50%) translateX(${started ? "calc(100% + 12px)" : "calc(100% - 12px)"})`,
-              transition:
-                "opacity 600ms cubic-bezier(0.16,1,0.3,1), transform 600ms cubic-bezier(0.16,1,0.3,1)",
-            }}
-          >
-            <Image
-              src="/images/characters/right.png"
-              alt=""
-              fill
-              sizes="200px"
-              className="object-contain object-left-bottom"
-            />
-          </div>
-
-          {/* Player */}
           <div className="relative aspect-video w-full overflow-hidden rounded-md border border-line/60 bg-graphite shadow-2xl">
             <video
               ref={ref}

@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
-import { BgHolder } from "@/components/motion/BgHolder";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -104,11 +103,10 @@ export default function RootLayout({
       lang="fr"
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body>
+      <body className="overflow-x-hidden">
         <a href="#main" className="skip-link">
           Aller au contenu principal
         </a>
-        <BgHolder />
         {children}
         <Script
           id="ld-json-localbusiness"
