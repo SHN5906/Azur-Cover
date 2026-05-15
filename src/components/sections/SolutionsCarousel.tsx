@@ -130,13 +130,24 @@ export function SolutionsCarousel() {
     if (!isDesktop) isFirstLayout.current = true;
   }, [isDesktop]);
 
-  // Autoplay + circular progress
+  // Autoplay + circular progress.
+  // Both the timeout AND the GSAP progress tween must be cleaned up on
+  // pause / unmount, otherwise the chrono keeps spinning visually after
+  // the user clicks the pause button.
   useEffect(() => {
-    if (!isDesktop || paused) return;
+    if (!isDesktop) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const circle = progressRef.current;
+
+    if (paused) {
+      // Freeze the visual chrono in place
+      if (circle) gsap.killTweensOf(circle);
+      return;
+    }
+
     if (circle) {
+      gsap.killTweensOf(circle);
       gsap.set(circle, { strokeDashoffset: CIRC });
       gsap.to(circle, {
         strokeDashoffset: 0,
@@ -147,7 +158,11 @@ export function SolutionsCarousel() {
     const t = window.setTimeout(() => {
       setActive((i) => (i + 1) % N);
     }, AUTOPLAY_MS);
-    return () => window.clearTimeout(t);
+
+    return () => {
+      window.clearTimeout(t);
+      if (circle) gsap.killTweensOf(circle);
+    };
   }, [active, paused, isDesktop]);
 
   const goTo = useCallback((i: number) => {

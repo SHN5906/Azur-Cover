@@ -79,6 +79,7 @@ export function VideoSection() {
               <source src="/video/azur-cover-presentation.mp4" type="video/mp4" />
             </video>
 
+            {/* Big play overlay — only when not playing */}
             <button
               type="button"
               onClick={togglePlay}
@@ -95,18 +96,35 @@ export function VideoSection() {
                 <Play className="h-7 w-7 translate-x-0.5 fill-current md:h-9 md:w-9" aria-hidden />
               </span>
             </button>
+          </div>
 
-            <div
-              className={cn(
-                "absolute inset-x-3 bottom-3 flex items-center justify-between transition-opacity duration-300",
-                started ? "opacity-100" : "pointer-events-none opacity-0"
-              )}
+          {/* Controls placed BELOW the player so they never overlap the
+              logos baked into the video poster / footage. */}
+          <div
+            className={cn(
+              "mt-4 flex items-center justify-between gap-2 transition-opacity duration-300",
+              started ? "opacity-100" : "pointer-events-none opacity-0"
+            )}
+          >
+            <button
+              type="button"
+              onClick={togglePlay}
+              aria-label={playing ? "Mettre en pause" : "Lire"}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
             >
+              {playing ? (
+                <span aria-hidden className="text-[10px]">❚❚</span>
+              ) : (
+                <Play className="h-4 w-4 translate-x-0.5 fill-current" aria-hidden />
+              )}
+            </button>
+
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={toggleMute}
                 aria-label={muted ? "Activer le son" : "Couper le son"}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-graphite/70 text-white backdrop-blur transition hover:bg-graphite/90"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
               >
                 {muted ? <VolumeX className="h-4 w-4" aria-hidden /> : <Volume2 className="h-4 w-4" aria-hidden />}
               </button>
@@ -114,7 +132,7 @@ export function VideoSection() {
                 type="button"
                 onClick={fullscreen}
                 aria-label="Plein écran"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-graphite/70 text-white backdrop-blur transition hover:bg-graphite/90"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
               >
                 <Maximize className="h-4 w-4" aria-hidden />
               </button>
