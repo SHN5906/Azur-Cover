@@ -15,37 +15,40 @@ const AUTOPLAY_MS = 8000;
 const CIRC = 113; // 2π · r=18
 
 /**
- * Discrete slot positions à la Thales. No path interpolation — each slot has
- * a fixed transform (scale, translate %, opacity, blur, saturate, brightness).
+ * Orbital wheel à la Thales — 4 planets always visible, distributed around
+ * the stage. When `active` changes, every planet shifts ONE position along
+ * the orbit (counter-clockwise: 1 → 0 → 3 → 2 → 1).
  *
- * Coordinates are RELATIVE TO THE STAGE (right half of the viewport):
- *   x: percentage from the LEFT of the stage (0 = stage left edge, 100 = stage right edge)
- *   y: percentage from the TOP of the stage (50 = vertical centre)
+ * Coordinates are RELATIVE TO THE STAGE (right column of the grid):
+ *   x: % from the LEFT of the stage (0 = stage left edge, 100 = stage right edge)
+ *   y: % from the TOP of the stage  (0 = top, 100 = bottom)
  *
- * Only 3 planets are visible at any time: active + the next two in the queue.
- * The "previous" planet (offset 3) is faded out completely so it never lands
- * over the left-side text panel.
+ * Slot 3 (previous) is placed UPPER-LEFT of the stage — high enough that
+ * it sits ABOVE the text panel's vertical centre, so the two never visually
+ * collide even though the text panel is just to the left of the stage.
  */
 type Slot = {
-  x: number;      // %
-  y: number;      // %
+  x: number;
+  y: number;
   scale: number;
   opacity: number;
-  blur: number;   // px
+  blur: number;
   saturate: number;
   brightness: number;
   z: number;
+  rotation: number;
 };
 
+// Orbital arrangement: planets sit on a clockwise wheel.
+// Cycle each planet visits, on each "next": slot 1 → 0 → 3 → 2 → 1 → …
+//   That sequence forms a smooth clockwise rotation:
+//   right → centre → upper-left → top → upper-right → right …
+// All four jumps are short, no teleport across the stage.
 const SLOTS: Record<number, Slot> = {
-  // Carousel flows right → left through the centre. Each transition makes
-  // the active planet (offset 0) slide diagonally from slot 1 to slot 0,
-  // while the previous active (offset 3) slides further LEFT and fades —
-  // visible scroll motion, no static fade.
-  0: { x: 42, y: 50, scale: 1.00, opacity: 1.0,  blur: 0,  saturate: 1.0,  brightness: 1.0,  z: 50 }, // ACTIVE — centre-stage
-  1: { x: 80, y: 70, scale: 0.55, opacity: 0.55, blur: 8,  saturate: 0.3,  brightness: 0.7,  z: 30 }, // NEXT — bottom-right
-  2: { x: 96, y: 30, scale: 0.32, opacity: 0.25, blur: 14, saturate: 0.1,  brightness: 0.55, z: 20 }, // QUEUE — top-right corner (entry)
-  3: { x: 8,  y: 35, scale: 0.45, opacity: 0,    blur: 6,  saturate: 0.5,  brightness: 0.7,  z: 10 }, // PREV — slides LEFT-up and fades
+  0: { x: 52, y: 55, scale: 0.85, opacity: 1.00, blur: 0,  saturate: 1.0,  brightness: 1.0,  z: 50, rotation: 0   }, // ACTIVE — centre
+  1: { x: 92, y: 30, scale: 0.42, opacity: 0.55, blur: 7,  saturate: 0.35, brightness: 0.72, z: 30, rotation: 0  }, // NEXT — upper-right
+  2: { x: 60, y: 10, scale: 0.30, opacity: 0.30, blur: 12, saturate: 0.15, brightness: 0.6,  z: 20, rotation: 0  }, // QUEUE — top
+  3: { x: 14, y: 22, scale: 0.42, opacity: 0.55, blur: 7,  saturate: 0.35, brightness: 0.72, z: 30, rotation: 0  }, // PREV — upper-left (above text)
 };
 
 function slotForOffset(offset: number): Slot {
@@ -78,41 +81,26 @@ export function SolutionsCarousel() {
         const offset = (i - active + N) % N;
         const slot = slotForOffset(offset);
         el.style.zIndex = String(slot.z);
-        el.style.pointerEvents = slot.opacity === 0 ? "none" : "auto";
 
-        // Position + scale (long, smooth) — gives the visible "scroll" feel
+        // Single tween — position, scale, opacity, rotation, filter all
+        // synced for a coherent "wheel rotation" feel. Stagger by 80ms per
+        // planet index for a subtle wave.
+        const stagger = immediate ? 0 : (offset * 0.08);
         gsap.to(el, {
           left: `${slot.x}%`,
           top: `${slot.y}%`,
           xPercent: -50,
           yPercent: -50,
           scale: slot.scale,
-          duration: immediate ? 0 : 1.6,
-          ease: "power3.inOut",
+          opacity: slot.opacity,
+          rotation: slot.rotation,
+          filter: `blur(${slot.blur}px) saturate(${slot.saturate}) brightness(${slot.brightness})`,
+          duration: immediate ? 0 : 1.4,
+          delay: stagger,
+          ease: "power2.inOut",
           overwrite: "auto",
           onStart: () => { el.style.willChange = "transform, opacity, filter"; },
           onComplete: () => { el.style.willChange = "auto"; },
-        });
-
-        // Opacity decoupled — exit fades early-and-fast, entry comes in late.
-        // Result: the previous planet is visibly travelling out for the first
-        // half of the transition, then disappears so the centre stays clean.
-        const isEntering = offset === 0;
-        const isExiting = offset === 3;
-        gsap.to(el, {
-          opacity: slot.opacity,
-          duration: immediate ? 0 : (isEntering ? 0.9 : isExiting ? 1.0 : 1.2),
-          delay: immediate ? 0 : (isEntering ? 0.55 : 0),
-          ease: isEntering ? "power2.out" : isExiting ? "power2.in" : "power2.inOut",
-          overwrite: "auto",
-        });
-
-        // Filter (blur / saturate / brightness)
-        gsap.to(el, {
-          filter: `blur(${slot.blur}px) saturate(${slot.saturate}) brightness(${slot.brightness})`,
-          duration: immediate ? 0 : 1.4,
-          ease: "power3.inOut",
-          overwrite: "auto",
         });
       });
     },
@@ -334,26 +322,23 @@ export function SolutionsCarousel() {
 
           {/* Planets stage — right 60%, isolated from text column */}
           <div className="col-span-7 relative">
-            {/* Soft dotted arc as visual hint of orbit (decorative only) */}
+            {/* Orbit decoration — a full elliptical wheel, dim and dotted */}
             <svg
               aria-hidden
-              viewBox="0 0 600 600"
+              viewBox="0 0 100 100"
               preserveAspectRatio="none"
-              className="absolute inset-0 h-full w-full opacity-40"
+              className="absolute inset-0 h-full w-full"
             >
-              <defs>
-                <linearGradient id="orbit-grad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="rgba(255,255,255,0)" />
-                  <stop offset="50%" stopColor="rgba(255,255,255,0.18)" />
-                  <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M-50,200 Q300,650 650,200"
+              <ellipse
+                cx="52"
+                cy="40"
+                rx="42"
+                ry="32"
                 fill="none"
-                stroke="url(#orbit-grad)"
-                strokeWidth="1.2"
-                strokeDasharray="3 8"
+                stroke="rgba(255,255,255,0.10)"
+                strokeWidth="0.15"
+                strokeDasharray="0.6 1.2"
+                vectorEffect="non-scaling-stroke"
               />
             </svg>
 
