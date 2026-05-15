@@ -20,15 +20,17 @@ const AUTOPLAY_MS = 8000;
 const CIRC = 113; // 2π · r=18
 
 function slotForOffset(offset: number): number {
+  // Path is now constrained to the right half of the viewport, so all
+  // slots stay clear of the left-side text panel.
   switch (offset) {
     case 0:
-      return 0.5; // active - centre
+      return 0.5; // active - centre of the orbit (right-mid of viewport)
     case 1:
       return 0.85; // immediate right
     case 2:
-      return 0.95; // hidden far right
+      return 1.0; // off-screen right (queued)
     case 3:
-      return 0.15; // immediate left
+      return 0.15; // immediate left edge of the right-half stage
     default:
       return 0.5;
   }
@@ -185,24 +187,28 @@ export function SolutionsCarousel() {
       {/* Desktop View */}
       {isDesktop && (
         <>
-          {/* Orbit and Planets shared container */}
-          <div className="absolute inset-0 pointer-events-none z-10 min-h-[800px]">
+          {/*
+            Orbit & planets stage — constrained to the RIGHT HALF of the
+            viewport so they never overlap the left-side text panel.
+            All slot positions (0.15 → 1.0) live within this stage.
+          */}
+          <div className="absolute right-0 top-0 bottom-0 left-1/2 pointer-events-none z-10">
             <svg
-              viewBox="0 0 1440 682"
-              className="absolute top-1/2 left-[5%] w-[120%] h-[70%] -translate-y-1/2"
+              viewBox="0 0 1000 700"
+              className="absolute inset-0 h-full w-full"
               preserveAspectRatio="none"
             >
               <defs>
                 <linearGradient id="orbit-grad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="rgba(255,255,255,0.02)" />
-                  <stop offset="50%" stopColor="rgba(255,255,255,0.14)" />
-                  <stop offset="100%" stopColor="rgba(255,255,255,0.02)" />
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.04)" />
+                  <stop offset="50%" stopColor="rgba(255,255,255,0.18)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0.04)" />
                 </linearGradient>
               </defs>
               <path
                 id="orbit-path"
                 ref={pathRef}
-                d="M-100,200 Q720,800 1540,200"
+                d="M-50,200 Q500,700 1050,200"
                 fill="none"
                 stroke="url(#orbit-grad)"
                 strokeWidth="1.5"
@@ -278,7 +284,7 @@ export function SolutionsCarousel() {
           </div>
 
           {/* Texts and Controls (Absolute Left) */}
-          <div className="absolute left-[8%] lg:left-[10%] top-[50%] -translate-y-[50%] z-50 w-[460px]">
+          <div className="absolute left-[6%] lg:left-[8%] xl:left-[10%] top-[50%] -translate-y-[50%] z-50 w-[min(42vw,460px)]">
             <Eyebrow tone="white" id="solutions-h">
               Nos solutions
             </Eyebrow>
