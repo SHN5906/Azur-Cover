@@ -74,17 +74,16 @@ export function ClientsMarquee() {
             {loop.map((c, i) => (
               <li
                 key={`${c.name}-${i}`}
-                className="flex h-12 w-[180px] shrink-0 items-center justify-center"
+                className="relative flex h-12 w-[180px] shrink-0 items-center justify-center"
                 aria-hidden={i >= clients.length}
               >
                 <Image
                   src={c.src}
                   alt={c.alt}
-                  width={180}
-                  height={48}
+                  fill
                   sizes="180px"
                   draggable={false}
-                  style={{ width: "auto", height: "48px", pointerEvents: "none" }}
+                  style={{ pointerEvents: "none" }}
                   className="object-contain opacity-70 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0"
                 />
               </li>
@@ -96,14 +95,12 @@ export function ClientsMarquee() {
       {/* Mobile: static grid */}
       <ul className="mx-auto mt-10 grid max-w-md grid-cols-3 items-center justify-items-center gap-x-6 gap-y-10 px-6 lg:hidden">
         {clients.map((c) => (
-          <li key={c.name} className="flex h-9 w-full items-center justify-center">
+          <li key={c.name} className="relative flex h-9 w-full items-center justify-center">
             <Image
               src={c.src}
               alt={c.alt}
-              width={120}
-              height={36}
+              fill
               sizes="120px"
-              style={{ width: "auto", height: "36px" }}
               className="object-contain opacity-70 grayscale"
             />
           </li>

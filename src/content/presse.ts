@@ -48,7 +48,7 @@ export const pressItems: PressItem[] = [
     excerpt:
       "À 21 ans, les Antibois Théo et Tony viennent de créer leur entreprise innovante : l'application d'une peinture miracle, économique et écologique. Ils attendaient ce moment depuis longtemps.",
     image: {
-      src: "/images/presse/theo-tony.png",
+      src: "/images/presse/theo-tony.jpg",
       alt: "Théo et Tony, les deux fondateurs d'Azur Cover, dans leurs premiers bureaux",
     },
   },

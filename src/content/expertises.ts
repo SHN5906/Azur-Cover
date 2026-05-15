@@ -76,7 +76,7 @@ export const expertises: Expertise[] = [
     ],
     cta: "Obtenir une étude sur-mesure",
     image: {
-      src: "/images/solutions/etancheite.png",
+      src: "/images/solutions/etancheite.jpg",
       alt: "Ouvrier Azur Cover sur chantier d'étanchéité",
     },
   },
@@ -294,7 +294,7 @@ export const expertises: Expertise[] = [
     ],
     cta: "Discuter de votre besoin",
     image: {
-      src: "/images/solutions/autres.png",
+      src: "/images/solutions/autres.jpg",
       alt: "Équipe Azur Cover sur chantier",
     },
   },
