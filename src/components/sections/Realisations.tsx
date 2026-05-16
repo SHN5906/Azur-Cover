@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { realisations } from "@/content/realisations";
+import { listRealisations } from "@/lib/realisations-repo";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 
-export function Realisations() {
+export async function Realisations() {
   // Show 8 first realisations on the homepage. The full list lives at /realisations.
+  const realisations = await listRealisations();
   const items = realisations.slice(0, 8);
 
   return (

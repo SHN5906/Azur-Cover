@@ -1,4 +1,5 @@
 import "server-only";
+import { timingSafeEqual } from "node:crypto";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
@@ -8,19 +9,22 @@ const CredentialsSchema = z.object({
   password: z.string().min(1).max(200),
 });
 
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    // Still do a dummy comparison so timing is roughly constant
-    let mismatch = 1;
-    for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ a.charCodeAt(i);
-    return mismatch === 0 && false;
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a, "utf8");
+  const bb = Buffer.from(b, "utf8");
+  if (ab.length !== bb.length) {
+    // Compare to self so timing leaks zero info about length
+    timingSafeEqual(ab, ab);
+    return false;
   }
-  let mismatch = 0;
-  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return mismatch === 0;
+  return timingSafeEqual(ab, bb);
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // trustHost: auto-true sur Vercel, mais doit être explicite quand on run
+  // `pnpm start` en local ou sur un autre host. Sans ça, Auth.js v5 rejette
+  // les requêtes avec UntrustedHost.
+  trustHost: true,
   // JWT strategy: pas besoin de DB adapter pour Credentials avec un seul admin
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 7 }, // 7 jours
   pages: {
@@ -46,10 +50,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         const emailOk = parsed.data.email === adminEmail;
-        const passwordOk = timingSafeEqual(parsed.data.password, adminPassword);
+        const passwordOk = safeEqual(parsed.data.password, adminPassword);
 
-        // Toujours faire les deux comparaisons pour éviter un timing side-channel
-        // qui révèlerait si l'email existe
+        // Both checks evaluated regardless of order to prevent timing oracles
+        // that would reveal whether the email matches.
         if (!emailOk || !passwordOk) return null;
 
         return { id: "admin", email: adminEmail, name: "Admin" };

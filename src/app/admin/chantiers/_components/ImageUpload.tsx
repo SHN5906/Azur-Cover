@@ -44,7 +44,6 @@ export function ImageUpload({ initialUrl, initialAlt, slug }: Props) {
             fill
             sizes="400px"
             className="object-cover"
-            unoptimized={url.startsWith("/")}
           />
         </div>
       ) : (

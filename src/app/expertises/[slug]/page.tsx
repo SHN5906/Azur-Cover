@@ -11,7 +11,7 @@ import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { CountUp } from "@/components/motion/CountUp";
 import { BreadcrumbJsonLd } from "@/lib/breadcrumb";
 import { expertises, getExpertise } from "@/content/expertises";
-import { realisations } from "@/content/realisations";
+import { listRealisations } from "@/lib/realisations-repo";
 
 export function generateStaticParams() {
   return expertises.map((e) => ({ slug: e.slug }));
@@ -50,8 +50,9 @@ export default async function ExpertisePage({
         : e.title === "Azur Reflect"
           ? "Azur Reflect"
           : null;
+  const allRealisations = solutionLabel ? await listRealisations() : [];
   const related = solutionLabel
-    ? realisations.filter((r) => r.solution === solutionLabel).slice(0, 3)
+    ? allRealisations.filter((r) => r.solution === solutionLabel).slice(0, 3)
     : [];
 
   // Other expertises for cross-link
@@ -244,8 +245,8 @@ export default async function ExpertisePage({
                     >
                       <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-graphite/5">
                         <Image
-                          src={r.image.src}
-                          alt={r.image.alt}
+                          src={r.imageSrc}
+                          alt={r.imageAlt}
                           fill
                           loading="lazy"
                           sizes="(min-width: 768px) 33vw, 100vw"

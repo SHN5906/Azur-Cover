@@ -3,11 +3,18 @@
 import { useActionState } from "react";
 import { loginAction, type LoginState } from "../_actions/auth";
 
-export function LoginForm({ hasUrlError }: { hasUrlError?: boolean }) {
+type Props = {
+  hasUrlError?: boolean;
+  from?: string;
+};
+
+export function LoginForm({ hasUrlError, from }: Props) {
   const [state, action, pending] = useActionState<LoginState, FormData>(loginAction, null);
 
   return (
     <form action={action} className="mt-8 space-y-5" noValidate>
+      {from && <input type="hidden" name="from" value={from} />}
+
       <label className="block">
         <span className="text-xs uppercase tracking-wider text-muted">Email</span>
         <input

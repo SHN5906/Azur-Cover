@@ -8,6 +8,26 @@ const optionalString = (max: number) =>
     .optional()
     .or(z.literal("").transform(() => undefined));
 
+// Image / logo : accepte les URLs Blob (https://) ET les chemins locaux
+// (/images/...) pour rester compatible avec les chantiers migrés du fichier
+// statique. Refuse les URLs http://, javascript:, data:, etc.
+const imagePathOrUrl = z
+  .string()
+  .min(1, "Image requise")
+  .refine(
+    (u) => u.startsWith("https://") || u.startsWith("/"),
+    "Image: URL https:// ou chemin local /images/...",
+  );
+
+const optionalImagePathOrUrl = z
+  .string()
+  .optional()
+  .transform((v) => (v == null || v === "" ? undefined : v))
+  .refine(
+    (v) => v === undefined || v.startsWith("https://") || v.startsWith("/"),
+    "Logo : URL https:// ou chemin local /images/...",
+  );
+
 export const RealisationSchema = z.object({
   slug: z
     .string()
@@ -44,19 +64,12 @@ export const RealisationSchema = z.object({
       }),
     )
     .optional(),
-  imageSrc: z
-    .string()
-    .url("URL d'image invalide")
-    .refine((u) => u.startsWith("https://"), "L'image doit être servie en HTTPS"),
+  imageSrc: imagePathOrUrl,
   imageAlt: z
     .string()
     .min(5, "Texte alternatif requis (min 5 caractères)")
     .max(220),
-  logo: z
-    .string()
-    .url()
-    .optional()
-    .or(z.literal("").transform(() => undefined)),
+  logo: optionalImagePathOrUrl,
 });
 
 export type RealisationInput = z.infer<typeof RealisationSchema>;

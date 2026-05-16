@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/content/site";
 import { expertises } from "@/content/expertises";
-import { realisations } from "@/content/realisations";
+import { listRealisations } from "@/lib/realisations-repo";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = site.url.replace(/\/$/, "");
   const now = new Date();
 
@@ -26,9 +26,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  const realisations = await listRealisations();
   const realisationRoutes: MetadataRoute.Sitemap = realisations.map((r) => ({
     url: `${base}/realisations/${r.slug}`,
-    lastModified: now,
+    lastModified: r.updatedAt ?? now,
     changeFrequency: "monthly",
     priority: 0.7,
   }));
