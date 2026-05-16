@@ -6,7 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
-import { realisations } from "@/content/realisations";
+import { listRealisations } from "@/lib/realisations-repo";
 
 export const metadata: Metadata = {
   title: "Réalisations",
@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/realisations" },
 };
 
-export default function RealisationsIndex() {
+export default async function RealisationsIndex() {
+  const realisations = await listRealisations();
+
   return (
     <>
       <Header />
@@ -34,8 +36,8 @@ export default function RealisationsIndex() {
                   <Link href={`/realisations/${r.slug}`} className="group block">
                     <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-graphite/5">
                       <Image
-                        src={r.image.src}
-                        alt={r.image.alt}
+                        src={r.imageSrc}
+                        alt={r.imageAlt}
                         fill
                         loading={i < 4 ? "eager" : "lazy"}
                         sizes="(min-width: 768px) 50vw, 100vw"

@@ -9,10 +9,11 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
 import { CountUp } from "@/components/motion/CountUp";
 import { BreadcrumbJsonLd } from "@/lib/breadcrumb";
-import { realisations, getRealisation } from "@/content/realisations";
+import { listRealisations, getRealisationBySlug } from "@/lib/realisations-repo";
 
-export function generateStaticParams() {
-  return realisations.map((r) => ({ slug: r.slug }));
+export async function generateStaticParams() {
+  const rows = await listRealisations();
+  return rows.map((r) => ({ slug: r.slug }));
 }
 
 export async function generateMetadata({
@@ -21,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const r = getRealisation(slug);
+  const r = await getRealisationBySlug(slug);
   if (!r) return {};
   return {
     title: r.title,
@@ -36,12 +37,13 @@ export default async function RealisationPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const r = getRealisation(slug);
+  const r = await getRealisationBySlug(slug);
   if (!r) notFound();
 
-  const idx = realisations.findIndex((x) => x.slug === slug);
-  const prev = realisations[(idx - 1 + realisations.length) % realisations.length];
-  const next = realisations[(idx + 1) % realisations.length];
+  const all = await listRealisations();
+  const idx = all.findIndex((x) => x.slug === slug);
+  const prev = all[(idx - 1 + all.length) % all.length];
+  const next = all[(idx + 1) % all.length];
 
   return (
     <>
@@ -90,8 +92,8 @@ export default async function RealisationPage({
           <div className="mx-auto w-full max-w-[1320px] px-6 sm:px-10 lg:px-20">
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-md bg-graphite/5">
               <Image
-                src={r.image.src}
-                alt={r.image.alt}
+                src={r.imageSrc}
+                alt={r.imageAlt}
                 fill
                 preload
                 sizes="(min-width: 1320px) 1280px, 100vw"
