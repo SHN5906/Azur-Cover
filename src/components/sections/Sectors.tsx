@@ -1,6 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { sectors } from "@/content/sectors";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -10,7 +8,6 @@ export function Sectors() {
   return (
     <section
       id="sectors"
-
       aria-labelledby="sectors-h"
       className="py-[clamp(120px,18vw,200px)]"
     >
@@ -36,22 +33,18 @@ export function Sectors() {
         <ul className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
           {sectors.map((s, i) => (
             <ScrollReveal key={s.id} delay={120 + i * 100} as="li">
-              <Link
-                href="/contact"
-
-                className="group relative block aspect-[4/5] overflow-hidden rounded-md bg-graphite"
-              >
+              <article className="relative block aspect-[4/5] overflow-hidden rounded-md bg-graphite">
                 <Image
                   src={s.image.src}
                   alt={s.image.alt}
                   fill
                   loading="lazy"
                   sizes="(min-width: 768px) 33vw, 100vw"
-                  className="object-cover photo-treatment transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                  className="object-cover photo-treatment"
                 />
                 <div
                   aria-hidden
-                  className="absolute inset-0 transition-opacity duration-500"
+                  className="absolute inset-0"
                   style={{
                     background:
                       "linear-gradient(180deg, transparent 40%, rgba(10,10,11,0.85) 100%)",
@@ -72,12 +65,8 @@ export function Sectors() {
                   <p className="mt-3 max-w-[280px] text-sm leading-relaxed text-white/80">
                     {s.description}
                   </p>
-                  <span className="mt-5 inline-flex translate-y-2 items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/85 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    Découvrir
-                    <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-                  </span>
                 </div>
-              </Link>
+              </article>
             </ScrollReveal>
           ))}
         </ul>
