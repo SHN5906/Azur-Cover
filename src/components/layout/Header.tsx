@@ -78,20 +78,20 @@ export function Header() {
 
           <div className="flex items-center gap-2">
             <div className="hidden lg:block">
-              {scrolled ? (
-                <Button href="/contact" arrow>
-                  Demander un audit
-                </Button>
-              ) : (
-                <Link
-                  href="/contact"
-
-                  className="group inline-flex items-center gap-2 text-sm font-medium text-ink underline-grow"
-                >
-                  Demander un audit
-                  <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-                </Link>
-              )}
+              {/* Always render the Button to keep a stable width — nav items
+                  ne décalent plus au scroll. Le visuel s'adapte : transparent
+                  en haut, rempli quand scrolled. */}
+              <Button
+                href="/contact"
+                arrow
+                className={cn(
+                  "transition-[background-color,color,box-shadow] duration-[240ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+                  !scrolled &&
+                    "!bg-transparent !text-ink !shadow-none hover:!bg-ink/5 hover:!translate-y-0 hover:!shadow-none",
+                )}
+              >
+                Demander un audit
+              </Button>
             </div>
             <button
               type="button"
