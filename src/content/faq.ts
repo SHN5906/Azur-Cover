@@ -18,7 +18,7 @@ export const faqItems: FAQItem[] = [
     question: "Faut-il une autorisation d'urbanisme pour installer le Cool Roofing ?",
     answer: [
       "Nous nous adaptons aux exigences de l'urbanisme grâce à nos teintes proches du blanc, qui respectent les règles en vigueur. De plus, si le toit n'est pas visible, aucune Déclaration Préalable (DP) n'est requise.",
-      "Vous n'avez rien à faire. nous nous occupons de toutes les vérifications nécessaires.",
+      "Vous n'avez rien à faire : nous nous occupons de toutes les vérifications nécessaires.",
     ],
   },
   {

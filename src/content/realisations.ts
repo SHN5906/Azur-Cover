@@ -114,7 +114,7 @@ export const realisations: Realisation[] = [
     year: "2024",
     short: "Intervention Azur Reflect au Centre Hospitalier de Grasse.",
     story: [
-      "Intervention au Centre Hospitalier de Grasse. application du vernis Azur Reflect.",
+      "Intervention au Centre Hospitalier de Grasse : application du vernis Azur Reflect sur les vitrages exposés au plein sud.",
     ],
     image: {
       src: "/images/realisations/promocash.jpg",

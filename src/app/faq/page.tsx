@@ -25,7 +25,7 @@ export default function FAQPage() {
         <PageHero
           eyebrow="FAQ"
           title="Toutes vos questions, des réponses claires."
-          lead="Cool Roofing, Azur Reflect, étanchéité, méthode, certifications. voici les réponses aux questions que nous recevons le plus souvent."
+          lead="Cool Roofing, Azur Reflect, étanchéité, méthode, certifications : voici les réponses aux questions que nous recevons le plus souvent."
         />
 
         <section className="pb-[clamp(120px,18vw,200px)]">
@@ -68,7 +68,7 @@ export default function FAQPage() {
                 Une autre question ?
               </p>
               <p className="mt-3 text-muted">
-                Notre groupe d&apos;expert se fera un plaisir de vous répondre dans les 24 h.
+                Notre équipe d&apos;experts se fera un plaisir de vous répondre sous 48 h.
               </p>
               <div className="mt-6 inline-flex">
                 <Button href="/contact" arrow>
