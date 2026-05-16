@@ -2,9 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import gsap from "gsap";
-import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { expertises } from "@/content/expertises";
 import { cn } from "@/lib/utils";
@@ -13,19 +19,16 @@ import { SolutionsMobile } from "./SolutionsMobile";
 const N = expertises.length;
 const AUTOPLAY_MS = 8000;
 
-/**
- * Orbital wheel à la Thales. 4 planets always visible, distributed around
- * the stage. When `active` changes, every planet shifts ONE position along
- * the orbit (counter-clockwise: 1 → 0 → 3 → 2 → 1).
- *
- * Coordinates are RELATIVE TO THE STAGE (right column of the grid):
- *   x: % from the LEFT of the stage (0 = stage left edge, 100 = stage right edge)
- *   y: % from the TOP of the stage  (0 = top, 100 = bottom)
- *
- * Slot 3 (previous) is placed UPPER-LEFT of the stage. high enough that
- * it sits ABOVE the text panel's vertical centre, so the two never visually
- * collide even though the text panel is just to the left of the stage.
- */
+// --- Per-solution tint (drives a CSS variable for the radial-gradient bg).
+//     Subtle — must not compete with planet imagery.
+const TINTS: Record<string, string> = {
+  etancheite: "rgba(56, 102, 138, 0.30)",     // sealing — deep cool blue
+  "cool-roofing": "rgba(214, 196, 156, 0.28)", // warm reflective sand
+  "azur-reflect": "rgba(0, 166, 166, 0.32)",   // brand cyan
+  autres: "rgba(120, 124, 138, 0.22)",         // graphite neutral
+};
+const TINT_FALLBACK = "rgba(60, 60, 65, 0.25)";
+
 type Slot = {
   x: number;
   y: number;
@@ -35,23 +38,35 @@ type Slot = {
   saturate: number;
   brightness: number;
   z: number;
-  rotation: number;
 };
 
-// Orbital arrangement: planets sit on a clockwise wheel.
-// Cycle each planet visits, on each "next": slot 1 → 0 → 3 → 2 → 1 → …
-//   That sequence forms a smooth clockwise rotation:
-//   right → centre → upper-left → top → upper-right → right …
-// All four jumps are short, no teleport across the stage.
+// Orbital wheel — 4 planets visible. Each "next" tick: 1 → 0 → 3 → 2 → 1 …
+// All four hops are short, no teleport across the stage.
 const SLOTS: Record<number, Slot> = {
-  0: { x: 52, y: 55, scale: 0.85, opacity: 1.00, blur: 0,  saturate: 1.0,  brightness: 1.0,  z: 50, rotation: 0   }, // ACTIVE. centre
-  1: { x: 92, y: 30, scale: 0.42, opacity: 0.55, blur: 7,  saturate: 0.35, brightness: 0.72, z: 30, rotation: 0  }, // NEXT. upper-right
-  2: { x: 60, y: 10, scale: 0.30, opacity: 0.30, blur: 12, saturate: 0.15, brightness: 0.6,  z: 20, rotation: 0  }, // QUEUE. top
-  3: { x: 14, y: 22, scale: 0.42, opacity: 0.55, blur: 7,  saturate: 0.35, brightness: 0.72, z: 30, rotation: 0  }, // PREV. upper-left (above text)
+  0: { x: 52, y: 55, scale: 0.85, opacity: 1.0,  blur: 0,  saturate: 1.0,  brightness: 1.0,  z: 50 }, // ACTIVE centre
+  1: { x: 92, y: 30, scale: 0.42, opacity: 0.55, blur: 7,  saturate: 0.35, brightness: 0.72, z: 30 }, // upper-right
+  2: { x: 60, y: 10, scale: 0.30, opacity: 0.30, blur: 12, saturate: 0.15, brightness: 0.60, z: 20 }, // top
+  3: { x: 14, y: 22, scale: 0.42, opacity: 0.55, blur: 7,  saturate: 0.35, brightness: 0.72, z: 30 }, // upper-left (above text)
 };
 
 function slotForOffset(offset: number): Slot {
   return SLOTS[offset] ?? SLOTS[0];
+}
+
+// --- Hydration-safe matchMedia (no setState-in-effect, no flash).
+//     Server + initial client = false, then real value after mount.
+const DESKTOP_MQ = "(min-width: 1024px)";
+function subscribeDesktop(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const mq = window.matchMedia(DESKTOP_MQ);
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+function getDesktopSnapshot() {
+  return typeof window !== "undefined" && window.matchMedia(DESKTOP_MQ).matches;
+}
+function getDesktopServerSnapshot() {
+  return false;
 }
 
 export function SolutionsCarousel() {
@@ -59,19 +74,13 @@ export function SolutionsCarousel() {
   const planetRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const [active, setActive] = useState(0);
-  // Hover/focus pauses the auto-play (the manual pause button has been removed).
   const [paused, setPaused] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const update = () => setIsDesktop(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
+  const isDesktop = useSyncExternalStore(
+    subscribeDesktop,
+    getDesktopSnapshot,
+    getDesktopServerSnapshot,
+  );
 
   const layout = useCallback(
     (immediate = false) => {
@@ -80,11 +89,7 @@ export function SolutionsCarousel() {
         const offset = (i - active + N) % N;
         const slot = slotForOffset(offset);
         el.style.zIndex = String(slot.z);
-
-        // Single tween. position, scale, opacity, rotation, filter all
-        // synced for a coherent "wheel rotation" feel. Stagger by 80ms per
-        // planet index for a subtle wave.
-        const stagger = immediate ? 0 : (offset * 0.08);
+        const stagger = immediate ? 0 : offset * 0.08;
         gsap.to(el, {
           left: `${slot.x}%`,
           top: `${slot.y}%`,
@@ -92,48 +97,43 @@ export function SolutionsCarousel() {
           yPercent: -50,
           scale: slot.scale,
           opacity: slot.opacity,
-          rotation: slot.rotation,
           filter: `blur(${slot.blur}px) saturate(${slot.saturate}) brightness(${slot.brightness})`,
           duration: immediate ? 0 : 1.4,
           delay: stagger,
           ease: "power2.inOut",
           overwrite: "auto",
-          onStart: () => { el.style.willChange = "transform, opacity, filter"; },
-          onComplete: () => { el.style.willChange = "auto"; },
+          onStart: () => {
+            el.style.willChange = "transform, opacity, filter";
+          },
+          onComplete: () => {
+            el.style.willChange = "auto";
+          },
         });
       });
     },
-    [active]
+    [active],
   );
 
-  // Single positioning effect: first run = immediate (set positions before
-  // first paint via useLayoutEffect), subsequent runs = animated.
-  // useEffect would let one frame paint at (0,0) before positioning.
   const isFirstLayout = useRef(true);
   useLayoutEffect(() => {
-    if (!isMounted || !isDesktop) return;
+    if (!isDesktop) return;
     if (isFirstLayout.current) {
       layout(true);
       isFirstLayout.current = false;
     } else {
-      layout(false); // animated
+      layout(false);
     }
-  }, [active, isMounted, isDesktop, layout]);
+  }, [active, isDesktop, layout]);
 
-  // Reset first-paint flag when desktop mode toggles (e.g. on resize)
   useEffect(() => {
     if (!isDesktop) isFirstLayout.current = true;
   }, [isDesktop]);
 
-  // Autoplay. paused on hover/focus.
+  // Autoplay (pauses on hover/focus, respects reduced-motion).
   useEffect(() => {
-    if (!isDesktop) return;
-    if (paused) return;
+    if (!isDesktop || paused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const t = window.setTimeout(() => {
-      setActive((i) => (i + 1) % N);
-    }, AUTOPLAY_MS);
+    const t = window.setTimeout(() => setActive((i) => (i + 1) % N), AUTOPLAY_MS);
     return () => window.clearTimeout(t);
   }, [active, paused, isDesktop]);
 
@@ -141,22 +141,24 @@ export function SolutionsCarousel() {
     setActive(((i % N) + N) % N);
   }, []);
 
-  // Keyboard
+  // Keyboard arrows.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!sectionRef.current?.contains(document.activeElement)) return;
-      if (e.key === "ArrowRight") { e.preventDefault(); goTo(active + 1); }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); goTo(active - 1); }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goTo(active + 1);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goTo(active - 1);
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [active, goTo]);
 
-  if (!isMounted) {
-    return <section className="min-h-screen bg-[#0e0e11]" />;
-  }
-
   const current = expertises[active];
+  const tint = TINTS[current.slug] ?? TINT_FALLBACK;
 
   return (
     <section
@@ -167,22 +169,29 @@ export function SolutionsCarousel() {
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
-      className="relative overflow-hidden text-white bg-[#0e0e11]"
-      style={{
-        background: isDesktop
-          ? "radial-gradient(ellipse 70% 80% at 75% 50%, #2a2a2d 0%, #0e0e11 80%)"
-          : undefined,
-        minHeight: isDesktop ? "100vh" : "auto",
-      }}
+      className="relative overflow-hidden bg-[#0e0e11] text-white"
+      style={
+        {
+          "--tint": tint,
+          background: isDesktop
+            ? "radial-gradient(ellipse 70% 80% at 75% 50%, var(--tint), #0e0e11 80%)"
+            : undefined,
+          transition: "background 1400ms cubic-bezier(0.16,1,0.3,1)",
+          minHeight: isDesktop ? "100vh" : "auto",
+        } as React.CSSProperties
+      }
     >
-      {/* Ambient dust */}
+      {/* Ambient dust (desktop only) */}
       {isDesktop && (
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-0 opacity-50 dust" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-0 opacity-50 dust"
+        />
       )}
 
-      {/* Desktop layout. 2-column grid: text 40% / planets stage 60% */}
+      {/* Desktop layout */}
       {isDesktop && (
-        <div className="relative grid h-screen min-h-[820px] grid-cols-12 z-10">
+        <div className="relative grid h-screen min-h-[820px] grid-cols-12 z-10 pb-24">
           {/* Text column */}
           <div
             role="tabpanel"
@@ -196,7 +205,7 @@ export function SolutionsCarousel() {
                 Nos solutions
               </Eyebrow>
 
-              {/* Crossfade text */}
+              {/* Crossfade text with word-by-word stagger on title */}
               <div className="relative mt-8 min-h-[420px]">
                 {expertises.map((s, i) => (
                   <div
@@ -206,19 +215,34 @@ export function SolutionsCarousel() {
                       "absolute inset-0 transition-all duration-[900ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
                       i === active
                         ? "opacity-100 translate-y-0 pointer-events-auto"
-                        : "opacity-0 translate-y-4 pointer-events-none"
+                        : "opacity-0 translate-y-4 pointer-events-none",
                     )}
                   >
                     <h2
-                      className="text-white"
+                      key={`h2-${s.slug}-${i === active ? "active" : "idle"}`}
+                      className="text-white solutions-title"
                       style={{
                         fontSize: "clamp(2.5rem, 4vw, 4.5rem)",
                         fontWeight: 600,
                         letterSpacing: "-0.03em",
                         lineHeight: 0.95,
                       }}
+                      aria-label={`${s.title}.`}
                     >
-                      {s.title}.
+                      {(s.title + ".").split(/(\s+)/).map((part, idx) =>
+                        /^\s+$/.test(part) ? (
+                          <span key={idx}>{part}</span>
+                        ) : (
+                          <span
+                            key={idx}
+                            aria-hidden
+                            className="solutions-title-word"
+                            style={{ animationDelay: i === active ? `${idx * 70}ms` : "0ms" }}
+                          >
+                            {part}
+                          </span>
+                        ),
+                      )}
                     </h2>
                     <p
                       className="mt-7 text-white/70"
@@ -228,15 +252,20 @@ export function SolutionsCarousel() {
                     </p>
                     <ul className="mt-7 space-y-2.5">
                       {s.bullets.slice(0, 4).map((b) => (
-                        <li key={b} className="flex items-start gap-3 text-sm text-white/80">
-                          <span aria-hidden className="mt-2 inline-block h-px w-4 shrink-0 bg-azur" />
+                        <li
+                          key={b}
+                          className="flex items-start gap-3 text-sm text-white/80"
+                        >
+                          <span
+                            aria-hidden
+                            className="mt-2 inline-block h-px w-4 shrink-0 bg-azur"
+                          />
                           {b}
                         </li>
                       ))}
                     </ul>
                     <Link
                       href={`/expertises/${s.slug}`}
-
                       className="underline-grow mt-8 inline-flex items-center gap-2 text-sm font-medium text-white"
                     >
                       {s.cta}
@@ -246,59 +275,34 @@ export function SolutionsCarousel() {
                 ))}
               </div>
 
-              {/* Controls. sit BELOW the min-height text block, never overlap */}
+              {/* Prev/next + counter only — labels moved to bottom tabs */}
               <div className="mt-12 flex items-center gap-5">
                 <button
                   type="button"
                   onClick={() => goTo(active - 1)}
                   aria-label="Solution précédente"
-
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition hover:border-white/60 hover:bg-white/5"
                 >
                   ←
                 </button>
-
                 <button
                   type="button"
                   onClick={() => goTo(active + 1)}
                   aria-label="Solution suivante"
-
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition hover:border-white/60 hover:bg-white/5"
                 >
                   →
                 </button>
-
                 <span className="ml-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
                   {String(active + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}
                 </span>
-              </div>
-
-              {/* Pagination dots, separate from controls so they don't compete */}
-              <div className="mt-6 flex items-center gap-2">
-                {expertises.map((s, i) => (
-                  <button
-                    key={s.slug}
-                    type="button"
-                    onClick={() => goTo(i)}
-                    aria-label={`Aller à ${s.title}`}
-                    className="group relative h-6 w-12 flex items-center"
-                  >
-                    <span
-                      aria-hidden
-                      className={cn(
-                        "h-px w-full transition-colors duration-500",
-                        i === active ? "bg-azur" : "bg-white/15 group-hover:bg-white/30"
-                      )}
-                    />
-                  </button>
-                ))}
               </div>
             </div>
           </div>
 
           {/* Planets stage. right 60%, isolated from text column */}
           <div className="col-span-7 relative">
-            {/* Orbit decoration. a full elliptical wheel, dim and dotted */}
+            {/* Orbit decoration */}
             <svg
               aria-hidden
               viewBox="0 0 100 100"
@@ -318,25 +322,23 @@ export function SolutionsCarousel() {
               />
             </svg>
 
-            {/* Planet buttons. positioned EXCLUSIVELY by GSAP. We must NOT
-                pass any style={{ left, top, transform, opacity }} on the JSX
-                because React would re-apply them on every render and instantly
-                teleport the planets, killing the animation. */}
             {expertises.map((s, i) => (
               <button
                 type="button"
                 key={s.slug}
-                ref={(el) => { planetRefs.current[i] = el; }}
+                ref={(el) => {
+                  planetRefs.current[i] = el;
+                }}
                 onClick={() => goTo(i)}
                 aria-label={`Voir ${s.title}`}
-
                 className={cn(
                   "planet group absolute left-0 top-0 h-[clamp(280px,30vw,420px)] w-[clamp(280px,30vw,420px)] overflow-visible rounded-full",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0e0e11]"
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0e0e11]",
+                  i === active && "planet-active",
                 )}
-                /* No inline style. GSAP owns left/top/transform/opacity */
+                /* GSAP owns left/top/transform/opacity */
               >
-                {/* Active glow ring (rotating) */}
+                {/* Active glow ring */}
                 {i === active && (
                   <span
                     aria-hidden
@@ -354,17 +356,25 @@ export function SolutionsCarousel() {
                     "absolute inset-0 overflow-hidden rounded-full transition-[border,box-shadow] duration-700",
                     i === active
                       ? "border border-azur shadow-[0_0_80px_rgba(0,166,166,0.18)]"
-                      : "border border-white/10 group-hover:border-white/30"
+                      : "border border-white/10 group-hover:border-white/30",
                   )}
                 >
-                  <Image
-                    src={s.image.src}
-                    alt={s.image.alt}
-                    fill
-                    sizes="420px"
-                    className="object-cover"
-                    priority
-                  />
+                  <div
+                    key={`kb-${i}-${active}`}
+                    className={cn(
+                      "absolute inset-0",
+                      i === active && "ken-burns",
+                    )}
+                  >
+                    <Image
+                      src={s.image.src}
+                      alt={s.image.alt}
+                      fill
+                      sizes="420px"
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
                   {/* Sphere highlight */}
                   <span
                     aria-hidden
@@ -376,14 +386,10 @@ export function SolutionsCarousel() {
                     }}
                   />
                 </span>
-
               </button>
             ))}
 
-            {/* Active caption. positioned in the stage (NOT inside the planet)
-                so it is immune to the planet's GSAP transform/scale. Pinned to
-                the active slot's coordinates, then offset vertically by the
-                planet's half-height + a constant gap. */}
+            {/* Active caption pinned at the active slot, immune to GSAP transforms */}
             <span
               key={`cap-${active}`}
               aria-hidden
@@ -391,9 +397,7 @@ export function SolutionsCarousel() {
               style={{
                 left: `${SLOTS[0].x}%`,
                 top: `${SLOTS[0].y}%`,
-                // active planet base size is clamp(280,30vw,420), scale 0.85,
-                // so half-height ≈ clamp(119px, 12.75vw, 178.5px). Add 28px gap.
-                transform: `translate(-50%, calc(clamp(119px, 12.75vw, 178.5px) + 28px))`,
+                transform: "translate(-50%, calc(clamp(119px, 12.75vw, 178.5px) + 28px))",
               }}
             >
               <span className="text-azur">{expertises[active].index}</span>
@@ -401,6 +405,65 @@ export function SolutionsCarousel() {
               {expertises[active].title}
             </span>
           </div>
+
+          {/* Bottom tab labels (à la Thales) */}
+          <nav
+            role="tablist"
+            aria-label="Choisir une solution"
+            className="absolute inset-x-0 bottom-0 z-30 border-t border-white/10 bg-black/30 backdrop-blur-md"
+          >
+            <div className="mx-auto grid max-w-[1320px] grid-cols-4 px-[clamp(40px,6vw,120px)]">
+              {expertises.map((s, i) => {
+                const isActive = i === active;
+                return (
+                  <button
+                    key={s.slug}
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`panel-${s.slug}`}
+                    tabIndex={isActive ? 0 : -1}
+                    onClick={() => goTo(i)}
+                    className={cn(
+                      "tab-btn group relative flex flex-col items-start gap-1 py-5 text-left transition-colors duration-300",
+                      isActive
+                        ? "text-white"
+                        : "text-white/45 hover:text-white/85",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "font-mono text-[10px] tracking-[0.22em] transition-colors duration-300",
+                        isActive ? "text-azur" : "text-white/30",
+                      )}
+                    >
+                      {s.index}
+                    </span>
+                    <span className="text-[15px] font-medium leading-tight tracking-tight">
+                      {s.title}
+                    </span>
+                    {/* Top accent line */}
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "absolute inset-x-0 -top-px h-px origin-left transition-transform duration-500 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+                        isActive
+                          ? "scale-x-100 bg-azur"
+                          : "scale-x-0 bg-white/30 group-hover:scale-x-100",
+                      )}
+                    />
+                    {/* Autoplay progress (active only, restarts on slide change) */}
+                    {isActive && !paused && (
+                      <span
+                        key={`prog-${active}`}
+                        aria-hidden
+                        className="tab-progress absolute inset-x-0 -top-px h-px origin-left bg-azur/60"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
         </div>
       )}
 
@@ -411,7 +474,7 @@ export function SolutionsCarousel() {
         </div>
       )}
 
-      {/* Hidden a11y tablist for screen readers */}
+      {/* Hidden a11y tablist (kept for SR users who don't see bottom tabs on init) */}
       <div role="tablist" aria-label="Choisir une solution" className="sr-only">
         {expertises.map((s, i) => (
           <button
@@ -429,9 +492,7 @@ export function SolutionsCarousel() {
       </div>
 
       <style>{`
-        .planet-ring {
-          animation: planet-ring-spin 14s linear infinite;
-        }
+        .planet-ring { animation: planet-ring-spin 14s linear infinite; }
         @keyframes planet-ring-spin {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
@@ -444,6 +505,38 @@ export function SolutionsCarousel() {
         @keyframes caption-in {
           from { opacity: 0; }
           to   { opacity: 1; }
+        }
+
+        /* Ken-burns on the active planet's image only.
+           Restarts every slide change via the key={} reset. */
+        .ken-burns {
+          animation: ken-burns ${AUTOPLAY_MS}ms cubic-bezier(0.33,0,0.67,1) forwards;
+          transform-origin: 50% 50%;
+        }
+        @keyframes ken-burns {
+          from { transform: scale(1) translate3d(0, 0, 0); }
+          to   { transform: scale(1.08) translate3d(-1%, -1%, 0); }
+        }
+
+        /* Word-by-word stagger on the active title (mask + slide-up). */
+        .solutions-title-word {
+          display: inline-block;
+          opacity: 0;
+          transform: translateY(28px);
+          animation: title-word-in 1100ms cubic-bezier(0.16,1,0.3,1) forwards;
+          /* delay set inline per word */
+        }
+        @keyframes title-word-in {
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Autoplay progress bar inside the active tab. */
+        .tab-progress {
+          animation: tab-progress ${AUTOPLAY_MS}ms linear forwards;
+        }
+        @keyframes tab-progress {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
         }
 
         .dust {
@@ -468,7 +561,15 @@ export function SolutionsCarousel() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .planet-ring, .planet-caption, .dust { animation: none !important; }
+          .planet-ring,
+          .planet-caption,
+          .ken-burns,
+          .solutions-title-word,
+          .tab-progress,
+          .dust {
+            animation: none !important;
+          }
+          .solutions-title-word { opacity: 1; transform: none; }
         }
       `}</style>
     </section>
