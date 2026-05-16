@@ -71,7 +71,7 @@ export default async function ChantiersList() {
                   <Link
                     href={`/realisations/${r.slug}`}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                     className="text-xs underline hover:text-ink"
                   >
                     Voir

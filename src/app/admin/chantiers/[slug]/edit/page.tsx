@@ -33,7 +33,7 @@ export default async function EditChantier({
         <Link
           href={`/realisations/${row.slug}`}
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
           className="underline hover:text-ink"
         >
           Voir la fiche publique
