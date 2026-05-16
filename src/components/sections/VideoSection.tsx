@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { cn } from "@/lib/utils";
 
 export function VideoSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -12,7 +11,6 @@ export function VideoSection() {
   const [playing, setPlaying] = useState(false);
   // Default muted = true so browsers allow autoplay on intersection.
   const [muted, setMuted] = useState(true);
-  const [started, setStarted] = useState(false);
 
   // Auto-play when the player becomes ≥50% visible. Always muted on first
   // auto-start (browser policy). User keeps control via the buttons below.
@@ -30,7 +28,6 @@ export function VideoSection() {
             v.muted = true;
             setMuted(true);
             v.play().then(() => {
-              setStarted(true);
               setPlaying(true);
             }).catch(() => {
               // Autoplay blocked. user will need to click Play manually.
@@ -51,7 +48,6 @@ export function VideoSection() {
     if (v.paused) {
       void v.play();
       setPlaying(true);
-      setStarted(true);
     } else {
       v.pause();
       setPlaying(false);

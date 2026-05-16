@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -15,80 +15,79 @@ type Props = {
   as?: "span" | "div";
 };
 
+type Parsed = { prefix: string; num: number; isNeg: boolean; suffix: string };
+
+function parse(value: string): Parsed | null {
+  const m = value.match(/^([^\d-−]*)(-?−?\s*\d+(?:[.,]\d+)?)(.*)$/);
+  if (!m) return null;
+  const numStr = m[2].replace(/[\s−]/g, "").replace(",", ".");
+  return {
+    prefix: m[1],
+    num: parseFloat(numStr),
+    isNeg: /[-−]/.test(m[2]),
+    suffix: m[3],
+  };
+}
+
+function format(p: Parsed, current: number): string {
+  const rounded = Number.isInteger(p.num) ? Math.round(current) : current.toFixed(1);
+  return `${p.prefix}${p.isNeg ? "−" : ""}${rounded}${p.suffix}`;
+}
+
 /**
  * Scroll-triggered count-up. Parses the first number found in `value` and
  * animates it from 0 to its target. Handles negative values (e.g. "−12°C")
  * and percentages ("40%"). Respects prefers-reduced-motion.
+ *
+ * Animation drives `textContent` via a ref — no React state, no cascading
+ * renders. Initial server render shows the final value (graceful no-JS).
  */
-export function CountUp({
-  value,
-  duration = 1200,
-  className,
-  as = "span",
-}: Props) {
+export function CountUp({ value, duration = 1200, className, as = "span" }: Props) {
   const ref = useRef<HTMLElement>(null);
-  const [display, setDisplay] = useState<ReactNode>(value);
-  const hasRunRef = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || hasRunRef.current) return;
-
+    if (!el) return;
+    const parsed = parse(value);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      setDisplay(value);
+
+    if (reduce || !parsed) {
+      el.textContent = value;
       return;
     }
 
-    // Parse: capture leading sign chars, the number, and trailing chars
-    const m = value.match(/^([^\d-−]*)(-?−?\s*\d+(?:[.,]\d+)?)(.*)$/);
-    if (!m) {
-      setDisplay(value);
-      return;
-    }
-    const prefix = m[1];
-    const numStr = m[2].replace(/[\s−]/g, "").replace(",", ".");
-    const target = parseFloat(numStr);
-    const isNegative = /[-−]/.test(m[2]);
-    const suffix = m[3];
+    // Start at zero via DOM mutation (avoids React re-render).
+    el.textContent = format(parsed, 0);
 
+    let hasRun = false;
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting) && !hasRunRef.current) {
-          hasRunRef.current = true;
+        if (entries.some((e) => e.isIntersecting) && !hasRun) {
+          hasRun = true;
           observer.disconnect();
 
           const start = performance.now();
-          const absTarget = Math.abs(target);
+          const absTarget = Math.abs(parsed.num);
           const tick = (now: number) => {
             const t = Math.min((now - start) / duration, 1);
-            // ease-out-expo
             const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-            const cur = absTarget * eased;
-            const rounded = Number.isInteger(target)
-              ? Math.round(cur)
-              : cur.toFixed(1);
-            setDisplay(`${prefix}${isNegative ? "−" : ""}${rounded}${suffix}`);
+            el.textContent = format(parsed, absTarget * eased);
             if (t < 1) requestAnimationFrame(tick);
           };
           requestAnimationFrame(tick);
         }
       },
-      { threshold: 0.4 }
+      { threshold: 0.4 },
     );
     observer.observe(el);
-
-    // Initial display starts at zero so we don't see the final value before scroll
-    setDisplay(`${prefix}${isNegative ? "−" : ""}0${suffix}`);
-
     return () => observer.disconnect();
   }, [value, duration]);
 
   const Tag = as as keyof React.JSX.IntrinsicElements;
   return (
     // @ts-expect-error dynamic intrinsic tag
-    <Tag ref={ref} className={cn(className)}>
-      {display}
+    <Tag ref={ref} className={cn(className)} suppressHydrationWarning>
+      {value}
     </Tag>
   );
 }
