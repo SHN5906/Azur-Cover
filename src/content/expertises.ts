@@ -74,7 +74,7 @@ export const expertises: Expertise[] = [
       "Reprise des points faibles existants",
       "Contrats d'entretien long terme",
     ],
-    cta: "Obtenir une étude sur-mesure",
+    cta: "En savoir plus",
     image: {
       src: "/images/solutions/etancheite.jpg",
       alt: "Ouvrier Azur Cover sur chantier d'étanchéité",
@@ -150,7 +150,7 @@ export const expertises: Expertise[] = [
       "Prolonge la durée de vie de l'étanchéité",
       "Certifications CSTB · B-ROOF T3",
     ],
-    cta: "Demander un diagnostic gratuit",
+    cta: "En savoir plus",
     image: {
       src: "/images/solutions/cool-roofing.jpg",
       alt: "Application du revêtement Cool Roofing sur toiture",
@@ -219,7 +219,7 @@ export const expertises: Expertise[] = [
       "30 % d'économie d'énergie",
       "Application sans démontage",
     ],
-    cta: "Demander une démo Azur Reflect",
+    cta: "En savoir plus",
     image: {
       src: "/images/solutions/azur-reflect.jpg",
       alt: "Application du vernis anti-chaleur Azur Reflect sur vitrage",
@@ -292,7 +292,7 @@ export const expertises: Expertise[] = [
       "Peinture technique façade et intérieur",
       "Solutions sur-mesure, interlocuteur unique",
     ],
-    cta: "Discuter de votre besoin",
+    cta: "En savoir plus",
     image: {
       src: "/images/solutions/autres.jpg",
       alt: "Équipe Azur Cover sur chantier",

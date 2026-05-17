@@ -179,7 +179,7 @@ export function SolutionsCarousel() {
     >
       {/* Desktop layout */}
       {isDesktop && (
-        <div className="relative grid h-screen min-h-[820px] grid-cols-12 z-10 pb-24">
+        <div className="relative grid h-screen min-h-[820px] grid-cols-12 z-10">
           {/* Text column — plus de place, typo plus généreuse */}
           <div
             role="tabpanel"
@@ -350,67 +350,6 @@ export function SolutionsCarousel() {
             ))}
           </div>
 
-          {/* Bottom tabs — typo plus large, espacement plus généreux, hover subtil */}
-          <nav
-            role="tablist"
-            aria-label="Choisir une solution"
-            className="absolute inset-x-0 bottom-0 z-30 border-t border-white/8 bg-black/40 backdrop-blur-md"
-          >
-            <div className="mx-auto grid max-w-[1320px] grid-cols-4 px-[clamp(48px,7vw,140px)]">
-              {expertises.map((s, i) => {
-                const isActive = i === active;
-                return (
-                  <button
-                    key={s.slug}
-                    role="tab"
-                    aria-selected={isActive}
-                    aria-controls={`panel-${s.slug}`}
-                    tabIndex={isActive ? 0 : -1}
-                    onClick={() => goTo(i)}
-                    className={cn(
-                      "tab-btn group relative flex flex-col items-start gap-2 py-7 text-left transition-colors duration-500",
-                      isActive
-                        ? "text-white"
-                        : "text-white/40 hover:text-white/80",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "font-mono text-[10px] tracking-[0.24em] transition-colors duration-500",
-                        isActive ? "text-azur" : "text-white/25",
-                      )}
-                    >
-                      {s.index}
-                    </span>
-                    <span
-                      className="font-medium leading-tight tracking-tight"
-                      style={{ fontSize: "1.0625rem", letterSpacing: "-0.01em" }}
-                    >
-                      {s.title}
-                    </span>
-                    {/* Static top accent line */}
-                    <span
-                      aria-hidden
-                      className={cn(
-                        "absolute inset-x-0 -top-px h-px origin-left transition-transform duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
-                        isActive
-                          ? "scale-x-100 bg-azur"
-                          : "scale-x-0 bg-white/25 group-hover:scale-x-100",
-                      )}
-                    />
-                    {/* Progress bar autoplay (clean ligne pleine sur l'active) */}
-                    {isActive && !paused && (
-                      <span
-                        key={`prog-${active}`}
-                        aria-hidden
-                        className="tab-progress absolute inset-x-0 -top-px h-px origin-left bg-azur/50"
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
         </div>
       )}
 
@@ -465,19 +404,9 @@ export function SolutionsCarousel() {
           to { transform: translateY(0); }
         }
 
-        /* Progress bar autoplay */
-        .tab-progress {
-          animation: tab-progress ${AUTOPLAY_MS}ms linear forwards;
-        }
-        @keyframes tab-progress {
-          from { transform: scaleX(0); }
-          to   { transform: scaleX(1); }
-        }
-
         @media (prefers-reduced-motion: reduce) {
           .ken-burns,
-          .solutions-title-word-inner,
-          .tab-progress {
+          .solutions-title-word-inner {
             animation: none !important;
           }
           .solutions-title-word-inner { transform: none; }
