@@ -7,9 +7,18 @@ import path from "node:path";
 // - images Blob + maps
 // - Vercel Analytics + Speed Insights
 // - iframe Google Maps
+//
+// En dev, Next.js a besoin de 'unsafe-eval' pour reconstruire les callstacks
+// (DevTools, error overlay). React ne l'utilise jamais en prod. On l'autorise
+// donc uniquement quand NODE_ENV=development.
+const isDev = process.env.NODE_ENV === "development";
+const scriptSrc = isDev
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vitals.vercel-insights.com"
+  : "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://vitals.vercel-insights.com";
+
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+  scriptSrc,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleusercontent.com",
   "font-src 'self' data:",
