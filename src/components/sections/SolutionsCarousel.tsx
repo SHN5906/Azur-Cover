@@ -17,17 +17,18 @@ import { cn } from "@/lib/utils";
 import { SolutionsMobile } from "./SolutionsMobile";
 
 const N = expertises.length;
-const AUTOPLAY_MS = 8000;
+// Plus lent = plus premium. Thales tourne à ~10s par slide, on s'aligne.
+const AUTOPLAY_MS = 10000;
+const TRANSITION_MS = 1800;
 
-// --- Per-solution tint (drives a CSS variable for the radial-gradient bg).
-//     Subtle — must not compete with planet imagery.
+// Tint par solution — encore plus subtil qu'avant, juste un voile.
 const TINTS: Record<string, string> = {
-  etancheite: "rgba(56, 102, 138, 0.30)",     // sealing — deep cool blue
-  "cool-roofing": "rgba(214, 196, 156, 0.28)", // warm reflective sand
-  "azur-reflect": "rgba(0, 166, 166, 0.32)",   // brand cyan
-  autres: "rgba(120, 124, 138, 0.22)",         // graphite neutral
+  etancheite: "rgba(40, 80, 120, 0.22)",
+  "cool-roofing": "rgba(190, 170, 130, 0.20)",
+  "azur-reflect": "rgba(0, 140, 140, 0.24)",
+  autres: "rgba(110, 114, 128, 0.18)",
 };
-const TINT_FALLBACK = "rgba(60, 60, 65, 0.25)";
+const TINT_FALLBACK = "rgba(60, 60, 65, 0.20)";
 
 type Slot = {
   x: number;
@@ -40,21 +41,19 @@ type Slot = {
   z: number;
 };
 
-// Orbital wheel — 4 planets visible. Each "next" tick: 1 → 0 → 3 → 2 → 1 …
-// All four hops are short, no teleport across the stage.
+// Active devient HÉROÏQUE (scale 1.0, full saturation). Autres deviennent
+// quasi fantomatiques (0.20 opacity, blur 14px) — l'œil ne lit que l'active.
 const SLOTS: Record<number, Slot> = {
-  0: { x: 52, y: 55, scale: 0.85, opacity: 1.0,  blur: 0,  saturate: 1.0,  brightness: 1.0,  z: 50 }, // ACTIVE centre
-  1: { x: 92, y: 30, scale: 0.42, opacity: 0.55, blur: 7,  saturate: 0.35, brightness: 0.72, z: 30 }, // upper-right
-  2: { x: 60, y: 10, scale: 0.30, opacity: 0.30, blur: 12, saturate: 0.15, brightness: 0.60, z: 20 }, // top
-  3: { x: 14, y: 22, scale: 0.42, opacity: 0.55, blur: 7,  saturate: 0.35, brightness: 0.72, z: 30 }, // upper-left (above text)
+  0: { x: 52, y: 50, scale: 1.0,  opacity: 1.0,  blur: 0,  saturate: 1.0,  brightness: 1.0,  z: 50 },
+  1: { x: 95, y: 28, scale: 0.32, opacity: 0.22, blur: 14, saturate: 0.2,  brightness: 0.55, z: 30 },
+  2: { x: 60, y: 6,  scale: 0.22, opacity: 0.14, blur: 18, saturate: 0.1,  brightness: 0.45, z: 20 },
+  3: { x: 9,  y: 22, scale: 0.32, opacity: 0.22, blur: 14, saturate: 0.2,  brightness: 0.55, z: 30 },
 };
 
 function slotForOffset(offset: number): Slot {
   return SLOTS[offset] ?? SLOTS[0];
 }
 
-// --- Hydration-safe matchMedia (no setState-in-effect, no flash).
-//     Server + initial client = false, then real value after mount.
 const DESKTOP_MQ = "(min-width: 1024px)";
 function subscribeDesktop(callback: () => void) {
   if (typeof window === "undefined") return () => {};
@@ -89,7 +88,6 @@ export function SolutionsCarousel() {
         const offset = (i - active + N) % N;
         const slot = slotForOffset(offset);
         el.style.zIndex = String(slot.z);
-        const stagger = immediate ? 0 : offset * 0.08;
         gsap.to(el, {
           left: `${slot.x}%`,
           top: `${slot.y}%`,
@@ -98,9 +96,9 @@ export function SolutionsCarousel() {
           scale: slot.scale,
           opacity: slot.opacity,
           filter: `blur(${slot.blur}px) saturate(${slot.saturate}) brightness(${slot.brightness})`,
-          duration: immediate ? 0 : 1.4,
-          delay: stagger,
-          ease: "power2.inOut",
+          duration: immediate ? 0 : TRANSITION_MS / 1000,
+          // power3.inOut = plus lent en début/fin, courbe plus cinématique
+          ease: "power3.inOut",
           overwrite: "auto",
           onStart: () => {
             el.style.willChange = "transform, opacity, filter";
@@ -129,7 +127,6 @@ export function SolutionsCarousel() {
     if (!isDesktop) isFirstLayout.current = true;
   }, [isDesktop]);
 
-  // Autoplay (pauses on hover/focus, respects reduced-motion).
   useEffect(() => {
     if (!isDesktop || paused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -141,7 +138,6 @@ export function SolutionsCarousel() {
     setActive(((i % N) + N) % N);
   }, []);
 
-  // Keyboard arrows.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!sectionRef.current?.contains(document.activeElement)) return;
@@ -169,63 +165,55 @@ export function SolutionsCarousel() {
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
-      className="relative overflow-hidden bg-[#0e0e11] text-white"
+      className="relative overflow-hidden bg-[#0a0a0c] text-white"
       style={
         {
           "--tint": tint,
           background: isDesktop
-            ? "radial-gradient(ellipse 70% 80% at 75% 50%, var(--tint), #0e0e11 80%)"
+            ? "radial-gradient(ellipse 75% 90% at 72% 50%, var(--tint), #0a0a0c 75%)"
             : undefined,
-          transition: "background 1400ms cubic-bezier(0.16,1,0.3,1)",
+          transition: "background 2200ms cubic-bezier(0.16,1,0.3,1)",
           minHeight: isDesktop ? "100vh" : "auto",
         } as React.CSSProperties
       }
     >
-      {/* Ambient dust (desktop only) */}
-      {isDesktop && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-0 opacity-50 dust"
-        />
-      )}
-
       {/* Desktop layout */}
       {isDesktop && (
         <div className="relative grid h-screen min-h-[820px] grid-cols-12 z-10 pb-24">
-          {/* Text column */}
+          {/* Text column — plus de place, typo plus généreuse */}
           <div
             role="tabpanel"
             id={`panel-${current.slug}`}
             aria-labelledby={`tab-a11y-${current.slug}`}
             tabIndex={0}
-            className="col-span-5 flex items-center pl-[clamp(40px,6vw,120px)] pr-8 z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0e0e11]"
+            className="col-span-5 flex items-center pl-[clamp(48px,7vw,140px)] pr-12 z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]"
           >
-            <div className="w-full max-w-[460px]">
+            <div className="w-full max-w-[500px]">
               <Eyebrow tone="white" id="solutions-h">
                 Nos solutions
               </Eyebrow>
 
-              {/* Crossfade text with word-by-word stagger on title */}
-              <div className="relative mt-8 min-h-[420px]">
+              <div className="relative mt-10 min-h-[460px]">
                 {expertises.map((s, i) => (
                   <div
                     key={s.slug}
                     aria-hidden={i !== active}
                     className={cn(
-                      "absolute inset-0 transition-all duration-[900ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+                      "absolute inset-0 transition-opacity duration-[1400ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
                       i === active
-                        ? "opacity-100 translate-y-0 pointer-events-auto"
-                        : "opacity-0 translate-y-4 pointer-events-none",
+                        ? "opacity-100 pointer-events-auto"
+                        : "opacity-0 pointer-events-none",
                     )}
                   >
+                    {/* Title : mask reveal mot par mot (clean, plus subtil que slide+fade) */}
                     <h2
-                      key={`h2-${s.slug}-${i === active ? "active" : "idle"}`}
+                      key={`h2-${s.slug}-${i === active ? "a" : "i"}`}
                       className="text-white solutions-title"
                       style={{
-                        fontSize: "clamp(2.5rem, 4vw, 4.5rem)",
+                        fontSize: "clamp(3rem, 4.6vw, 5.5rem)",
                         fontWeight: 600,
-                        letterSpacing: "-0.03em",
-                        lineHeight: 0.95,
+                        letterSpacing: "-0.035em",
+                        lineHeight: 0.96,
                       }}
                       aria-label={`${s.title}.`}
                     >
@@ -237,36 +225,43 @@ export function SolutionsCarousel() {
                             key={idx}
                             aria-hidden
                             className="solutions-title-word"
-                            style={{ animationDelay: i === active ? `${idx * 70}ms` : "0ms" }}
+                            style={{ animationDelay: i === active ? `${idx * 90}ms` : "0ms" }}
                           >
-                            {part}
+                            <span className="solutions-title-word-inner">{part}</span>
                           </span>
                         ),
                       )}
                     </h2>
+
                     <p
-                      className="mt-7 text-white/70"
-                      style={{ fontSize: "1.0625rem", lineHeight: 1.6 }}
+                      className="mt-8 text-white/65"
+                      style={{
+                        fontSize: "1.1rem",
+                        lineHeight: 1.65,
+                        animationDelay: `${(s.title.split(" ").length + 2) * 90}ms`,
+                      }}
                     >
                       {s.short}
                     </p>
-                    <ul className="mt-7 space-y-2.5">
+
+                    <ul className="mt-8 space-y-3">
                       {s.bullets.slice(0, 4).map((b) => (
                         <li
                           key={b}
-                          className="flex items-start gap-3 text-sm text-white/80"
+                          className="flex items-start gap-3 text-sm text-white/75"
                         >
                           <span
                             aria-hidden
-                            className="mt-2 inline-block h-px w-4 shrink-0 bg-azur"
+                            className="mt-2 inline-block h-px w-5 shrink-0 bg-azur"
                           />
                           {b}
                         </li>
                       ))}
                     </ul>
+
                     <Link
                       href={`/expertises/${s.slug}`}
-                      className="underline-grow mt-8 inline-flex items-center gap-2 text-sm font-medium text-white"
+                      className="underline-grow mt-10 inline-flex items-center gap-2 text-sm font-medium text-white"
                     >
                       {s.cta}
                       <span aria-hidden>→</span>
@@ -275,13 +270,13 @@ export function SolutionsCarousel() {
                 ))}
               </div>
 
-              {/* Prev/next + counter only — labels moved to bottom tabs */}
-              <div className="mt-12 flex items-center gap-5">
+              {/* Compteur + arrows — minimaliste, pas de pagination redondante */}
+              <div className="mt-14 flex items-center gap-5">
                 <button
                   type="button"
                   onClick={() => goTo(active - 1)}
                   aria-label="Solution précédente"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition hover:border-white/60 hover:bg-white/5"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/75 transition hover:border-white/50 hover:text-white"
                 >
                   ←
                 </button>
@@ -289,39 +284,19 @@ export function SolutionsCarousel() {
                   type="button"
                   onClick={() => goTo(active + 1)}
                   aria-label="Solution suivante"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition hover:border-white/60 hover:bg-white/5"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/75 transition hover:border-white/50 hover:text-white"
                 >
                   →
                 </button>
-                <span className="ml-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
+                <span className="ml-2 font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
                   {String(active + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Planets stage. right 60%, isolated from text column */}
+          {/* Planets stage — épuré : pas d'orbit SVG, pas de ring, pas de caption */}
           <div className="col-span-7 relative">
-            {/* Orbit decoration */}
-            <svg
-              aria-hidden
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              className="absolute inset-0 h-full w-full"
-            >
-              <ellipse
-                cx="52"
-                cy="40"
-                rx="42"
-                ry="32"
-                fill="none"
-                stroke="rgba(255,255,255,0.10)"
-                strokeWidth="0.15"
-                strokeDasharray="0.6 1.2"
-                vectorEffect="non-scaling-stroke"
-              />
-            </svg>
-
             {expertises.map((s, i) => (
               <button
                 type="button"
@@ -332,31 +307,17 @@ export function SolutionsCarousel() {
                 onClick={() => goTo(i)}
                 aria-label={`Voir ${s.title}`}
                 className={cn(
-                  "planet group absolute left-0 top-0 h-[clamp(280px,30vw,420px)] w-[clamp(280px,30vw,420px)] overflow-visible rounded-full",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0e0e11]",
+                  "planet group absolute left-0 top-0 h-[clamp(320px,32vw,460px)] w-[clamp(320px,32vw,460px)] overflow-visible rounded-full",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]",
                   i === active && "planet-active",
                 )}
-                /* GSAP owns left/top/transform/opacity */
               >
-                {/* Active glow ring */}
-                {i === active && (
-                  <span
-                    aria-hidden
-                    className="planet-ring pointer-events-none absolute -inset-2 rounded-full"
-                    style={{
-                      background:
-                        "conic-gradient(from 0deg, rgba(0,166,166,0) 0deg, rgba(0,166,166,0.45) 80deg, rgba(0,166,166,0) 160deg, rgba(0,166,166,0) 360deg)",
-                      filter: "blur(8px)",
-                    }}
-                  />
-                )}
-
                 <span
                   className={cn(
                     "absolute inset-0 overflow-hidden rounded-full transition-[border,box-shadow] duration-700",
                     i === active
-                      ? "border border-azur shadow-[0_0_80px_rgba(0,166,166,0.18)]"
-                      : "border border-white/10 group-hover:border-white/30",
+                      ? "border border-white/20 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.6),inset_0_0_60px_rgba(0,0,0,0.3)]"
+                      : "border border-white/8",
                   )}
                 >
                   <div
@@ -370,49 +331,32 @@ export function SolutionsCarousel() {
                       src={s.image.src}
                       alt={s.image.alt}
                       fill
-                      sizes="420px"
+                      sizes="460px"
                       className="object-cover"
                       priority
                     />
                   </div>
-                  {/* Sphere highlight */}
+                  {/* Sphère : ombre interne très douce */}
                   <span
                     aria-hidden
                     className="pointer-events-none absolute inset-0 rounded-full"
                     style={{
                       background:
-                        "radial-gradient(circle at 30% 25%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 40%), radial-gradient(circle at 70% 80%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 60%)",
-                      boxShadow: "inset 0 0 40px rgba(0,0,0,0.5)",
+                        "radial-gradient(circle at 32% 28%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 38%), radial-gradient(circle at 72% 78%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 55%)",
                     }}
                   />
                 </span>
               </button>
             ))}
-
-            {/* Active caption pinned at the active slot, immune to GSAP transforms */}
-            <span
-              key={`cap-${active}`}
-              aria-hidden
-              className="planet-caption pointer-events-none absolute z-[60] whitespace-nowrap font-mono text-[12px] uppercase tracking-[0.22em] text-white/85"
-              style={{
-                left: `${SLOTS[0].x}%`,
-                top: `${SLOTS[0].y}%`,
-                transform: "translate(-50%, calc(clamp(119px, 12.75vw, 178.5px) + 28px))",
-              }}
-            >
-              <span className="text-azur">{expertises[active].index}</span>
-              <span className="mx-2 text-white/30">·</span>
-              {expertises[active].title}
-            </span>
           </div>
 
-          {/* Bottom tab labels (à la Thales) */}
+          {/* Bottom tabs — typo plus large, espacement plus généreux, hover subtil */}
           <nav
             role="tablist"
             aria-label="Choisir une solution"
-            className="absolute inset-x-0 bottom-0 z-30 border-t border-white/10 bg-black/30 backdrop-blur-md"
+            className="absolute inset-x-0 bottom-0 z-30 border-t border-white/8 bg-black/40 backdrop-blur-md"
           >
-            <div className="mx-auto grid max-w-[1320px] grid-cols-4 px-[clamp(40px,6vw,120px)]">
+            <div className="mx-auto grid max-w-[1320px] grid-cols-4 px-[clamp(48px,7vw,140px)]">
               {expertises.map((s, i) => {
                 const isActive = i === active;
                 return (
@@ -424,39 +368,42 @@ export function SolutionsCarousel() {
                     tabIndex={isActive ? 0 : -1}
                     onClick={() => goTo(i)}
                     className={cn(
-                      "tab-btn group relative flex flex-col items-start gap-1 py-5 text-left transition-colors duration-300",
+                      "tab-btn group relative flex flex-col items-start gap-2 py-7 text-left transition-colors duration-500",
                       isActive
                         ? "text-white"
-                        : "text-white/45 hover:text-white/85",
+                        : "text-white/40 hover:text-white/80",
                     )}
                   >
                     <span
                       className={cn(
-                        "font-mono text-[10px] tracking-[0.22em] transition-colors duration-300",
-                        isActive ? "text-azur" : "text-white/30",
+                        "font-mono text-[10px] tracking-[0.24em] transition-colors duration-500",
+                        isActive ? "text-azur" : "text-white/25",
                       )}
                     >
                       {s.index}
                     </span>
-                    <span className="text-[15px] font-medium leading-tight tracking-tight">
+                    <span
+                      className="font-medium leading-tight tracking-tight"
+                      style={{ fontSize: "1.0625rem", letterSpacing: "-0.01em" }}
+                    >
                       {s.title}
                     </span>
-                    {/* Top accent line */}
+                    {/* Static top accent line */}
                     <span
                       aria-hidden
                       className={cn(
-                        "absolute inset-x-0 -top-px h-px origin-left transition-transform duration-500 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+                        "absolute inset-x-0 -top-px h-px origin-left transition-transform duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
                         isActive
                           ? "scale-x-100 bg-azur"
-                          : "scale-x-0 bg-white/30 group-hover:scale-x-100",
+                          : "scale-x-0 bg-white/25 group-hover:scale-x-100",
                       )}
                     />
-                    {/* Autoplay progress (active only, restarts on slide change) */}
+                    {/* Progress bar autoplay (clean ligne pleine sur l'active) */}
                     {isActive && !paused && (
                       <span
                         key={`prog-${active}`}
                         aria-hidden
-                        className="tab-progress absolute inset-x-0 -top-px h-px origin-left bg-azur/60"
+                        className="tab-progress absolute inset-x-0 -top-px h-px origin-left bg-azur/50"
                       />
                     )}
                   </button>
@@ -474,7 +421,7 @@ export function SolutionsCarousel() {
         </div>
       )}
 
-      {/* Hidden a11y tablist (kept for SR users who don't see bottom tabs on init) */}
+      {/* Hidden a11y tablist */}
       <div role="tablist" aria-label="Choisir une solution" className="sr-only">
         {expertises.map((s, i) => (
           <button
@@ -492,45 +439,33 @@ export function SolutionsCarousel() {
       </div>
 
       <style>{`
-        .planet-ring { animation: planet-ring-spin 14s linear infinite; }
-        @keyframes planet-ring-spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-
-        .planet-caption {
-          animation: caption-in 700ms cubic-bezier(0.16,1,0.3,1) both;
-          animation-delay: 350ms;
-        }
-        @keyframes caption-in {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-
-        /* Ken-burns on the active planet's image only.
-           Restarts every slide change via the key={} reset. */
+        /* Ken-burns lent et imperceptible — juste assez pour donner vie. */
         .ken-burns {
-          animation: ken-burns ${AUTOPLAY_MS}ms cubic-bezier(0.33,0,0.67,1) forwards;
+          animation: ken-burns 16s cubic-bezier(0.33,0,0.67,1) forwards;
           transform-origin: 50% 50%;
         }
         @keyframes ken-burns {
           from { transform: scale(1) translate3d(0, 0, 0); }
-          to   { transform: scale(1.08) translate3d(-1%, -1%, 0); }
+          to   { transform: scale(1.04) translate3d(-0.5%, -0.5%, 0); }
         }
 
-        /* Word-by-word stagger on the active title (mask + slide-up). */
+        /* Title : mask reveal — chaque mot dans un masque qui se lève */
         .solutions-title-word {
           display: inline-block;
-          opacity: 0;
-          transform: translateY(28px);
-          animation: title-word-in 1100ms cubic-bezier(0.16,1,0.3,1) forwards;
-          /* delay set inline per word */
+          overflow: hidden;
+          vertical-align: top;
+          padding-bottom: 0.06em;
         }
-        @keyframes title-word-in {
-          to { opacity: 1; transform: translateY(0); }
+        .solutions-title-word-inner {
+          display: inline-block;
+          transform: translateY(100%);
+          animation: title-mask-up 1200ms cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        @keyframes title-mask-up {
+          to { transform: translateY(0); }
         }
 
-        /* Autoplay progress bar inside the active tab. */
+        /* Progress bar autoplay */
         .tab-progress {
           animation: tab-progress ${AUTOPLAY_MS}ms linear forwards;
         }
@@ -539,37 +474,13 @@ export function SolutionsCarousel() {
           to   { transform: scaleX(1); }
         }
 
-        .dust {
-          background-image:
-            radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.18), transparent 60%),
-            radial-gradient(1px 1px at 28% 72%, rgba(255,255,255,0.12), transparent 60%),
-            radial-gradient(1.2px 1.2px at 41% 38%, rgba(0,166,166,0.20), transparent 60%),
-            radial-gradient(1px 1px at 55% 88%, rgba(255,255,255,0.14), transparent 60%),
-            radial-gradient(1px 1px at 64% 24%, rgba(255,255,255,0.10), transparent 60%),
-            radial-gradient(1.4px 1.4px at 78% 56%, rgba(255,255,255,0.16), transparent 60%),
-            radial-gradient(1px 1px at 90% 32%, rgba(0,166,166,0.16), transparent 60%),
-            radial-gradient(1px 1px at 8% 88%, rgba(255,255,255,0.12), transparent 60%),
-            radial-gradient(1px 1px at 95% 78%, rgba(255,255,255,0.10), transparent 60%),
-            radial-gradient(1.2px 1.2px at 35% 12%, rgba(255,255,255,0.14), transparent 60%);
-          background-size: 100% 100%;
-          background-repeat: no-repeat;
-          animation: dust-drift 60s ease-in-out infinite alternate;
-        }
-        @keyframes dust-drift {
-          from { transform: translate3d(0, 0, 0); }
-          to   { transform: translate3d(-12px, 6px, 0); }
-        }
-
         @media (prefers-reduced-motion: reduce) {
-          .planet-ring,
-          .planet-caption,
           .ken-burns,
-          .solutions-title-word,
-          .tab-progress,
-          .dust {
+          .solutions-title-word-inner,
+          .tab-progress {
             animation: none !important;
           }
-          .solutions-title-word { opacity: 1; transform: none; }
+          .solutions-title-word-inner { transform: none; }
         }
       `}</style>
     </section>
