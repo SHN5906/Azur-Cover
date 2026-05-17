@@ -60,30 +60,29 @@ export async function Realisations() {
           </ScrollReveal>
         </div>
 
-        {/* Logo card grid — clean, contained, no overflow into anything */}
-        <ul className="mt-16 grid grid-cols-1 gap-px bg-line/60 sm:grid-cols-2 lg:grid-cols-4 [&>li]:bg-bg">
+        {/* Logo card grid — 2 cols even on mobile (plus dense, plus rapide à scanner) */}
+        <ul className="mt-16 grid grid-cols-2 gap-px bg-line/60 lg:grid-cols-4 [&>li]:bg-bg">
           {items.map((r, i) => (
             <ScrollReveal as="li" key={r.slug} delay={120 + Math.min(i, 6) * 60}>
               <Link
                 href={`/realisations/${r.slug}`}
-                className="group flex h-full flex-col p-6 transition-colors duration-300 hover:bg-line/20 sm:p-8"
+                className="group flex h-full flex-col p-4 transition-colors duration-300 hover:bg-line/20 sm:p-6 lg:p-8"
               >
-                {/* Logo zone : capped at 160px wide on mobile so logos
-                    don't dominate the single-column layout. */}
-                <div className="relative mx-auto flex h-16 w-full max-w-[160px] items-center justify-center sm:h-24 sm:max-w-[200px] lg:h-32 lg:max-w-none">
+                {/* Logo zone : compact en 2-col mobile, plein desktop */}
+                <div className="relative mx-auto flex h-14 w-full items-center justify-center sm:h-20 lg:h-32">
                   {r.logo ? (
                     <Image
                       src={r.logo}
                       alt={`Logo ${r.client}`}
                       fill
-                      sizes="(min-width: 1024px) 200px, 160px"
+                      sizes="(min-width: 1024px) 200px, 140px"
                       className="object-contain opacity-80 grayscale transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0"
                     />
                   ) : (
                     <span
                       className="font-display text-ink/30 transition-colors duration-500 group-hover:text-ink"
                       style={{
-                        fontSize: "clamp(1.875rem, 4vw, 4rem)",
+                        fontSize: "clamp(1.5rem, 4vw, 4rem)",
                         fontWeight: 200,
                         letterSpacing: "-0.04em",
                       }}
@@ -94,19 +93,24 @@ export async function Realisations() {
                 </div>
 
                 {/* Project metadata */}
-                <div className="mt-6 border-t border-line/60 pt-5 sm:mt-8">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+                <div className="mt-5 border-t border-line/60 pt-4 sm:mt-6 sm:pt-5 lg:mt-8">
+                  <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted sm:text-[10px] sm:tracking-[0.18em]">
                     {r.solution} · {r.year}
                   </p>
                   <h3
                     className="mt-2 text-ink"
-                    style={{ fontSize: "1.0625rem", fontWeight: 500, letterSpacing: "-0.01em" }}
+                    style={{
+                      fontSize: "clamp(0.95rem, 2vw, 1.0625rem)",
+                      fontWeight: 500,
+                      letterSpacing: "-0.01em",
+                      lineHeight: 1.2,
+                    }}
                   >
                     {r.title}
                   </h3>
-                  <p className="mt-1 text-sm text-muted">{r.city}</p>
+                  <p className="mt-1 text-xs text-muted sm:text-sm">{r.city}</p>
 
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="mt-4 hidden items-center gap-1.5 text-xs font-medium text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100 lg:inline-flex">
                     Voir le projet
                     <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-0.5">
                       →
