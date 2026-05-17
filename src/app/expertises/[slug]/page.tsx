@@ -12,8 +12,6 @@ import { CountUp } from "@/components/motion/CountUp";
 import { BreadcrumbJsonLd } from "@/lib/breadcrumb";
 import { expertises, getExpertise } from "@/content/expertises";
 import { listRealisations } from "@/lib/realisations-repo";
-import { BeforeAfterSlider } from "@/components/motion/BeforeAfterSlider";
-import { LiquidGlass } from "@/components/motion/LiquidGlass";
 
 export function generateStaticParams() {
   return expertises.map((e) => ({ slug: e.slug }));
@@ -144,78 +142,6 @@ export default async function ExpertisePage({
             </ul>
           </Container>
         </section>
-
-        {/* Liquid Glass demo — Azur Reflect uniquement (vernis vitrage = la métaphore) */}
-        {e.slug === "azur-reflect" && (
-          <section className="py-[clamp(80px,12vw,140px)]">
-            <Container>
-              <div className="mx-auto max-w-[1100px]">
-                <Eyebrow>Démonstration</Eyebrow>
-                <h2
-                  className="mt-4 max-w-[640px] text-ink"
-                  style={{
-                    fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
-                    fontWeight: 600,
-                    letterSpacing: "-0.025em",
-                    lineHeight: 1.1,
-                  }}
-                >
-                  Le vernis qui ne se voit pas, mais qui change tout.
-                </h2>
-                <p className="mt-4 max-w-[540px] text-muted" style={{ lineHeight: 1.6 }}>
-                  Déplacez votre souris sur la zone ci-dessous pour visualiser
-                  l&apos;effet d&apos;Azur Reflect : transparence préservée,
-                  rayonnement bloqué.
-                </p>
-                <div className="mt-10 overflow-hidden rounded-md border border-line/60">
-                  <LiquidGlass className="aspect-[16/9] bg-graphite/5">
-                    <Image
-                      src={e.image.src}
-                      alt={e.image.alt}
-                      fill
-                      sizes="(min-width: 1024px) 80vw, 100vw"
-                      className="object-cover"
-                      data-no-thermal="true"
-                    />
-                  </LiquidGlass>
-                </div>
-              </div>
-            </Container>
-          </section>
-        )}
-
-        {/* Before / After slider thermique — Cool Roofing uniquement */}
-        {e.slug === "cool-roofing" && (
-          <section className="py-[clamp(80px,12vw,140px)]">
-            <Container>
-              <div className="mx-auto max-w-[1100px]">
-                <Eyebrow>Avant / après</Eyebrow>
-                <h2
-                  className="mt-4 max-w-[640px] text-ink"
-                  style={{
-                    fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
-                    fontWeight: 600,
-                    letterSpacing: "-0.025em",
-                    lineHeight: 1.1,
-                  }}
-                >
-                  Glissez pour voir ce que la chaleur perd.
-                </h2>
-                <div className="mt-10">
-                  <BeforeAfterSlider
-                    beforeSrc="/images/solutions/etancheite.jpg"
-                    beforeAlt="Toiture industrielle avant traitement Cool Roofing"
-                    afterSrc="/images/solutions/cool-roofing.jpg"
-                    afterAlt="Toiture industrielle après traitement Cool Roofing — overlay thermique"
-                    afterLabel="Après"
-                    thermalOverlay
-                    caption="Visualisation thermique : avant traitement, le bitume absorbe et restitue la chaleur. Après Cool Roofing, le revêtement réflectif renvoie une part importante du rayonnement solaire. Mesures réelles sur les chantiers : jusqu'à −22 % de consommation climatisation."
-                  />
-                </div>
-              </div>
-            </Container>
-          </section>
-        )}
 
         {/* Problem / Solution */}
         <section className="py-[clamp(120px,18vw,200px)]">

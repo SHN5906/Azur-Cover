@@ -8,31 +8,25 @@ import { SolutionsCarousel } from "@/components/sections/SolutionsCarousel";
 import { VideoSection } from "@/components/sections/VideoSection";
 import { Sectors } from "@/components/sections/Sectors";
 import { Realisations } from "@/components/sections/Realisations";
-import { ChantiersMarquee } from "@/components/sections/ChantiersMarquee";
-import { ThermalStats } from "@/components/sections/ThermalStats";
 import { Methodology } from "@/components/sections/Methodology";
 import { Contact } from "@/components/sections/Contact";
-import { SunArc } from "@/components/motion/SunArc";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default async function Home() {
+export default function Home() {
   return (
     <>
       <Header />
-      <SunArc />
       <main id="main">
         <Hero />
         <ClientsMarquee />
         <Proposition />
         <SolutionsCarousel />
-        <ThermalStats />
         <VideoSection />
         <Sectors />
         <Realisations />
-        <ChantiersMarquee />
         <Methodology />
         <Contact />
       </main>

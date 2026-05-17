@@ -7,7 +7,6 @@ import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { listRealisations } from "@/lib/realisations-repo";
-import { RealisationsMap } from "@/components/sections/RealisationsMap";
 
 export const metadata: Metadata = {
   title: "Réalisations",
@@ -72,8 +71,6 @@ export default async function RealisationsIndex() {
             </ul>
           </Container>
         </section>
-
-        <RealisationsMap realisations={realisations} />
       </main>
       <Footer />
     </>
