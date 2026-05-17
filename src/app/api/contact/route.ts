@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { checkBotId } from "botid/server";
 import { site } from "@/content/site";
 
 export const runtime = "nodejs";
@@ -48,6 +49,14 @@ function escapeHtml(s: string): string {
 }
 
 export async function POST(req: Request) {
+  // Vercel BotID — invisible bot detection. Returns isHuman:true in dev,
+  // calls the Kasada API in prod via Vercel OIDC. Same-origin proxy is set
+  // up by withBotId() in next.config.ts.
+  const verification = await checkBotId();
+  if (verification.isBot) {
+    return NextResponse.json({ error: "Requête refusée." }, { status: 403 });
+  }
+
   // Resend API key. Set in .env.local for dev, in Vercel env vars for prod.
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {

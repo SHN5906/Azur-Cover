@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import path from "node:path";
+import { withBotId } from "botid/next/config";
 
 // CSP — autorise les ressources qu'on utilise réellement :
 // - inline scripts (Next.js hydration + JSON-LD)
@@ -77,4 +78,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// withBotId injects same-origin rewrites that proxy the Kasada challenge to
+// api.vercel.com. No CSP changes needed — all client fetches stay on 'self'.
+export default withBotId(nextConfig);

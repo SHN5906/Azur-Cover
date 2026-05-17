@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { BotIdClient } from "botid/client";
 import { site } from "@/content/site";
 import { expertises } from "@/content/expertises";
 import { CommandPalette } from "@/components/layout/CommandPalette";
@@ -142,6 +143,8 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="overflow-x-hidden">
+        {/* Vercel BotID — patches fetch/XHR for protected routes (invisible) */}
+        <BotIdClient protect={[{ path: "/api/contact", method: "POST" }]} />
         <a href="#main" className="skip-link">
           Aller au contenu principal
         </a>
