@@ -345,6 +345,16 @@ export function SolutionsCarousel() {
                         "radial-gradient(circle at 32% 28%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 38%), radial-gradient(circle at 72% 78%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 55%)",
                     }}
                   />
+                  {/* Reflet diagonal Azur Reflect (active seulement) */}
+                  {i === active && (
+                    <span
+                      key={`gloss-${active}`}
+                      aria-hidden
+                      className="planet-gloss pointer-events-none absolute inset-0 rounded-full overflow-hidden"
+                    >
+                      <span className="planet-gloss-band" />
+                    </span>
+                  )}
                 </span>
               </button>
             ))}
@@ -404,12 +414,43 @@ export function SolutionsCarousel() {
           to { transform: translateY(0); }
         }
 
+        /* Reflet diagonal — vernis Azur Reflect appliqué littéralement.
+           Une bande blanche translucide qui balaie la planète une fois,
+           ~1.6s après l'arrivée de l'active (laisse le temps au mask + ken-burns
+           de poser). */
+        .planet-gloss-band {
+          position: absolute;
+          top: -50%;
+          left: -75%;
+          width: 50%;
+          height: 200%;
+          background: linear-gradient(
+            115deg,
+            transparent 35%,
+            rgba(255,255,255,0.04) 45%,
+            rgba(255,255,255,0.22) 50%,
+            rgba(255,255,255,0.04) 55%,
+            transparent 65%
+          );
+          transform: translateX(0) rotate(0deg);
+          animation: planet-gloss-sweep 2400ms cubic-bezier(0.22,1,0.36,1) 1600ms forwards;
+          mix-blend-mode: screen;
+        }
+        @keyframes planet-gloss-sweep {
+          0%   { transform: translateX(0); opacity: 0; }
+          15%  { opacity: 1; }
+          85%  { opacity: 1; }
+          100% { transform: translateX(380%); opacity: 0; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .ken-burns,
-          .solutions-title-word-inner {
+          .solutions-title-word-inner,
+          .planet-gloss-band {
             animation: none !important;
           }
           .solutions-title-word-inner { transform: none; }
+          .planet-gloss-band { opacity: 0; }
         }
       `}</style>
     </section>
