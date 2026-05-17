@@ -47,5 +47,11 @@
     "tailwindcss": "^4",
     "tsx": "^4.22.0",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": ">=0.25.0",
+      "postcss": ">=8.5.10"
+    }
   }
 }

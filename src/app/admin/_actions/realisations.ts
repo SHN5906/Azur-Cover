@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
 import { RealisationSchema } from "@/lib/validation";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import {
   getRealisationBySlug,
   insertRealisation,
@@ -11,6 +12,24 @@ import {
   deleteRealisationBySlug,
 } from "@/lib/realisations-repo";
 import { deleteBlobIfHosted } from "./upload";
+
+/**
+ * Rate limit générique pour toutes les mutations admin (create/update/
+ * delete). Défense contre un compte compromis ou un script qui tape
+ * la DB en boucle. 30 mutations / minute = largement suffisant pour
+ * un usage humain normal.
+ */
+async function rateLimitAdmin(action: string) {
+  const ip = await getClientIp();
+  const result = checkRateLimit(`admin:${action}:${ip}`, 30, 60_000);
+  if (!result.ok) {
+    return {
+      ok: false as const,
+      error: `Trop d'opérations. Réessayez dans ${result.retryAfterSec}s.`,
+    };
+  }
+  return null;
+}
 
 export type ActionResult =
   | { ok: true }
@@ -58,6 +77,8 @@ export async function createRealisation(
   formData: FormData,
 ): Promise<ActionResult> {
   await requireAdmin();
+  const rl = await rateLimitAdmin("create");
+  if (rl) return rl;
 
   const parsed = RealisationSchema.safeParse(parseFormData(formData));
   if (!parsed.success) {
@@ -84,6 +105,8 @@ export async function updateRealisation(
   formData: FormData,
 ): Promise<ActionResult> {
   await requireAdmin();
+  const rl = await rateLimitAdmin("update");
+  if (rl) return rl;
 
   const parsed = RealisationSchema.safeParse(parseFormData(formData));
   if (!parsed.success) {
@@ -119,6 +142,12 @@ export async function updateRealisation(
 
 export async function deleteRealisation(slug: string) {
   await requireAdmin();
+  const rl = await rateLimitAdmin("delete");
+  if (rl) {
+    // void return type sur l'action de delete — pas de UI pour signaler.
+    // On throw pour faire surfacer dans la console et empêcher la suite.
+    throw new Error(rl.error);
+  }
   const row = await deleteRealisationBySlug(slug);
   if (row) await deleteBlobIfHosted(row.imageSrc);
   revalidatePublic(slug);

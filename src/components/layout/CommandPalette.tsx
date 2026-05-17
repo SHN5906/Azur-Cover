@@ -62,13 +62,20 @@ export function CommandPalette() {
     );
   }, [query, commands]);
 
-  // Global hotkey ⌘+K / Ctrl+K
+  // Global hotkey ⌘+K / Ctrl+K. Reset state ON OPEN dans le même
+  // handler (évite setState-in-effect, plus prévisible).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const isCmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k";
       if (isCmdK) {
         e.preventDefault();
-        setOpen((o) => !o);
+        setOpen((wasOpen) => {
+          if (!wasOpen) {
+            setQuery("");
+            setActiveIdx(0);
+          }
+          return !wasOpen;
+        });
         return;
       }
       if (e.key === "Escape" && open) {
@@ -80,11 +87,9 @@ export function CommandPalette() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Focus input + scroll lock on open
+  // Focus input + scroll lock on open (pas de setState ici, juste DOM)
   useEffect(() => {
     if (!open) return;
-    setQuery("");
-    setActiveIdx(0);
     const t = window.setTimeout(() => inputRef.current?.focus(), 30);
     document.documentElement.style.overflow = "hidden";
     return () => {
@@ -92,11 +97,6 @@ export function CommandPalette() {
       document.documentElement.style.overflow = "";
     };
   }, [open]);
-
-  // Reset cursor when query changes
-  useEffect(() => {
-    setActiveIdx(0);
-  }, [query]);
 
   // Arrow keys + Enter inside the modal
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -152,7 +152,10 @@ export function CommandPalette() {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIdx(0);
+            }}
             onKeyDown={handleKeyDown}
             placeholder="Naviguer, chercher une page…"
             aria-label="Rechercher dans le site"

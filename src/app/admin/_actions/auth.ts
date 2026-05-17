@@ -1,9 +1,9 @@
 "use server";
 
 import { z } from "zod";
-import { headers } from "next/headers";
 import { AuthError } from "next-auth";
 import { signIn, signOut } from "@/auth";
+import { checkRateLimit, getClientIp, resetRateLimit } from "@/lib/rate-limit";
 
 const LoginSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -21,43 +21,6 @@ export type LoginState =
   | { ok: false; error: string }
   | null;
 
-// Rate limit en mémoire process : 5 tentatives ratées par IP sur 60s.
-// Sur Vercel Fluid Compute, cette Map est partagée entre requêtes
-// concurrentes du même instance (best-effort, pas une garantie crypto).
-const ATTEMPT_WINDOW_MS = 60_000;
-const MAX_ATTEMPTS_PER_WINDOW = 5;
-const attempts = new Map<string, { count: number; windowStart: number }>();
-
-async function getClientIp(): Promise<string> {
-  const h = await headers();
-  const fwd = h.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  const real = h.get("x-real-ip");
-  if (real) return real.trim();
-  return "unknown";
-}
-
-function checkRateLimit(ip: string): { ok: boolean; retryAfter?: number } {
-  const now = Date.now();
-  const entry = attempts.get(ip);
-  if (!entry || now - entry.windowStart > ATTEMPT_WINDOW_MS) {
-    attempts.set(ip, { count: 1, windowStart: now });
-    return { ok: true };
-  }
-  if (entry.count >= MAX_ATTEMPTS_PER_WINDOW) {
-    return {
-      ok: false,
-      retryAfter: Math.ceil((ATTEMPT_WINDOW_MS - (now - entry.windowStart)) / 1000),
-    };
-  }
-  entry.count += 1;
-  return { ok: true };
-}
-
-function resetRateLimit(ip: string) {
-  attempts.delete(ip);
-}
-
 export async function loginAction(
   _prev: LoginState,
   formData: FormData,
@@ -71,12 +34,16 @@ export async function loginAction(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Champs invalides." };
   }
 
+  // Rate limit : 5 tentatives login / minute. Bloque le brute-force
+  // contre le mot de passe admin (24+ chars haute entropie de toute
+  // façon, mais ceinture+bretelles).
   const ip = await getClientIp();
-  const rate = checkRateLimit(ip);
+  const rlKey = `admin:login:${ip}`;
+  const rate = checkRateLimit(rlKey, 5, 60_000);
   if (!rate.ok) {
     return {
       ok: false,
-      error: `Trop de tentatives. Réessayez dans ${rate.retryAfter}s.`,
+      error: `Trop de tentatives. Réessayez dans ${rate.retryAfterSec}s.`,
     };
   }
 
@@ -88,13 +55,13 @@ export async function loginAction(
       password: parsed.data.password,
       redirectTo,
     });
-    resetRateLimit(ip);
+    resetRateLimit(rlKey);
     return { ok: true };
   } catch (err) {
     // Côté succès, signIn() throw NEXT_REDIRECT — laisser remonter pour que
     // Next.js gère la redirection vers redirectTo.
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {
-      resetRateLimit(ip);
+      resetRateLimit(rlKey);
       throw err;
     }
     if (err instanceof AuthError) {
