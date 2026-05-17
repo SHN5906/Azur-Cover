@@ -66,24 +66,24 @@ export async function Realisations() {
             <ScrollReveal as="li" key={r.slug} delay={120 + Math.min(i, 6) * 60}>
               <Link
                 href={`/realisations/${r.slug}`}
-                className="group flex h-full flex-col p-8 transition-colors duration-300 hover:bg-line/20"
+                className="group flex h-full flex-col p-6 transition-colors duration-300 hover:bg-line/20 sm:p-8"
               >
-                {/* Logo zone : square, white bg, logo centered. Falls back to
-                    a clean text monogram when no logo is available. */}
-                <div className="relative flex h-32 w-full items-center justify-center">
+                {/* Logo zone : capped at 160px wide on mobile so logos
+                    don't dominate the single-column layout. */}
+                <div className="relative mx-auto flex h-16 w-full max-w-[160px] items-center justify-center sm:h-24 sm:max-w-[200px] lg:h-32 lg:max-w-none">
                   {r.logo ? (
                     <Image
                       src={r.logo}
                       alt={`Logo ${r.client}`}
                       fill
-                      sizes="200px"
+                      sizes="(min-width: 1024px) 200px, 160px"
                       className="object-contain opacity-80 grayscale transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0"
                     />
                   ) : (
                     <span
                       className="font-display text-ink/30 transition-colors duration-500 group-hover:text-ink"
                       style={{
-                        fontSize: "clamp(2.5rem, 5vw, 4rem)",
+                        fontSize: "clamp(1.875rem, 4vw, 4rem)",
                         fontWeight: 200,
                         letterSpacing: "-0.04em",
                       }}
@@ -94,7 +94,7 @@ export async function Realisations() {
                 </div>
 
                 {/* Project metadata */}
-                <div className="mt-8 border-t border-line/60 pt-5">
+                <div className="mt-6 border-t border-line/60 pt-5 sm:mt-8">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
                     {r.solution} · {r.year}
                   </p>
