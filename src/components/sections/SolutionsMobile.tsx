@@ -45,13 +45,13 @@ export function SolutionsMobile() {
                   sizes="100vw"
                   className="object-cover photo-treatment"
                 />
-                <span className="absolute left-3 top-3 inline-block rounded-md bg-bg/95 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-ink">
-                  {s.index} · {s.title}
-                </span>
               </div>
               <div className="pb-12 pt-6">
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-azur">
+                  {s.index}
+                </span>
                 <h3
-                  className="text-white"
+                  className="mt-3 text-white"
                   style={{
                     fontSize: "1.875rem",
                     fontWeight: 600,
@@ -66,7 +66,7 @@ export function SolutionsMobile() {
                   href={`/expertises/${s.slug}`}
                   className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-white underline-grow"
                 >
-                  Lire l&apos;expertise <span aria-hidden>→</span>
+                  {s.cta} <span aria-hidden>→</span>
                 </Link>
               </div>
             </article>

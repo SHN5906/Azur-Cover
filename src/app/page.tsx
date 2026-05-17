@@ -8,6 +8,7 @@ import { SolutionsCarousel } from "@/components/sections/SolutionsCarousel";
 import { VideoSection } from "@/components/sections/VideoSection";
 import { Sectors } from "@/components/sections/Sectors";
 import { Realisations } from "@/components/sections/Realisations";
+import { MediaCoverage } from "@/components/sections/MediaCoverage";
 import { Methodology } from "@/components/sections/Methodology";
 import { Contact } from "@/components/sections/Contact";
 
@@ -27,6 +28,7 @@ export default function Home() {
         <VideoSection />
         <Sectors />
         <Realisations />
+        <MediaCoverage />
         <Methodology />
         <Contact />
       </main>
