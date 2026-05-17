@@ -28,10 +28,10 @@ export async function Realisations() {
                 id="realisations-h"
                 className="mt-6 text-ink"
                 style={{
-                  fontSize: "clamp(2.5rem, 5vw, 5rem)",
+                  fontSize: "clamp(1.875rem, 4.4vw, 4.5rem)",
                   fontWeight: 600,
                   letterSpacing: "-0.03em",
-                  lineHeight: 1,
+                  lineHeight: 1.02,
                 }}
               >
                 Quelques projets.
