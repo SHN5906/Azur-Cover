@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { HeatShimmer } from "@/components/motion/HeatShimmer";
 
 export function Hero() {
   return (
@@ -10,17 +11,20 @@ export function Hero() {
       aria-labelledby="hero-h1"
       className="relative isolate flex min-h-[100svh] max-h-[920px] w-full items-center overflow-hidden"
     >
-      {/* Image: right half desktop, full bg with vertical fade on mobile */}
+      {/* Image: right half desktop, full bg with vertical fade on mobile.
+          Heat shimmer SVG filter pour faire vibrer l'image (subtil). */}
       <div aria-hidden className="absolute inset-0 lg:left-[44%] lg:right-0">
-        <Image
-          src="/images/hero/building.jpg"
-          alt=""
-          fill
-          preload
-          fetchPriority="high"
-          sizes="(min-width: 1024px) 56vw, 100vw"
-          className="object-cover object-center photo-treatment"
-        />
+        <HeatShimmer intensity="subtle" className="absolute inset-0">
+          <Image
+            src="/images/hero/building.jpg"
+            alt=""
+            fill
+            preload
+            fetchPriority="high"
+            sizes="(min-width: 1024px) 56vw, 100vw"
+            className="object-cover object-center photo-treatment"
+          />
+        </HeatShimmer>
         {/* Mobile: vertical fade so text stays legible */}
         <div
           className="absolute inset-0 lg:hidden"

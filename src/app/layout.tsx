@@ -6,6 +6,7 @@ import { site } from "@/content/site";
 import { expertises } from "@/content/expertises";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
+import { ThermalToggle } from "@/components/motion/ThermalToggle";
 import "./globals.css";
 
 const inter = localFont({
@@ -147,6 +148,7 @@ export default function RootLayout({
         </a>
         <ScrollProgress />
         {children}
+        <ThermalToggle />
         <CommandPalette />
         {/* Static JSON-LD graph. rendered inline so crawlers see it on first byte */}
         <script type="application/ld+json">{jsonLd}</script>

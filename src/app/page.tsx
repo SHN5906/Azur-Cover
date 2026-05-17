@@ -12,6 +12,7 @@ import { ChantiersMarquee } from "@/components/sections/ChantiersMarquee";
 import { ThermalStats } from "@/components/sections/ThermalStats";
 import { Methodology } from "@/components/sections/Methodology";
 import { Contact } from "@/components/sections/Contact";
+import { SunArc } from "@/components/motion/SunArc";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -21,6 +22,7 @@ export default async function Home() {
   return (
     <>
       <Header />
+      <SunArc />
       <main id="main">
         <Hero />
         <ClientsMarquee />
