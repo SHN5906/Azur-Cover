@@ -109,22 +109,63 @@ export function Contact() {
             </ScrollReveal>
           </div>
 
-          {/* Right. Map */}
+          {/* Right. Location card */}
           <ScrollReveal delay={120}>
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md border border-line/60 bg-white lg:aspect-square">
-              <iframe
-                src={site.mapEmbed}
-                title={`Carte. ${site.address.full}`}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="absolute inset-0 h-full w-full"
-              />
-            </div>
             <a
               href={site.mapDeepLink}
-              className="mt-3 inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.18em] text-muted hover:text-ink lg:hidden"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="group relative block aspect-[4/3] w-full overflow-hidden rounded-md border border-line/60 bg-graphite text-white transition-shadow hover:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)] lg:aspect-square"
+              aria-label={`Itinéraire vers ${site.address.full}`}
             >
-              Ouvrir dans Plans →
+              <svg
+                aria-hidden
+                viewBox="0 0 400 400"
+                preserveAspectRatio="xMidYMid slice"
+                className="absolute inset-0 h-full w-full opacity-30"
+              >
+                <defs>
+                  <radialGradient id="contact-map-glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(0,166,166,0.18)" />
+                    <stop offset="60%" stopColor="rgba(0,166,166,0)" />
+                  </radialGradient>
+                </defs>
+                {[60, 90, 120, 150, 180, 220, 260].map((r) => (
+                  <circle
+                    key={r}
+                    cx="200"
+                    cy="200"
+                    r={r}
+                    fill="none"
+                    stroke="rgba(255,255,255,0.08)"
+                    strokeWidth="0.5"
+                    strokeDasharray="1 3"
+                  />
+                ))}
+                <circle cx="200" cy="200" r="160" fill="url(#contact-map-glow)" />
+                <line x1="0" y1="200" x2="400" y2="200" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
+                <line x1="200" y1="0" x2="200" y2="400" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
+              </svg>
+
+              <span aria-hidden className="absolute left-1/2 top-1/2 block h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2">
+                <span className="absolute -inset-1 rounded-full bg-azur/40 animate-ping" />
+                <span className="absolute inset-0 rounded-full bg-azur shadow-[0_0_20px_rgba(0,166,166,0.7)]" />
+              </span>
+
+              <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-4 bg-gradient-to-t from-graphite via-graphite/85 to-transparent p-6 md:p-8">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/50">
+                    Notre siège
+                  </p>
+                  <p className="mt-2 text-lg font-medium text-white" style={{ letterSpacing: "-0.01em" }}>
+                    {site.address.building}, {site.address.city}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-white underline-grow">
+                  Ouvrir l&apos;itinéraire
+                  <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </span>
+              </div>
             </a>
           </ScrollReveal>
         </div>

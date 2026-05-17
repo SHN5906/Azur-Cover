@@ -34,7 +34,7 @@ export async function Realisations() {
                   lineHeight: 1,
                 }}
               >
-                Projets exemplaires.
+                Quelques projets.
               </h2>
             </ScrollReveal>
             <ScrollReveal delay={240}>

@@ -133,7 +133,7 @@ export function VideoSection() {
               {playing ? (
                 <Pause className="h-4 w-4 fill-current" aria-hidden />
               ) : (
-                <Play className="h-4 w-4 translate-x-0.5 fill-current" aria-hidden />
+                <Play className="h-4 w-4 fill-current" aria-hidden />
               )}
             </button>
 
