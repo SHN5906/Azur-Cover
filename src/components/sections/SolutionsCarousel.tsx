@@ -333,7 +333,7 @@ export function SolutionsCarousel() {
                       fill
                       sizes="460px"
                       className="object-cover"
-                      priority
+                      priority={i === 0}
                     />
                   </div>
                   {/* Sphère : ombre interne très douce */}

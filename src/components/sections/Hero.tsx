@@ -73,6 +73,17 @@ export function Hero() {
               Voir nos références
             </Button>
           </div>
+
+          {/* Trust strip — certifs + KPIs clés, signal technique avant le fold */}
+          <ul
+            className="mt-12 flex flex-wrap gap-x-7 gap-y-3 font-mono text-[11px] uppercase tracking-[0.18em] text-muted"
+            aria-label="Certifications et performances"
+          >
+            <li>Certifié CSTB · B-ROOF T3</li>
+            <li>−50 °C en surface</li>
+            <li>40 % d&apos;éco clim</li>
+            <li>Garantie décennale</li>
+          </ul>
         </div>
       </Container>
     </section>

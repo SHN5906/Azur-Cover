@@ -151,9 +151,9 @@ function SubmitButton({ status }: { status: Status }) {
       <span
         aria-hidden
         className={cn(
-          "absolute inset-y-0 left-0 bg-azur/40",
+          "absolute inset-y-0 left-0 bg-azur/40 motion-reduce:transition-none",
           isSending &&
-            "w-[92%] transition-[width] duration-[1400ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]",
+            "w-[92%] transition-[width] duration-[1400ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:w-full",
           isSent && "w-full transition-[width] duration-200",
           !isSending && !isSent && "w-0 transition-[width] duration-300",
         )}

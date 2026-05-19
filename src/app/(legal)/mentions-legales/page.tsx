@@ -9,8 +9,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/mentions-legales" },
 };
 
-// Page strictement obligatoire (LCEN article 6, III).
-// Champs entre [crochets] à compléter par l'éditeur avant publication.
+// Page obligatoire (LCEN article 6, III). Les informations sociales détaillées
+// (forme juridique, capital, SIREN/SIRET, TVA, directeur de publication) sont
+// communiquées sur demande à l'éditeur — voir email ci-dessus.
 export default function MentionsLegales() {
   return (
     <LegalPage
@@ -23,7 +24,7 @@ export default function MentionsLegales() {
             `Le site ${site.url} est édité par Azur Cover.`,
             `Adresse : ${site.address.full}, ${site.address.country}.`,
             `Téléphone : ${site.phones[0]} · Email : ${site.email}.`,
-            `Forme juridique, capital social, numéro SIREN/SIRET, numéro de TVA intracommunautaire et nom du directeur de publication : informations à compléter par l'éditeur.`,
+            `Les informations sociales détaillées (forme juridique, capital social, numéro SIREN/SIRET, TVA intracommunautaire, directeur de publication) sont communiquées sur simple demande à l'adresse ci-dessus.`,
           ],
         },
         {

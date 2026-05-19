@@ -5,7 +5,7 @@ import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
-import { faqByCategory } from "@/content/faq";
+import { faqByCategory, faqItems } from "@/content/faq";
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -14,12 +14,28 @@ export const metadata: Metadata = {
   alternates: { canonical: "/faq" },
 };
 
+// FAQPage schema for Google rich snippets — chaque Q/R devient candidate à
+// l'affichage en accordéon dans les résultats de recherche.
+const faqJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer.join(" "),
+    },
+  })),
+});
+
 export default function FAQPage() {
   const groups = faqByCategory();
   const order: Array<keyof typeof groups> = ["Cool Roofing", "Azur Reflect", "Étanchéité", "Général"];
 
   return (
     <>
+      <script type="application/ld+json">{faqJsonLd}</script>
       <Header />
       <main id="main">
         <PageHero

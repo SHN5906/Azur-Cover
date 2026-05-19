@@ -16,6 +16,9 @@ export function ClientsMarquee() {
   });
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Drag-to-scrub réservé à la souris desktop. Sur touch, on ne fait rien
+    // pour laisser le scroll vertical natif fonctionner sans interférence.
+    if (e.pointerType !== "mouse") return;
     const el = railRef.current;
     if (!el) return;
     dragState.current = {
@@ -52,8 +55,11 @@ export function ClientsMarquee() {
         Ils nous font confiance
       </Eyebrow>
 
-      {/* Desktop: drag-to-scroll rail with auto-marquee on idle */}
-      <div className="mt-10 hidden lg:block">
+      {/* Auto-marquee, identique mobile + desktop. Sur desktop on autorise
+          le drag (souris) pour scrubber ; sur mobile, `touch-action: pan-y`
+          empêche le rail de capter le swipe vertical → le scroll de page
+          n'est jamais bloqué. */}
+      <div className="mt-10">
         <div
           ref={railRef}
           onPointerDown={onPointerDown}
@@ -62,9 +68,9 @@ export function ClientsMarquee() {
           onPointerCancel={endDrag}
           onPointerLeave={endDrag}
           role="region"
-          aria-label="Liste des clients (faites glisser pour faire défiler)"
+          aria-label="Liste des clients"
           tabIndex={0}
-          className="marquee-rail mask-fade-x cursor-grab overflow-x-auto select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4"
+          className="marquee-rail mask-fade-x select-none overflow-x-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 lg:cursor-grab"
           style={{ scrollbarWidth: "none" }}
         >
           {/* Track = 2 listes identiques côte à côte. Chaque liste a un `pr-16`
@@ -77,23 +83,16 @@ export function ClientsMarquee() {
         </div>
       </div>
 
-      {/* Mobile: static grid */}
-      <ul className="mx-auto mt-10 grid max-w-md grid-cols-3 items-center justify-items-center gap-x-6 gap-y-10 px-6 lg:hidden">
-        {clients.map((c) => (
-          <li key={c.name} className="flex h-10 items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={c.src}
-              alt={c.alt}
-              className="h-9 w-auto max-w-full object-contain opacity-70 grayscale"
-            />
-          </li>
-        ))}
-      </ul>
-
       <style>{`
         /* Hide native scrollbar but keep scroll behaviour */
         .marquee-rail::-webkit-scrollbar { display: none; }
+
+        /* Touch : on n'accepte que le pan vertical (= scroll de la page).
+           Le swipe horizontal n'est pas capté → l'utilisateur peut scroller
+           verticalement sans que le rail intercepte le geste. */
+        .marquee-rail {
+          touch-action: pan-y;
+        }
 
         /* Auto-scroll the inner track ; CSS animation drives the visual loop. */
         .marquee-track {
