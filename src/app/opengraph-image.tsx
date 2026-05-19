@@ -117,7 +117,7 @@ export default async function OG() {
                 width: 48,
                 height: 2,
                 background:
-                  "linear-gradient(90deg, #00a6a6 0%, rgba(0,166,166,0) 100%)",
+                  "linear-gradient(90deg, #008eb9 0%, rgba(0,142,185,0) 100%)",
               }}
             />
             <span

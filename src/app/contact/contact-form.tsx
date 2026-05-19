@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Button } from "@/components/ui/Button";
 import { site } from "@/content/site";
 import { cn } from "@/lib/utils";
 
@@ -94,9 +93,7 @@ export function ContactForm() {
       </div>
 
       <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-6">
-        <Button arrow>
-          {status === "sending" ? "Envoi…" : "Envoyer ma demande"}
-        </Button>
+        <SubmitButton status={status} />
         <p className="text-xs text-muted">
           Vous serez contacté sous 48 h.
         </p>
@@ -131,6 +128,86 @@ export function ContactForm() {
         )}
       </div>
     </form>
+  );
+}
+
+function SubmitButton({ status }: { status: Status }) {
+  const isSending = status === "sending";
+  const isSent = status === "sent";
+  const isError = status === "error";
+
+  return (
+    <button
+      type="submit"
+      disabled={isSending || isSent}
+      aria-busy={isSending}
+      className={cn(
+        "group relative inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg bg-ink px-7 text-sm font-medium leading-none text-white shadow-sm transition-all duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4",
+        "hover:-translate-y-px hover:bg-graphite hover:shadow-lg active:translate-y-0",
+        "disabled:cursor-default disabled:hover:translate-y-0 disabled:hover:bg-ink disabled:hover:shadow-sm",
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "absolute inset-y-0 left-0 bg-azur/40",
+          isSending &&
+            "w-[92%] transition-[width] duration-[1400ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]",
+          isSent && "w-full transition-[width] duration-200",
+          !isSending && !isSent && "w-0 transition-[width] duration-300",
+        )}
+      />
+      <span className="relative inline-flex items-center gap-2">
+        {isSent ? (
+          <>
+            <CheckIcon />
+            Demande envoyée
+          </>
+        ) : isSending ? (
+          "Envoi…"
+        ) : isError ? (
+          <>
+            Réessayer
+            <Arrow />
+          </>
+        ) : (
+          <>
+            Envoyer ma demande
+            <Arrow />
+          </>
+        )}
+      </span>
+    </button>
+  );
+}
+
+function Arrow() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+    >
+      →
+    </span>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      aria-hidden
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
   );
 }
 

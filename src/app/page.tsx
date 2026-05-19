@@ -3,7 +3,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { ClientsMarquee } from "@/components/sections/ClientsMarquee";
-import { Proposition } from "@/components/sections/Proposition";
 import { SolutionsCarousel } from "@/components/sections/SolutionsCarousel";
 import { VideoSection } from "@/components/sections/VideoSection";
 import { Sectors } from "@/components/sections/Sectors";
@@ -22,7 +21,6 @@ export default function Home() {
       <main id="main">
         <Hero />
         <ClientsMarquee />
-        <Proposition />
         <SolutionsCarousel />
         <VideoSection />
         <Sectors />

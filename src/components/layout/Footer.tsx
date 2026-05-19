@@ -56,7 +56,10 @@ export function Footer() {
                 />
               </div>
             </Link>
-            <p className="mt-5 max-w-[260px] text-sm leading-relaxed text-white/55">
+            <p className="mt-5 max-w-[260px] text-sm font-medium leading-snug text-white/75">
+              La solution thermique qui réfléchit.
+            </p>
+            <p className="mt-3 max-w-[260px] text-sm leading-relaxed text-white/55">
               Expert national en performance thermique et étanchéité.
             </p>
             {(site.social.instagram || site.social.facebook || site.social.linkedin) && (

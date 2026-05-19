@@ -45,6 +45,18 @@ export default function ContactPage() {
                       <br />
                       {site.address.postal} {site.address.city}, {site.address.country}
                     </dd>
+                    <dd className="mt-3">
+                      <a
+                        href={site.mapLink}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-ink underline-grow"
+                        aria-label={`Voir ${site.address.full} sur Google Maps`}
+                      >
+                        Voir sur Google Maps
+                        <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                      </a>
+                    </dd>
                   </div>
                   <div>
                     <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
@@ -87,49 +99,6 @@ export default function ContactPage() {
                   </div>
                 </dl>
 
-                <a
-                  href={site.mapDeepLink}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="group relative mt-10 block aspect-square w-full overflow-hidden rounded-md border border-line/60 bg-graphite text-white transition-shadow hover:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)]"
-                  aria-label={`Itinéraire vers ${site.address.full}`}
-                >
-                  {/* B&W Google Maps preview — pointer-events-none pour que le clic sur le card ouvre toujours l'itinéraire */}
-                  <iframe
-                    src={site.mapEmbed}
-                    title={`Carte. ${site.address.full}`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    aria-hidden
-                    tabIndex={-1}
-                    className="pointer-events-none absolute inset-0 h-full w-full"
-                    style={{
-                      filter: "grayscale(1) contrast(1.05) brightness(0.95)",
-                    }}
-                  />
-
-                  {/* Vignette qui assombrit le bas pour faire respirer l'overlay */}
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite via-graphite/30 to-transparent"
-                  />
-
-                  {/* Address overlay */}
-                  <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-4 p-6 md:p-8">
-                    <div>
-                      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
-                        Notre siège
-                      </p>
-                      <p className="mt-2 text-lg font-medium text-white" style={{ letterSpacing: "-0.01em" }}>
-                        {site.address.building}, {site.address.city}
-                      </p>
-                    </div>
-                    <span className="inline-flex items-center gap-2 text-sm font-medium text-white underline-grow">
-                      Ouvrir l&apos;itinéraire
-                      <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-                    </span>
-                  </div>
-                </a>
               </aside>
             </div>
           </Container>

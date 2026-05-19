@@ -22,10 +22,8 @@ export const site = {
     facebook: "https://www.facebook.com/people/Azur-Cover/61565050301029/",
     linkedin: "https://www.linkedin.com/company/azur-cover/",
   },
-  mapEmbed:
-    "https://www.google.com/maps?q=Space%20Antipolis%2C%202323%20Chemin%20de%20Saint-Bernard%2C%2006220%20Vallauris&output=embed",
-  mapDeepLink:
-    "https://maps.apple.com/?q=Space+Antipolis,+2323+Chemin+de+Saint-Bernard,+06220+Vallauris",
+  mapLink:
+    "https://www.google.com/maps/search/?api=1&query=Space+Antipolis%2C+2323+Chemin+de+Saint-Bernard%2C+06220+Vallauris",
   nav: [
     { label: "Expertises", href: "/expertises" },
     { label: "Réalisations", href: "/realisations" },

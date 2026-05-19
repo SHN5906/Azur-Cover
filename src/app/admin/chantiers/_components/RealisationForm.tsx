@@ -7,6 +7,23 @@ import type { ActionResult } from "../../_actions/realisations";
 
 type ResultRow = { value: string; label: string };
 
+const FIELD_LABELS: Record<string, string> = {
+  slug: "Slug",
+  title: "Titre",
+  client: "Client",
+  city: "Ville",
+  solution: "Solution",
+  surface: "Surface",
+  duration: "Durée",
+  year: "Année",
+  short: "Description courte",
+  story: "Histoire",
+  results: "Résultats",
+  imageSrc: "Image",
+  imageAlt: "Texte alternatif (alt)",
+  logo: "Logo",
+};
+
 export type RealisationFormInitial = {
   slug: string;
   title: string;
@@ -43,7 +60,18 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
     <form action={formAction} className="space-y-10">
       {state?.ok === false && (
         <div className="rounded border border-red-500/40 bg-red-50 p-3 text-sm text-red-700">
-          {state.error}
+          <p>{state.error}</p>
+          {state.fieldErrors && Object.keys(state.fieldErrors).length > 0 && (
+            <ul className="mt-2 list-disc space-y-0.5 pl-5 text-xs">
+              {Object.entries(state.fieldErrors).map(([field, errs]) =>
+                errs?.map((e, i) => (
+                  <li key={`${field}-${i}`}>
+                    <strong>{FIELD_LABELS[field] ?? field}</strong> : {e}
+                  </li>
+                )),
+              )}
+            </ul>
+          )}
         </div>
       )}
 

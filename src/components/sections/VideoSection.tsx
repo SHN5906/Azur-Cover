@@ -8,6 +8,9 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 export function VideoSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const ref = useRef<HTMLVideoElement>(null);
+  // Tracks the in-flight play() promise so pause() never interrupts it
+  // (browser warning: "The play() request was interrupted by a call to pause()").
+  const playPromiseRef = useRef<Promise<void> | null>(null);
   const [playing, setPlaying] = useState(false);
   // Default muted = true so browsers allow autoplay on intersection.
   const [muted, setMuted] = useState(true);
@@ -27,11 +30,12 @@ export function VideoSection() {
             triggered = true;
             v.muted = true;
             setMuted(true);
-            v.play().then(() => {
-              setPlaying(true);
-            }).catch(() => {
-              // Autoplay blocked. user will need to click Play manually.
-            });
+            playPromiseRef.current = v.play();
+            playPromiseRef.current
+              .then(() => setPlaying(true))
+              .catch(() => {
+                // Autoplay blocked. user will need to click Play manually.
+              });
             io.disconnect();
           }
         }
@@ -42,13 +46,26 @@ export function VideoSection() {
     return () => io.disconnect();
   }, []);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const v = ref.current;
     if (!v) return;
     if (v.paused) {
-      void v.play();
-      setPlaying(true);
+      playPromiseRef.current = v.play();
+      try {
+        await playPromiseRef.current;
+        setPlaying(true);
+      } catch {
+        // play blocked or interrupted
+      }
     } else {
+      // Wait for any pending play() so pause() doesn't interrupt it.
+      if (playPromiseRef.current) {
+        try {
+          await playPromiseRef.current;
+        } catch {
+          /* ignore */
+        }
+      }
       v.pause();
       setPlaying(false);
     }

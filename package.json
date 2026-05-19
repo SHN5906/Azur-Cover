@@ -10,7 +10,8 @@
     "db:generate": "dotenv -e .env.local -- drizzle-kit generate",
     "db:push": "dotenv -e .env.local -- drizzle-kit push",
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio",
-    "db:migrate-realisations": "dotenv -e .env.local -- tsx scripts/migrate-realisations.ts"
+    "db:migrate-realisations": "dotenv -e .env.local -- tsx scripts/migrate-realisations.ts",
+    "db:sync-realisations-images": "dotenv -e .env.local -- tsx scripts/sync-realisations-images.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",

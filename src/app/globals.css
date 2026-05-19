@@ -1,19 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  /* Palette — Apple-grade industrial premium */
-  --color-ink: #0a0a0b;
-  --color-graphite: #1d1d1f;
-  --color-graphite-warm: #2a2a2d;
-  --color-muted: #6e6e73;
-  --color-line: #d2d2d7;
+  /* Palette — alignée sur la charte Azur Cover (cf. Charte graphique) */
+  --color-ink: #0d2537; /* bleu marine d'accompagnement (charte) */
+  --color-graphite: #1a3447;
+  --color-graphite-warm: #243d4f;
+  --color-muted: #6e7c89;
+  --color-line: #d2d8df;
   --color-bg: #fbfbfd;
   --color-white: #ffffff;
-  --color-azur: #00a6a6;
-  --color-azur-deep: #007a7a;
+  --color-azur: #008eb9; /* bleu cyan officiel (charte) */
+  --color-azur-deep: #006a8c; /* dérivé plus sombre pour hover/focus */
+  --color-lime: #bdd577; /* vert lime officiel (charte) */
 
   --font-sans: "Inter", "Inter Variable", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  /* Mono système — vraie SF Mono sur Mac/iOS, Cascadia/Menlo/Consolas sinon. Zéro KB. */
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "Menlo", "Cascadia Mono", monospace;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);

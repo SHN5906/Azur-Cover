@@ -137,7 +137,7 @@ export async function POST(req: Request) {
   // HTML version
   const html = `
 <!doctype html>
-<html><body style="font-family:system-ui,sans-serif;color:#0a0a0b;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">
+<html><body style="font-family:system-ui,sans-serif;color:#0d2537;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">
   <h2 style="margin:0 0 16px;font-size:20px;font-weight:600">Nouvelle demande d'audit</h2>
   <table style="width:100%;border-collapse:collapse">
     <tr><td style="padding:6px 0;color:#6e6e73;font-size:12px;text-transform:uppercase;letter-spacing:0.1em">Entreprise</td><td style="padding:6px 0">${escapeHtml(body.company ?? "")}</td></tr>

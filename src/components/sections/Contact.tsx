@@ -109,44 +109,34 @@ export function Contact() {
             </ScrollReveal>
           </div>
 
-          {/* Right. B&W Map preview that opens Apple Plans on click */}
+          {/* Right. CTA card linking to Google Maps */}
           <ScrollReveal delay={120}>
             <a
-              href={site.mapDeepLink}
+              href={site.mapLink}
               target="_blank"
               rel="noreferrer noopener"
-              className="group relative block aspect-[4/3] w-full overflow-hidden rounded-md border border-line/60 bg-graphite text-white transition-shadow hover:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)] lg:aspect-square"
-              aria-label={`Itinéraire vers ${site.address.full}`}
+              className="group relative flex aspect-[4/3] w-full flex-col justify-end overflow-hidden rounded-md bg-ink p-8 text-white transition-shadow hover:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)] md:p-10 lg:aspect-square"
+              aria-label={`Voir ${site.address.full} sur Google Maps`}
             >
-              <iframe
-                src={site.mapEmbed}
-                title={`Carte. ${site.address.full}`}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+              {/* Discrete brand gradient accent */}
+              <div
                 aria-hidden
-                tabIndex={-1}
-                className="pointer-events-none absolute inset-0 h-full w-full"
+                className="pointer-events-none absolute inset-0 opacity-30"
                 style={{
-                  filter: "grayscale(1) contrast(1.05) brightness(0.95)",
+                  background:
+                    "radial-gradient(circle at 80% 20%, var(--color-azur) 0%, transparent 55%), radial-gradient(circle at 15% 90%, var(--color-lime) 0%, transparent 50%)",
                 }}
               />
 
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite via-graphite/30 to-transparent"
-              />
-
-              <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-4 p-6 md:p-8">
-                <div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
-                    Notre siège
-                  </p>
-                  <p className="mt-2 text-lg font-medium text-white" style={{ letterSpacing: "-0.01em" }}>
-                    {site.address.building}, {site.address.city}
-                  </p>
-                </div>
-                <span className="inline-flex items-center gap-2 text-sm font-medium text-white underline-grow">
-                  Ouvrir l&apos;itinéraire
+              <div className="relative">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
+                  Notre siège
+                </p>
+                <p className="mt-2 text-lg font-medium text-white" style={{ letterSpacing: "-0.01em" }}>
+                  {site.address.building}, {site.address.city}
+                </p>
+                <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white underline-grow">
+                  Voir sur Google Maps
                   <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </span>
               </div>

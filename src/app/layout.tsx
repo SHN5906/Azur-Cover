@@ -27,19 +27,6 @@ const inter = localFont({
   preload: true,
 });
 
-const jetbrainsMono = localFont({
-  src: [
-    {
-      path: "../../public/fonts/JetBrainsMono-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-  ],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
-  preload: false,
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
@@ -140,7 +127,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={inter.variable}
     >
       <body className="overflow-x-hidden">
         {/* Vercel BotID — patches fetch/XHR for protected routes (invisible) */}

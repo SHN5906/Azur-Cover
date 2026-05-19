@@ -99,7 +99,7 @@ export const realisations: Realisation[] = [
       "Nos équipes ont procédé à l'application de la solution Azur Reflect sur l'intégralité de la façade vitrée. L'objectif : stopper la chaleur tout en conservant une transparence pour laisser voir l'intérieur du magasin aux passants.",
     ],
     image: {
-      src: "/images/realisations/netto.jpg",
+      src: "/images/realisations/u-express.jpg",
       alt: "Vitrines U Express traitées au vernis Azur Reflect",
     },
     logo: "/images/clients/u-express.png",
@@ -117,7 +117,7 @@ export const realisations: Realisation[] = [
       "Intervention au Centre Hospitalier de Grasse : application du vernis Azur Reflect sur les vitrages exposés au plein sud.",
     ],
     image: {
-      src: "/images/realisations/promocash.jpg",
+      src: "/images/realisations/chu-grasse.jpg",
       alt: "Vitrages du CHU de Grasse traités au vernis Azur Reflect",
     },
     logo: "/images/clients/ch-grasse.png",
@@ -135,7 +135,7 @@ export const realisations: Realisation[] = [
       "Application Cool Roofing sur la toiture de la mairie de Fayence.",
     ],
     image: {
-      src: "/images/realisations/ecole-cannes.jpg",
+      src: "/images/realisations/mairie-fayence.jpg",
       alt: "Toiture de la mairie de Fayence après Cool Roofing",
     },
     logo: "/images/clients/fayence.png",
@@ -151,7 +151,7 @@ export const realisations: Realisation[] = [
     short: "Application Azur Reflect chez Marcel & Fils, La Fare-les-Oliviers.",
     story: ["Intervention Azur Reflect chez Marcel & Fils."],
     image: {
-      src: "/images/realisations/netto.jpg",
+      src: "/images/realisations/marcel-fils.jpg",
       alt: "Vitrines Marcel & Fils traitées Azur Reflect",
     },
     logo: "/images/clients/marcel-fils.png",
@@ -167,8 +167,8 @@ export const realisations: Realisation[] = [
     short: "Application Azur Reflect chez Satoriz à Antibes.",
     story: ["Intervention Azur Reflect chez Satoriz à Antibes."],
     image: {
-      src: "/images/realisations/netto.jpg",
-      alt: "Vitrines Satoriz Antibes traitées Azur Reflect",
+      src: "/images/realisations/satoriz.jpg",
+      alt: "Équipe Azur Cover devant le magasin Satoriz Antibes",
     },
     logo: "/images/clients/satoriz.png",
   },
@@ -183,7 +183,7 @@ export const realisations: Realisation[] = [
     short: "Application Azur Reflect dans un Intermarché à Nice.",
     story: ["Intervention Azur Reflect chez Intermarché à Nice."],
     image: {
-      src: "/images/realisations/netto.jpg",
+      src: "/images/realisations/intermarche.jpg",
       alt: "Vitrines Intermarché Nice traitées Azur Reflect",
     },
     logo: "/images/clients/intermarche.png",
@@ -199,7 +199,7 @@ export const realisations: Realisation[] = [
     short: "Intervention Cool Roofing pour la commune de Vitrolles.",
     story: ["Intervention Cool Roofing pour la commune de Vitrolles."],
     image: {
-      src: "/images/realisations/promocash.jpg",
+      src: "/images/realisations/vitrolles.jpg",
       alt: "Équipement public à Vitrolles traité Cool Roofing",
     },
   },
@@ -217,8 +217,8 @@ export const realisations: Realisation[] = [
       "Intervention Cool Roofing sur une toiture bac acier au Laboratoire Braja Vesigné à Gardanne.",
     ],
     image: {
-      src: "/images/realisations/promocash.jpg",
-      alt: "Toiture bac acier du Laboratoire Braja Vesigné",
+      src: "/images/realisations/laboratoire-braja.jpg",
+      alt: "Toiture bac acier du Laboratoire Braja Vesigné après Cool Roofing",
     },
     logo: "/images/clients/groupe-braja.png",
   },
@@ -235,7 +235,7 @@ export const realisations: Realisation[] = [
       "Application du vernis Azur Reflect à l'EHPAD Le Petit Paris à Grasse.",
     ],
     image: {
-      src: "/images/realisations/ecole-cannes.jpg",
+      src: "/images/realisations/ehpad-petit-paris.jpg",
       alt: "EHPAD Le Petit Paris à Grasse traité Azur Reflect",
     },
   },
