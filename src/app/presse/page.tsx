@@ -52,7 +52,7 @@ export default function PressePage() {
 
                     <div className={item.image ? "md:col-span-7 md:flex md:items-center" : "md:col-span-12"}>
                       <div>
-                        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                        <p className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                           {item.date} · {item.source}
                         </p>
                         <h2

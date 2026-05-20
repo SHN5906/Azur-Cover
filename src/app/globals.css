@@ -30,14 +30,16 @@
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
     background: var(--color-bg);
-    overflow-x: hidden;
+    /* clip (not hidden) — hidden makes html/body a scroll container and
+       breaks position: sticky for descendants (e.g. AerogelStory pin). */
+    overflow-x: clip;
   }
 
   body {
     color: var(--color-ink);
     background: var(--color-bg);
     font-family: var(--font-sans);
-    overflow-x: hidden;
+    overflow-x: clip;
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

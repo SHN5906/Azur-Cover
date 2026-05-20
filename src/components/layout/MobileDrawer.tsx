@@ -133,7 +133,7 @@ export function MobileDrawer({ open, onClose }: Props) {
             Demander un audit <span aria-hidden>→</span>
           </Link>
 
-          <p className="mt-10 font-mono text-[12px] uppercase tracking-[0.18em] text-muted">
+          <p className="mt-10 font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
             {site.address.full}
           </p>
           <a

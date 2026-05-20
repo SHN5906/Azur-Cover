@@ -288,7 +288,7 @@ export function SolutionsCarousel() {
                 >
                   →
                 </button>
-                <span className="ml-2 font-mono text-[11px] uppercase tracking-[0.22em] text-white/35">
+                <span className="ml-2 font-mono text-[13px] uppercase tracking-[0.22em] text-white/35">
                   {String(active + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}
                 </span>
               </div>

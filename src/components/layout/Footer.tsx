@@ -102,7 +102,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-mono text-[12px] uppercase tracking-[0.18em] text-white/55">
+            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/55">
               Expertises
             </h3>
             <ul className="mt-5 space-y-2.5 text-sm">
@@ -117,7 +117,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-mono text-[12px] uppercase tracking-[0.18em] text-white/55">
+            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/55">
               Entreprise
             </h3>
             <ul className="mt-5 space-y-2.5 text-sm">
@@ -150,7 +150,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-mono text-[12px] uppercase tracking-[0.18em] text-white/55">
+            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/55">
               Contact
             </h3>
             <address className="mt-5 not-italic text-sm leading-relaxed text-white/70">
@@ -183,7 +183,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-6 font-mono text-[11px] uppercase tracking-[0.15em] text-white/40 md:flex-row md:items-center md:justify-between">
+        <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-6 font-mono text-[13px] uppercase tracking-[0.15em] text-white/40 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} Azur Cover. Tous droits réservés.</p>
           <div className="flex flex-wrap gap-x-5 gap-y-1">
             <Link href="/mentions-legales" className="hover:text-white/70">Mentions légales</Link>
@@ -191,7 +191,7 @@ export function Footer() {
           </div>
         </div>
 
-        <p className="mt-8 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-white/25">
+        <p className="mt-8 text-center font-mono text-[12px] uppercase tracking-[0.18em] text-white/25">
           Site conçu par Renew Editing
         </p>
       </Container>

@@ -61,7 +61,7 @@ export default async function RealisationPage({
           <Container>
             <Link
               href="/realisations"
-              className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted hover:text-ink"
+              className="inline-flex items-center gap-2 font-mono text-[13px] uppercase tracking-[0.18em] text-muted hover:text-ink"
             >
               <span aria-hidden>←</span> Toutes les réalisations
             </Link>
@@ -108,19 +108,19 @@ export default async function RealisationPage({
           <Container>
             <dl className="grid grid-cols-2 gap-y-8 sm:grid-cols-4">
               <div>
-                <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">Client</dt>
+                <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">Client</dt>
                 <dd className="mt-2 text-ink" style={{ fontSize: "1.0625rem" }}>{r.client}</dd>
               </div>
               <div>
-                <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">Lieu</dt>
+                <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">Lieu</dt>
                 <dd className="mt-2 text-ink" style={{ fontSize: "1.0625rem" }}>{r.city}</dd>
               </div>
               <div>
-                <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">Durée chantier</dt>
+                <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">Durée chantier</dt>
                 <dd className="mt-2 text-ink" style={{ fontSize: "1.0625rem" }}>{r.duration}</dd>
               </div>
               <div>
-                <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                   {r.surface ? "Surface" : "Année"}
                 </dt>
                 <dd className="mt-2 text-ink" style={{ fontSize: "1.0625rem" }}>
@@ -188,7 +188,7 @@ export default async function RealisationPage({
                 href={`/realisations/${prev.slug}`}
                 className="group flex flex-col gap-2 border-b border-line/60 py-10 md:border-b-0 md:border-r md:py-14"
               >
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                   ← Précédent
                 </span>
                 <span
@@ -202,7 +202,7 @@ export default async function RealisationPage({
                 href={`/realisations/${next.slug}`}
                 className="group flex flex-col gap-2 py-10 text-right md:py-14 md:items-end"
               >
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                   Suivant →
                 </span>
                 <span

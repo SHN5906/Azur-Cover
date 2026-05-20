@@ -129,7 +129,7 @@ export default function RootLayout({
       lang="fr"
       className={inter.variable}
     >
-      <body className="overflow-x-hidden">
+      <body className="overflow-x-clip">
         {/* Vercel BotID — patches fetch/XHR for protected routes (invisible) */}
         <BotIdClient protect={[{ path: "/api/contact", method: "POST" }]} />
         <a href="#main" className="skip-link">

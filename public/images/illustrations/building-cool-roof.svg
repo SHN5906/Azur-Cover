@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <title>Bâtiment moderne à toiture plate équipée du revêtement Cool Roofing</title>
+  <defs>
+    <linearGradient id="roofGrad" x1="280" y1="320" x2="600" y2="235" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e9eff3"/>
+    </linearGradient>
+    <filter id="bldgShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+  </defs>
+
+  <!-- ombre portee -->
+  <polygon points="244,512 566,512 664,427 342,427" fill="#0d2537" opacity="0.12"
+           filter="url(#bldgShadow)" transform="translate(26,30)"/>
+
+  <!-- face laterale (a l'ombre) -->
+  <polygon points="560,320 660,235 660,435 560,520" fill="#0d2537"/>
+  <!-- face avant -->
+  <polygon points="230,320 560,320 560,520 230,520" fill="#1a3447"
+           stroke="#102230" stroke-width="1.5"/>
+
+  <!-- fenetres laterales (cisaillees) -->
+  <g transform="matrix(1,-0.85,0,1,560,320)" fill="#006a8c">
+    <rect x="16" y="26" width="30" height="64"/>
+    <rect x="54" y="26" width="30" height="64"/>
+    <rect x="16" y="108" width="30" height="64"/>
+    <rect x="54" y="108" width="30" height="64"/>
+  </g>
+
+  <!-- fenetres avant -->
+  <g fill="#008eb9" stroke="#0d2537" stroke-width="1.5">
+    <rect x="258" y="354" width="74" height="62"/>
+    <rect x="358" y="354" width="74" height="62"/>
+    <rect x="458" y="354" width="74" height="62"/>
+    <rect x="258" y="440" width="74" height="62"/>
+    <rect x="358" y="440" width="74" height="62"/>
+    <rect x="458" y="440" width="74" height="62"/>
+  </g>
+  <!-- reflets de vitrage -->
+  <g fill="#ffffff" opacity="0.16">
+    <rect x="258" y="354" width="74" height="11"/>
+    <rect x="358" y="354" width="74" height="11"/>
+    <rect x="458" y="354" width="74" height="11"/>
+    <rect x="258" y="440" width="74" height="11"/>
+    <rect x="358" y="440" width="74" height="11"/>
+    <rect x="458" y="440" width="74" height="11"/>
+  </g>
+
+  <!-- lisere lime (accent de marque) -->
+  <rect x="230" y="509" width="330" height="6" fill="#bdd577"/>
+
+  <!-- toiture blanche (Cool Roofing) -->
+  <polygon points="230,320 560,320 660,235 330,235" fill="url(#roofGrad)"/>
+  <!-- joints de membrane -->
+  <g stroke="#d2d8df" stroke-width="1.6" opacity="0.75">
+    <line x1="264" y1="291" x2="594" y2="291"/>
+    <line x1="294" y1="266" x2="624" y2="266"/>
+  </g>
+  <!-- acrotere -->
+  <polygon points="230,320 560,320 660,235 330,235" fill="none"
+           stroke="#c2cdd6" stroke-width="3" stroke-linejoin="round"/>
+  <!-- aretes lumineuses -->
+  <path d="M230,320 L560,320 L660,235" stroke="#ffffff" stroke-width="2.2"
+        stroke-linejoin="round" opacity="0.9"/>
+  <!-- arete verticale d'angle -->
+  <line x1="560" y1="320" x2="560" y2="520" stroke="#0a1a26" stroke-width="2"/>
+</svg>

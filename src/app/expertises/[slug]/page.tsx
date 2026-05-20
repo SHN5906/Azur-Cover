@@ -253,7 +253,7 @@ export default async function ExpertisePage({
                           className="object-cover photo-treatment transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                         />
                       </div>
-                      <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                      <p className="mt-4 font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                         {r.client} · {r.city} · {r.year}
                       </p>
                       <h3 className="mt-1 text-ink" style={{ fontSize: "1.125rem", fontWeight: 500 }}>
@@ -279,7 +279,7 @@ export default async function ExpertisePage({
                     className="group block p-6 transition-colors hover:bg-line/30"
 
                   >
-                    <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                    <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                       {o.index}
                     </span>
                     <div

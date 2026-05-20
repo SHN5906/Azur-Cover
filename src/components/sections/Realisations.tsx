@@ -94,7 +94,7 @@ export async function Realisations() {
 
                 {/* Project metadata */}
                 <div className="mt-5 border-t border-line/60 pt-4 sm:mt-6 sm:pt-5 lg:mt-8">
-                  <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted sm:text-[10px] sm:tracking-[0.18em]">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted sm:text-[12px] sm:tracking-[0.18em]">
                     {r.solution} · {r.year}
                   </p>
                   <h3

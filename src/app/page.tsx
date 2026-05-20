@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { ClientsMarquee } from "@/components/sections/ClientsMarquee";
 import { SolutionsCarousel } from "@/components/sections/SolutionsCarousel";
+import { AerogelStory } from "@/components/sections/AerogelStory";
 import { VideoSection } from "@/components/sections/VideoSection";
 import { Sectors } from "@/components/sections/Sectors";
 import { Realisations } from "@/components/sections/Realisations";
@@ -22,6 +23,7 @@ export default function Home() {
         <Hero />
         <ClientsMarquee />
         <SolutionsCarousel />
+        <AerogelStory />
         <VideoSection />
         <Sectors />
         <Realisations />

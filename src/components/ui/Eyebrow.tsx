@@ -18,7 +18,7 @@ export function Eyebrow({ children, className, tone = "muted", id }: Props) {
     <span
       id={id}
       className={cn(
-        "block font-mono text-[12px] uppercase",
+        "block font-mono text-[17px] uppercase",
         toneMap[tone],
         className
       )}

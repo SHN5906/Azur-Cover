@@ -222,7 +222,7 @@ type FieldProps = {
 function Field({ label, name, type = "text", required, full }: FieldProps) {
   return (
     <label className={full ? "md:col-span-2" : ""}>
-      <span className="block font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+      <span className="block font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
         {label}
         {required && " *"}
       </span>
@@ -248,7 +248,7 @@ function Textarea({
 }) {
   return (
     <label className="md:col-span-2">
-      <span className="block font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+      <span className="block font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
         {label}
       </span>
       <textarea
@@ -275,7 +275,7 @@ function Select({
 }) {
   return (
     <label className={full ? "md:col-span-2" : ""}>
-      <span className="block font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+      <span className="block font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
         {label}
       </span>
       <select

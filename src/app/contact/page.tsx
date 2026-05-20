@@ -35,7 +35,7 @@ export default function ContactPage() {
                 <Eyebrow>Coordonnées</Eyebrow>
                 <dl className="mt-10 space-y-8">
                   <div>
-                    <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                    <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                       Adresse
                     </dt>
                     <dd className="mt-2 text-ink" style={{ fontSize: "1.0625rem", lineHeight: 1.5 }}>
@@ -59,7 +59,7 @@ export default function ContactPage() {
                     </dd>
                   </div>
                   <div>
-                    <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                    <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                       Téléphone
                     </dt>
                     <dd className="mt-2 space-y-1">
@@ -76,7 +76,7 @@ export default function ContactPage() {
                     </dd>
                   </div>
                   <div>
-                    <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                    <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                       Email
                     </dt>
                     <dd className="mt-2">
@@ -90,7 +90,7 @@ export default function ContactPage() {
                     </dd>
                   </div>
                   <div>
-                    <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                    <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                       Zone d&apos;intervention
                     </dt>
                     <dd className="mt-2 text-ink" style={{ fontSize: "1.0625rem", lineHeight: 1.5 }}>

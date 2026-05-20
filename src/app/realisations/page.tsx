@@ -44,7 +44,7 @@ export default async function RealisationsIndex() {
                         className="object-cover photo-treatment transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                       />
                     </div>
-                    <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                    <p className="mt-4 font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                       {r.client} · {r.city} · {r.year}
                     </p>
                     <h2

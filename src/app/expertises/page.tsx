@@ -37,7 +37,7 @@ export default function ExpertisesIndex() {
 
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <span className="font-mono text-[12px] uppercase tracking-[0.18em] text-muted">
+                      <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                         {e.index} / 04
                       </span>
                       <span

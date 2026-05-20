@@ -48,7 +48,7 @@ export default function NotFound() {
               </div>
 
               <div className="mt-16 flex flex-col gap-3 border-t border-line pt-6 text-sm text-muted">
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em]">
+                <p className="font-mono text-[13px] uppercase tracking-[0.18em]">
                   Vous cherchez peut-être
                 </p>
                 <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">

@@ -64,6 +64,7 @@ export const realisations: Realisation[] = [
       src: "/images/realisations/ecole-cannes.jpg",
       alt: "École primaire à Cannes traitée au vernis Azur Reflect",
     },
+    logo: "/images/clients/cannes.png",
   },
   {
     slug: "netto-grasse",

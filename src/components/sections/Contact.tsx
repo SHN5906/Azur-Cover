@@ -47,7 +47,7 @@ export function Contact() {
             <ScrollReveal delay={320}>
               <dl className="mt-10 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-10">
                 <div>
-                  <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                  <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                     Adresse
                   </dt>
                   <dd className="mt-2 text-sm leading-relaxed text-ink">
@@ -59,7 +59,7 @@ export function Contact() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                  <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                     Téléphone
                   </dt>
                   <dd className="mt-2 text-sm leading-relaxed text-ink">
@@ -75,7 +75,7 @@ export function Contact() {
                   </dd>
                 </div>
                 <div className="sm:col-span-2">
-                  <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                  <dt className="font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
                     Email
                   </dt>
                   <dd className="mt-2 text-sm">
@@ -129,7 +129,7 @@ export function Contact() {
               />
 
               <div className="relative">
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
+                <p className="font-mono text-[12px] uppercase tracking-[0.22em] text-white/55">
                   Notre siège
                 </p>
                 <p className="mt-2 text-lg font-medium text-white" style={{ letterSpacing: "-0.01em" }}>

@@ -47,7 +47,7 @@ export function SolutionsMobile() {
                 />
               </div>
               <div className="pb-12 pt-6">
-                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-azur">
+                <span className="font-mono text-[12px] uppercase tracking-[0.22em] text-azur">
                   {s.index}
                 </span>
                 <h3
