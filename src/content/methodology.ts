@@ -23,6 +23,6 @@ export const steps: Step[] = [
     index: "04",
     title: "Contrôle & suivi",
     description:
-      "Vérification de la performance et maintenance long terme via nos contrats d'entretien.",
+      "Vérification de la performance et maintenance long terme via nos contrats d’entretien.",
   },
 ];

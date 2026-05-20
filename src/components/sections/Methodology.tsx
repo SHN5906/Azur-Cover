@@ -78,6 +78,7 @@ export function Methodology() {
                 fontWeight: 600,
                 letterSpacing: "-0.03em",
                 lineHeight: 1,
+                textWrap: "balance",
               }}
             >
               Notre méthodologie.

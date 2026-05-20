@@ -28,6 +28,7 @@ export function Contact() {
                   fontWeight: 600,
                   letterSpacing: "-0.03em",
                   lineHeight: 1,
+                  textWrap: "balance",
                 }}
               >
                 Un audit gratuit, sans engagement.
@@ -39,8 +40,8 @@ export function Contact() {
                 style={{ fontSize: "1.125rem", lineHeight: 1.55 }}
               >
                 Nos équipes se déplacent dans toute la France. Vous décrivez
-                votre bâtiment, nous revenons sous 48 h avec une estimation de
-                gains thermiques et un planning d&apos;intervention.
+                votre bâtiment, nous revenons sous 48&nbsp;h avec une estimation de
+                gains thermiques et un planning d’intervention.
               </p>
             </ScrollReveal>
 

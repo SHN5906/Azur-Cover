@@ -75,6 +75,7 @@ export function MobileDrawer({ open, onClose }: Props) {
         "drawer fixed inset-0 z-[70] flex flex-col bg-bg",
         open ? "visible opacity-100" : "invisible opacity-0"
       )}
+      style={{ overscrollBehavior: "contain" }}
     >
       <div className="flex h-16 items-center justify-between px-6">
         <Link href="/" onClick={onClose} aria-label="Azur Cover - accueil">

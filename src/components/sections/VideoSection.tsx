@@ -101,9 +101,10 @@ export function VideoSection() {
               fontWeight: 600,
               letterSpacing: "-0.03em",
               lineHeight: 1,
+              textWrap: "balance",
             }}
           >
-            Azur Cover en 1 vidéo.
+            Azur Cover en 1&nbsp;vidéo.
           </h2>
         </div>
 
@@ -138,14 +139,14 @@ export function VideoSection() {
           </div>
 
           {/* Controls below the player so they never overlap the logos baked
-              into the video poster / footage. All buttons are 40×40 with the
+              into the video poster / footage. All buttons are 44×44 with the
               same icon size to avoid any visual jump between play/pause. */}
           <div className="mt-4 flex items-center justify-between gap-2">
             <button
               type="button"
               onClick={togglePlay}
               aria-label={playing ? "Mettre en pause" : "Lire"}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
             >
               {playing ? (
                 <Pause className="h-4 w-4 fill-current" aria-hidden />
@@ -159,7 +160,7 @@ export function VideoSection() {
                 type="button"
                 onClick={toggleMute}
                 aria-label={muted ? "Activer le son" : "Couper le son"}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
               >
                 {muted ? (
                   <VolumeX className="h-4 w-4" aria-hidden />
@@ -171,7 +172,7 @@ export function VideoSection() {
                 type="button"
                 onClick={fullscreen}
                 aria-label="Plein écran"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line/60 bg-bg text-ink transition hover:bg-ink hover:text-white hover:border-ink"
               >
                 <Maximize className="h-4 w-4" aria-hidden />
               </button>

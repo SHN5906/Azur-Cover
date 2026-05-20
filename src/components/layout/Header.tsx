@@ -66,10 +66,7 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn(
-                  "text-sm font-medium transition-opacity duration-200",
-                  scrolled ? "text-ink/75 hover:text-ink" : "text-ink/75 hover:text-ink"
-                )}
+                className="text-sm font-medium text-ink/75 transition-opacity duration-200 hover:text-ink"
               >
                 {item.label}
               </Link>

@@ -213,7 +213,7 @@ export function SolutionsCarousel() {
                         fontSize: "clamp(3rem, 4.6vw, 5.5rem)",
                         fontWeight: 600,
                         letterSpacing: "-0.035em",
-                        lineHeight: 0.96,
+                        lineHeight: 1.05,
                       }}
                       aria-label={`${s.title}.`}
                     >

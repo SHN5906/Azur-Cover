@@ -143,7 +143,10 @@ export function CommandPalette() {
         if (e.target === e.currentTarget) setOpen(false);
       }}
     >
-      <div className="command-panel w-full max-w-[600px] overflow-hidden rounded-xl border border-line/60 bg-bg shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
+      <div 
+        className="command-panel w-full max-w-[600px] overflow-hidden rounded-xl border border-line/60 bg-bg shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]"
+        style={{ overscrollBehavior: "contain" }}
+      >
         <div className="flex items-center gap-3 border-b border-line/60 px-5 py-4">
           <span aria-hidden className="text-muted">
             ⌘

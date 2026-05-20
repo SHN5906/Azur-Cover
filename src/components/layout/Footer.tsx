@@ -70,7 +70,7 @@ export function Footer() {
                     target="_blank"
                     rel="noreferrer noopener"
                     aria-label="Instagram"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/15 text-white/70 transition hover:border-white/40 hover:text-white"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/15 text-white/70 transition hover:border-white/40 hover:text-white"
                   >
                     <InstagramIcon className="h-4 w-4" />
                   </a>
@@ -81,7 +81,7 @@ export function Footer() {
                     target="_blank"
                     rel="noreferrer noopener"
                     aria-label="Facebook"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/15 text-white/70 transition hover:border-white/40 hover:text-white"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/15 text-white/70 transition hover:border-white/40 hover:text-white"
                   >
                     <FacebookIcon className="h-4 w-4" />
                   </a>
@@ -92,7 +92,7 @@ export function Footer() {
                     target="_blank"
                     rel="noreferrer noopener"
                     aria-label="LinkedIn"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/15 text-white/70 transition hover:border-white/40 hover:text-white"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/15 text-white/70 transition hover:border-white/40 hover:text-white"
                   >
                     <LinkedinIcon className="h-4 w-4" />
                   </a>
@@ -102,13 +102,13 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/55">
+            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/70">
               Expertises
             </h3>
-            <ul className="mt-5 space-y-2.5 text-sm">
+            <ul className="mt-5 space-y-1.5 text-sm">
               {expertises.map((s) => (
                 <li key={s.slug}>
-                  <Link href={`/expertises/${s.slug}`} className="text-white/70 hover:text-white">
+                  <Link href={`/expertises/${s.slug}`} className="inline-block py-1 text-white/70 hover:text-white">
                     {s.title}
                   </Link>
                 </li>
@@ -117,32 +117,32 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/55">
+            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/70">
               Entreprise
             </h3>
-            <ul className="mt-5 space-y-2.5 text-sm">
+            <ul className="mt-5 space-y-1.5 text-sm">
               <li>
-                <Link href="/qui-sommes-nous" className="text-white/70 hover:text-white">
+                <Link href="/qui-sommes-nous" className="inline-block py-1 text-white/70 hover:text-white">
                   Qui sommes-nous
                 </Link>
               </li>
               <li>
-                <Link href="/realisations" className="text-white/70 hover:text-white">
+                <Link href="/realisations" className="inline-block py-1 text-white/70 hover:text-white">
                   Réalisations
                 </Link>
               </li>
               <li>
-                <Link href="/presse" className="text-white/70 hover:text-white">
+                <Link href="/presse" className="inline-block py-1 text-white/70 hover:text-white">
                   Presse
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-white/70 hover:text-white">
+                <Link href="/faq" className="inline-block py-1 text-white/70 hover:text-white">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-white/70 hover:text-white">
+                <Link href="/contact" className="inline-block py-1 text-white/70 hover:text-white">
                   Contact
                 </Link>
               </li>
@@ -150,7 +150,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/55">
+            <h3 className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/70">
               Contact
             </h3>
             <address className="mt-5 not-italic text-sm leading-relaxed text-white/70">
@@ -183,7 +183,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-6 font-mono text-[13px] uppercase tracking-[0.15em] text-white/40 md:flex-row md:items-center md:justify-between">
+        <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-6 font-mono text-[13px] uppercase tracking-[0.15em] text-white/60 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} Azur Cover. Tous droits réservés.</p>
           <div className="flex flex-wrap gap-x-5 gap-y-1">
             <Link href="/mentions-legales" className="hover:text-white/70">Mentions légales</Link>
@@ -191,7 +191,7 @@ export function Footer() {
           </div>
         </div>
 
-        <p className="mt-8 text-center font-mono text-[12px] uppercase tracking-[0.18em] text-white/25">
+        <p className="mt-8 text-center font-mono text-[12px] uppercase tracking-[0.18em] text-white/45">
           Site conçu par Renew Editing
         </p>
       </Container>

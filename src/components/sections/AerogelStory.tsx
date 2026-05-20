@@ -21,19 +21,19 @@ const CHAPTERS = [
     index: "01",
     kicker: "Le problème",
     title: ["Un toit", "qui surchauffe."],
-    body: "Sous le soleil, une toiture sombre peut dépasser 80 °C. Cette chaleur rayonne vers l’intérieur et fait grimper la température des espaces situés juste en dessous.",
+    body: "Sous le soleil, une toiture sombre peut dépasser 80 °C. Cette chaleur rayonne vers l’intérieur et fait grimper la température des espaces situés juste en dessous.",
   },
   {
     index: "02",
     kicker: "La réponse",
     title: ["Un héritage", "spatial."],
-    body: "Le revêtement Cool Roofing intègre de l’aérogel de silice — un isolant conçu pour protéger les structures spatiales des écarts thermiques extrêmes. Appliqué en membrane continue, sans démontage de la toiture existante.",
+    body: "Le revêtement Cool Roofing intègre de l’aérogel de silice, un isolant conçu pour protéger les structures spatiales des écarts thermiques extrêmes. Appliqué en membrane continue, sans démontage de la toiture existante.",
   },
   {
     index: "03",
     kicker: "Le résultat",
-    title: ["80 à 90 %", "renvoyés."],
-    body: "La membrane réfléchit 80 à 90 % du rayonnement solaire avant qu’il ne pénètre le bâtiment. Performance certifiée CSTB et classement B-ROOF (t3).",
+    title: ["80 à 90 %", "renvoyés."],
+    body: "La membrane réfléchit 80 à 90 % du rayonnement solaire avant qu’il ne pénètre le bâtiment. Performance certifiée CSTB et classement B-ROOF (t3).",
   },
 ] as const;
 

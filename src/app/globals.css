@@ -5,7 +5,7 @@
   --color-ink: #0d2537; /* bleu marine d'accompagnement (charte) */
   --color-graphite: #1a3447;
   --color-graphite-warm: #243d4f;
-  --color-muted: #6e7c89;
+  --color-muted: #5c6976;
   --color-line: #d2d8df;
   --color-bg: #fbfbfd;
   --color-white: #ffffff;
@@ -29,6 +29,7 @@
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
     background: var(--color-bg);
     /* clip (not hidden) — hidden makes html/body a scroll container and
        breaks position: sticky for descendants (e.g. AerogelStory pin). */
@@ -44,6 +45,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.6;
+  }
+
+  a,
+  button,
+  [role="button"] {
+    touch-action: manipulation;
   }
 
   ::selection {

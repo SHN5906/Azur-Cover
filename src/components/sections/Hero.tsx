@@ -50,7 +50,7 @@ export function Hero() {
               fontSize: "clamp(2.75rem, 5.4vw, 5.75rem)",
               fontWeight: 600,
               letterSpacing: "-0.035em",
-              lineHeight: 0.98,
+              lineHeight: 1.05,
               textWrap: "balance",
             }}
           >

@@ -5,7 +5,7 @@ import { site } from "@/content/site";
 export const metadata: Metadata = {
   title: "Mentions légales",
   description:
-    "Mentions légales du site azurcover.com — éditeur, hébergement, propriété intellectuelle.",
+    "Mentions légales du site azurcover.com : éditeur, hébergement, propriété intellectuelle.",
   alternates: { canonical: "/mentions-legales" },
 };
 

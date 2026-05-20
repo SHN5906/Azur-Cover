@@ -20,7 +20,7 @@ export type Realisation = {
 };
 
 // Source : pages /realisations-tertiaire/* du site azurcover.com
-// (scrapées via Googlebot UA). Quand la page n'avait pas de description
+// (scrapées via Googlebot UA). Quand la page n’avait pas de description
 // détaillée, on se contente de la fiche technique pour ne pas inventer.
 export const realisations: Realisation[] = [
   {
@@ -34,7 +34,7 @@ export const realisations: Realisation[] = [
     year: "2024",
     short: "Application Cool Roofing sur la toiture industrielle PromoCash de Grasse.",
     story: [
-      "Application du revêtement Cool Roofing sur l'intégralité de la toiture industrielle de PromoCash à Grasse.",
+      "Application du revêtement Cool Roofing sur l’intégralité de la toiture industrielle de PromoCash à Grasse.",
     ],
     image: {
       src: "/images/realisations/promocash.jpg",
@@ -51,14 +51,14 @@ export const realisations: Realisation[] = [
     duration: "2 semaines",
     year: "2024",
     short:
-      "Application Azur Reflect sur les vitrages d'une école primaire. Mesures par sondes : 3 à 4 °C de moins dans les classes traitées par rapport aux classes témoins.",
+      "Application Azur Reflect sur les vitrages d’une école primaire. Mesures par sondes : 3 à 4 °C de moins dans les classes traitées par rapport aux classes témoins.",
     story: [
-      "À l'école Jacqueline de Romilly de Cannes, les épisodes de forte chaleur rendaient les conditions d'enseignement quasiment impraticables. Face à l'urgence et à l'inconfort des élèves, les enseignants avaient dû improviser des solutions de fortune, allant jusqu'à installer des couvertures de survie sur les vitres.",
-      "Pour valider l'efficacité de notre intervention, nous avons mis en place des sondes : comparaison en temps réel entre les classes traitées par Azur Reflect et des classes témoins non traitées (exposition identique).",
-      "Les relevés ont été sans appel. Lors des pics de chaleur, nous avons enregistré une différence moyenne de 3 à 4 °C en faveur des classes équipées. Confort visuel : contrairement aux couvertures de survie, Azur Reflect préserve la lumière naturelle et la transparence du verre.",
+      "À l’école Jacqueline de Romilly de Cannes, les épisodes de forte chaleur rendaient les conditions d’enseignement quasiment impraticables. Face à l’urgence et à l’inconfort des élèves, les enseignants avaient dû improviser des solutions de fortune, allant jusqu’à installer des couvertures de survie sur les vitres.",
+      "Pour valider l’efficacité de notre intervention, nous avons mis en place des sondes : comparaison en temps réel entre les classes traitées par Azur Reflect et des classes témoins non traitées (exposition identique).",
+      "Les relevés ont été sans appel. Lors des pics de chaleur, nous avons enregistré une différence moyenne de 3 à 4 °C en faveur des classes équipées. Confort visuel : contrairement aux couvertures de survie, Azur Reflect préserve la lumière naturelle et la transparence du verre.",
     ],
     results: [
-      { value: "3 à 4 °C", label: "vs classes témoins, en pic chaleur" },
+      { value: "3 à 4 °C", label: "vs classes témoins, en pic chaleur" },
     ],
     image: {
       src: "/images/realisations/ecole-cannes.jpg",
@@ -94,10 +94,10 @@ export const realisations: Realisation[] = [
     duration: "2 jours",
     year: "2024",
     short:
-      "Vitrines commerciales d'un U Express traitées Azur Reflect. Stop chaleur sans perte de transparence.",
+      "Vitrines commerciales d’un U Express traitées Azur Reflect. Stop chaleur sans perte de transparence.",
     story: [
-      "Situé près de Nice, U Express dispose d'une large devanture vitrée. Si cette visibilité est un atout commercial, elle exposait la zone d'entrée et les premiers rayons à un rayonnement solaire intense, augmentant la température intérieure et sollicitant l'installation de climatisation de manière excessive.",
-      "Nos équipes ont procédé à l'application de la solution Azur Reflect sur l'intégralité de la façade vitrée. L'objectif : stopper la chaleur tout en conservant une transparence pour laisser voir l'intérieur du magasin aux passants.",
+      "Situé près de Nice, U Express dispose d’une large devanture vitrée. Si cette visibilité est un atout commercial, elle exposait la zone d’entrée et les premiers rayons à un rayonnement solaire intense, augmentant la température intérieure et sollicitant l’installation de climatisation de manière excessive.",
+      "Nos équipes ont procédé à l’application de la solution Azur Reflect sur l’intégralité de la façade vitrée. L’objectif : stopper la chaleur tout en conservant une transparence pour laisser voir l’intérieur du magasin aux passants.",
     ],
     image: {
       src: "/images/realisations/u-express.jpg",
@@ -231,9 +231,9 @@ export const realisations: Realisation[] = [
     solution: "Azur Reflect",
     duration: "1 jour",
     year: "2024",
-    short: "Application Azur Reflect à l'EHPAD Le Petit Paris à Grasse.",
+    short: "Application Azur Reflect à l’EHPAD Le Petit Paris à Grasse.",
     story: [
-      "Application du vernis Azur Reflect à l'EHPAD Le Petit Paris à Grasse.",
+      "Application du vernis Azur Reflect à l’EHPAD Le Petit Paris à Grasse.",
     ],
     image: {
       src: "/images/realisations/ehpad-petit-paris.jpg",

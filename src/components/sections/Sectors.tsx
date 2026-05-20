@@ -13,7 +13,7 @@ export function Sectors() {
     >
       <Container>
         <ScrollReveal>
-          <Eyebrow>Secteurs d&apos;intervention</Eyebrow>
+          <Eyebrow>Secteurs d’intervention</Eyebrow>
         </ScrollReveal>
         <ScrollReveal delay={120}>
           <h2
@@ -24,6 +24,7 @@ export function Sectors() {
               fontWeight: 600,
               letterSpacing: "-0.03em",
               lineHeight: 1,
+              textWrap: "balance",
             }}
           >
             Une expertise adaptée à tous les types de bâtiments.

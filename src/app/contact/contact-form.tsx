@@ -40,7 +40,7 @@ export function ContactForm() {
         setStatus("error");
         setErrorMsg(
           (typeof data?.error === "string" && data.error) ||
-            "Échec de l'envoi. Réessayez ou écrivez-nous directement."
+            "Échec de l’envoi. Réessayez ou écrivez-nous directement."
         );
         return;
       }
@@ -54,15 +54,15 @@ export function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="lg:col-span-7" noValidate>
-      <Eyebrow>Demande d&apos;audit</Eyebrow>
+    <form onSubmit={handleSubmit} className="lg:col-span-7">
+      <Eyebrow>Demande d’audit</Eyebrow>
 
       <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Field label="Entreprise" name="company" required />
-        <Field label="Nom & prénom" name="name" required />
-        <Field label="Email" name="email" type="email" required />
-        <Field label="Téléphone" name="phone" type="tel" />
-        <Field label="Ville du bâtiment" name="city" full />
+        <Field label="Entreprise" name="company" autoComplete="organization" required />
+        <Field label="Nom & prénom" name="name" autoComplete="name" spellCheck={false} required />
+        <Field label="Email" name="email" type="email" autoComplete="email" spellCheck={false} required />
+        <Field label="Téléphone" name="phone" type="tel" autoComplete="tel" />
+        <Field label="Ville du bâtiment" name="city" autoComplete="address-level2" full />
         <Select
           label="Type de projet"
           name="project"
@@ -95,7 +95,7 @@ export function ContactForm() {
       <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-6">
         <SubmitButton status={status} />
         <p className="text-xs text-muted">
-          Vous serez contacté sous 48 h.
+          Vous serez contacté sous 48&nbsp;h.
         </p>
       </div>
 
@@ -111,7 +111,7 @@ export function ContactForm() {
       >
         {status === "sent" && (
           <p className="text-ink">
-            Demande reçue. Nous revenons vers vous sous 48 h.
+            Demande reçue. Nous revenons vers vous sous 48&nbsp;h.
           </p>
         )}
         {status === "error" && (
@@ -217,9 +217,11 @@ type FieldProps = {
   type?: string;
   required?: boolean;
   full?: boolean;
+  autoComplete?: string;
+  spellCheck?: boolean;
 };
 
-function Field({ label, name, type = "text", required, full }: FieldProps) {
+function Field({ label, name, type = "text", required, full, autoComplete, spellCheck }: FieldProps) {
   return (
     <label className={full ? "md:col-span-2" : ""}>
       <span className="block font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
@@ -230,7 +232,9 @@ function Field({ label, name, type = "text", required, full }: FieldProps) {
         type={type}
         name={name}
         required={required}
-        className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-ink"
+        autoComplete={autoComplete}
+        spellCheck={spellCheck}
+        className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 placeholder:text-muted/50 focus-visible:border-ink focus-visible:ring-0"
         style={{ fontSize: "1.0625rem" }}
       />
     </label>
@@ -255,7 +259,7 @@ function Textarea({
         name={name}
         rows={5}
         placeholder={placeholder}
-        className="mt-2 block w-full resize-y border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-ink"
+        className="mt-2 block w-full resize-y border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 placeholder:text-muted/50 focus-visible:border-ink focus-visible:ring-0"
         style={{ fontSize: "1.0625rem" }}
       />
     </label>
@@ -281,7 +285,7 @@ function Select({
       <select
         name={name}
         defaultValue=""
-        className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 focus:border-ink"
+        className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 focus-visible:border-ink focus-visible:ring-0"
         style={{ fontSize: "1.0625rem" }}
       >
         <option value="" disabled>
