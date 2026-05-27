@@ -37,15 +37,19 @@ export function SolutionsMobile() {
         {expertises.map((s) => (
           <SwiperSlide key={s.slug}>
             <article className="flex flex-col">
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-md bg-graphite-warm">
+              <Link
+                href={`/expertises/${s.slug}`}
+                aria-label={`Voir la solution ${s.title}`}
+                className="group relative block aspect-[4/5] w-full overflow-hidden rounded-md bg-graphite-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]"
+              >
                 <Image
                   src={s.image.src}
                   alt={s.image.alt}
                   fill
                   sizes="100vw"
-                  className="object-cover photo-treatment"
+                  className="object-cover photo-treatment transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                 />
-              </div>
+              </Link>
               <div className="pb-12 pt-6">
                 <span className="font-mono text-[12px] uppercase tracking-[0.22em] text-azur">
                   {s.index}

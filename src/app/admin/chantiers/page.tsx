@@ -47,6 +47,7 @@ export default async function ChantiersList() {
               <th className="py-3 font-normal">Client</th>
               <th className="py-3 font-normal">Ville</th>
               <th className="py-3 font-normal">Solution</th>
+              <th className="py-3 font-normal">Secteur</th>
               <th className="py-3 font-normal">Année</th>
               <th className="py-3 text-right font-normal">Actions</th>
             </tr>
@@ -66,6 +67,7 @@ export default async function ChantiersList() {
                 <td className="py-3">{r.client}</td>
                 <td className="py-3">{r.city}</td>
                 <td className="py-3">{r.solution}</td>
+                <td className="py-3 capitalize">{r.sector}</td>
                 <td className="py-3">{r.year}</td>
                 <td className="space-x-4 py-3 text-right">
                   <Link

@@ -1,16 +1,36 @@
 import "server-only";
-import { eq, asc, desc } from "drizzle-orm";
+import { and, eq, asc, desc, type SQL } from "drizzle-orm";
 import { getDb } from "@/db";
-import { realisations } from "@/db/schema";
+import {
+  realisations,
+  type SectorValue,
+  type SolutionValue,
+} from "@/db/schema";
 
 export type RealisationRow = typeof realisations.$inferSelect;
 export type RealisationInsert = typeof realisations.$inferInsert;
 
-export async function listRealisations(): Promise<RealisationRow[]> {
-  return getDb()
-    .select()
-    .from(realisations)
-    .orderBy(asc(realisations.sortIndex), desc(realisations.createdAt));
+export type RealisationFilters = {
+  sector?: SectorValue;
+  solution?: SolutionValue;
+};
+
+export async function listRealisations(
+  filters: RealisationFilters = {},
+): Promise<RealisationRow[]> {
+  const conditions: SQL[] = [];
+  if (filters.sector) conditions.push(eq(realisations.sector, filters.sector));
+  if (filters.solution)
+    conditions.push(eq(realisations.solution, filters.solution));
+
+  const query = getDb().select().from(realisations);
+  const filtered =
+    conditions.length > 0 ? query.where(and(...conditions)) : query;
+
+  return filtered.orderBy(
+    asc(realisations.sortIndex),
+    desc(realisations.createdAt),
+  );
 }
 
 export async function getRealisationBySlug(slug: string): Promise<RealisationRow | null> {
@@ -43,6 +63,9 @@ export async function deleteRealisationBySlug(slug: string) {
   const [row] = await getDb()
     .delete(realisations)
     .where(eq(realisations.slug, slug))
-    .returning({ imageSrc: realisations.imageSrc });
+    .returning({
+      imageSrc: realisations.imageSrc,
+      gallery: realisations.gallery,
+    });
   return row ?? null;
 }

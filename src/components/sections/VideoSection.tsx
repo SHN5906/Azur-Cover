@@ -88,7 +88,7 @@ export function VideoSection() {
       ref={sectionRef}
       id="video"
       aria-labelledby="video-h"
-      className="bg-bg py-[clamp(120px,18vw,200px)]"
+      className="bg-bg py-[clamp(56px,9vw,110px)]"
     >
       <Container>
         <div className="text-center">

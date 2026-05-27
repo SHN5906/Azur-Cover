@@ -44,13 +44,15 @@ function DrawnArrow() {
       height="12"
       viewBox="0 0 32 12"
       fill="none"
-      className="text-line"
+      className="text-ink/25"
     >
       <path
         ref={ref}
         d="M0 6h28m0 0L23 1m5 5l-5 5"
         stroke="currentColor"
-        strokeWidth="1"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -62,7 +64,7 @@ export function Methodology() {
       id="methodologie"
 
       aria-labelledby="methodologie-h"
-      className="py-[clamp(120px,18vw,200px)]"
+      className="py-[clamp(56px,9vw,110px)]"
     >
       <Container>
         <div className="max-w-[880px]">
@@ -94,7 +96,7 @@ export function Methodology() {
           </ScrollReveal>
         </div>
 
-        <ol className="relative mt-20 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        <ol className="relative mt-20 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {steps.map((step, i) => (
             <ScrollReveal key={step.index} delay={120 + i * 100} as="li" className="relative">
               <div className="group h-full rounded-md border border-line/70 bg-white p-8 transition-all duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:shadow-lg">
@@ -127,9 +129,12 @@ export function Methodology() {
                 </p>
               </div>
 
-              {/* Connector arrow (desktop only, not on last) */}
+              {/* Connector arrow (desktop only, not on last) — positionnée
+                  pile au centre du gap (gap-8 = 32px, flèche 32px → right-[-32px]
+                  fait que le shaft commence à la bordure droite de la card et la
+                  pointe atteint la bordure gauche de la suivante). */}
               {i < steps.length - 1 && (
-                <div className="absolute top-1/2 -right-4 hidden -translate-y-1/2 lg:block">
+                <div className="absolute top-1/2 -right-8 hidden -translate-y-1/2 lg:block">
                   <DrawnArrow />
                 </div>
               )}

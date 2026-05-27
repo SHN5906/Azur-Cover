@@ -26,19 +26,33 @@ async function main() {
   const db = drizzle(neon(url));
 
   let inserted = 0;
+  let updated = 0;
   let skipped = 0;
 
   for (let i = 0; i < staticRealisations.length; i++) {
     const r = staticRealisations[i];
     const [existing] = await db
-      .select({ id: realisationsTable.id })
+      .select({ id: realisationsTable.id, sector: realisationsTable.sector })
       .from(realisationsTable)
       .where(eq(realisationsTable.slug, r.slug))
       .limit(1);
 
     if (existing) {
-      console.log(`  skip (exists)  : ${r.slug}`);
-      skipped++;
+      // Backfill : si la colonne `sector` est encore à sa valeur par défaut
+      // ('tertiaire') alors que la source statique a une autre valeur, on
+      // corrige. Permet à `pnpm db:migrate-realisations` de servir aussi de
+      // reclassification après l'ajout du champ.
+      if (existing.sector !== r.sector) {
+        await db
+          .update(realisationsTable)
+          .set({ sector: r.sector, updatedAt: new Date() })
+          .where(eq(realisationsTable.slug, r.slug));
+        console.log(`  updated sector : ${r.slug} → ${r.sector}`);
+        updated++;
+      } else {
+        console.log(`  skip (exists)  : ${r.slug}`);
+        skipped++;
+      }
       continue;
     }
 
@@ -48,6 +62,7 @@ async function main() {
       client: r.client,
       city: r.city,
       solution: r.solution,
+      sector: r.sector,
       surface: r.surface ?? null,
       duration: r.duration,
       year: r.year,
@@ -56,6 +71,8 @@ async function main() {
       results: r.results ?? null,
       imageSrc: r.image.src,
       imageAlt: r.image.alt,
+      gallery: r.gallery ?? [],
+      videoUrl: r.videoUrl ?? null,
       logo: r.logo ?? null,
       sortIndex: i,
     });
@@ -64,7 +81,7 @@ async function main() {
   }
 
   console.log(
-    `\n→ inserted: ${inserted}, skipped: ${skipped}, total in source: ${staticRealisations.length}`,
+    `\n→ inserted: ${inserted}, updated: ${updated}, skipped: ${skipped}, total in source: ${staticRealisations.length}`,
   );
 }
 

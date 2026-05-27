@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PageHero } from "@/components/sections/PageHero";
@@ -29,13 +30,14 @@ const faqJsonLd = JSON.stringify({
   })),
 });
 
-export default function FAQPage() {
+export default async function FAQPage() {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const groups = faqByCategory();
   const order: Array<keyof typeof groups> = ["Cool Roofing", "Azur Reflect", "Étanchéité", "Général"];
 
   return (
     <>
-      <script type="application/ld+json">{faqJsonLd}</script>
+      <script type="application/ld+json" nonce={nonce}>{faqJsonLd}</script>
       <Header />
       <main id="main">
         <PageHero

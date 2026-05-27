@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { CountUp } from "@/components/motion/CountUp";
 import { BreadcrumbJsonLd } from "@/lib/breadcrumb";
 import { listRealisations, getRealisationBySlug } from "@/lib/realisations-repo";
+import { parseVideoEmbed } from "@/lib/video-embed";
 
 export async function generateStaticParams() {
   const rows = await listRealisations();
@@ -44,6 +45,9 @@ export default async function RealisationPage({
   const idx = all.findIndex((x) => x.slug === slug);
   const prev = all[(idx - 1 + all.length) % all.length];
   const next = all[(idx + 1) % all.length];
+
+  const video = r.videoUrl ? parseVideoEmbed(r.videoUrl) : null;
+  const gallery = r.gallery ?? [];
 
   return (
     <>
@@ -102,6 +106,60 @@ export default async function RealisationPage({
             </div>
           </div>
         </section>
+
+        {/* Vidéo (YouTube / Vimeo / .mp4) */}
+        {video && (
+          <section className="pb-20 md:pb-28" aria-label="Vidéo du chantier">
+            <div className="mx-auto w-full max-w-[1320px] px-6 sm:px-10 lg:px-20">
+              <div className="relative aspect-video w-full overflow-hidden rounded-md bg-black">
+                {video.kind === "file" ? (
+                  <video
+                    controls
+                    preload="metadata"
+                    playsInline
+                    className="h-full w-full object-cover"
+                  >
+                    <source src={video.src} type={video.mime} />
+                  </video>
+                ) : (
+                  <iframe
+                    src={video.embedUrl}
+                    title={video.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                    className="absolute inset-0 h-full w-full"
+                  />
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Galerie photos additionnelles */}
+        {gallery.length > 0 && (
+          <section className="pb-20 md:pb-28" aria-label="Galerie photo">
+            <div className="mx-auto w-full max-w-[1320px] px-6 sm:px-10 lg:px-20">
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {gallery.map((g, i) => (
+                  <li
+                    key={`${g.url}-${i}`}
+                    className="relative aspect-[4/3] overflow-hidden rounded-md bg-graphite/5"
+                  >
+                    <Image
+                      src={g.url}
+                      alt={g.alt}
+                      fill
+                      loading={i < 3 ? "eager" : "lazy"}
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover photo-treatment"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
 
         {/* Fiche technique band */}
         <section className="border-y border-line/60 py-12 md:py-16">

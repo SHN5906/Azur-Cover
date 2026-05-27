@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { sectors } from "@/content/sectors";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -9,7 +10,7 @@ export function Sectors() {
     <section
       id="sectors"
       aria-labelledby="sectors-h"
-      className="py-[clamp(120px,18vw,200px)]"
+      className="py-[clamp(56px,9vw,110px)]"
     >
       <Container>
         <ScrollReveal>
@@ -34,14 +35,18 @@ export function Sectors() {
         <ul className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
           {sectors.map((s, i) => (
             <ScrollReveal key={s.id} delay={120 + i * 100} as="li">
-              <article className="relative block aspect-[4/5] overflow-hidden rounded-md bg-graphite">
+              <Link
+                href={`/realisations?secteur=${s.id}`}
+                aria-label={`Voir les réalisations du secteur ${s.title}`}
+                className="group relative block aspect-[4/5] overflow-hidden rounded-md bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4"
+              >
                 <Image
                   src={s.image.src}
                   alt={s.image.alt}
                   fill
                   loading="lazy"
                   sizes="(min-width: 768px) 33vw, 100vw"
-                  className="object-cover photo-treatment"
+                  className="object-cover photo-treatment transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
                 <div
                   aria-hidden
@@ -66,8 +71,17 @@ export function Sectors() {
                   <p className="mt-3 max-w-[280px] text-sm leading-relaxed text-white/80">
                     {s.description}
                   </p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-white">
+                    <span className="underline-grow">Voir les chantiers</span>
+                    <span
+                      aria-hidden
+                      className="transition-transform duration-500 ease-out group-hover:translate-x-1"
+                    >
+                      →
+                    </span>
+                  </span>
                 </div>
-              </article>
+              </Link>
             </ScrollReveal>
           ))}
         </ul>

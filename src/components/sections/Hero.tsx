@@ -10,15 +10,17 @@ export function Hero() {
       aria-labelledby="hero-h1"
       className="relative isolate flex min-h-[100svh] max-h-[920px] w-full items-center overflow-hidden"
     >
-      {/* Image: right half desktop, full bg with vertical fade on mobile */}
-      <div aria-hidden className="absolute inset-0 lg:left-[44%] lg:right-0">
+      {/* Image: right half desktop, full bg with vertical fade on mobile.
+          Push further right at xl/2xl so the H1 never collides with the photo
+          on wide viewports (container caps at 1320px, text panel at 720px). */}
+      <div aria-hidden className="absolute inset-0 lg:left-[48%] xl:left-[52%] 2xl:left-[56%] lg:right-0">
         <Image
           src="/images/hero/building.jpg"
           alt=""
           fill
           preload
           fetchPriority="high"
-          sizes="(min-width: 1024px) 56vw, 100vw"
+          sizes="(min-width: 1536px) 44vw, (min-width: 1280px) 48vw, (min-width: 1024px) 52vw, 100vw"
           className="object-cover object-center photo-treatment"
         />
         {/* Mobile: vertical fade so text stays legible */}
@@ -29,12 +31,12 @@ export function Hero() {
               "linear-gradient(180deg, rgba(251,251,253,0.55) 0%, rgba(251,251,253,0.15) 35%, rgba(251,251,253,0.92) 100%)",
           }}
         />
-        {/* Desktop: thin seam to soften the text panel edge. only first 8% */}
+        {/* Desktop: wider soft seam so any text bleed reads cleanly */}
         <div
-          className="absolute inset-y-0 left-0 hidden w-[8%] lg:block"
+          className="absolute inset-y-0 left-0 hidden w-[18%] lg:block"
           style={{
             background:
-              "linear-gradient(90deg, rgba(251,251,253,1) 0%, rgba(251,251,253,0) 100%)",
+              "linear-gradient(90deg, rgba(251,251,253,1) 0%, rgba(251,251,253,0.6) 45%, rgba(251,251,253,0) 100%)",
           }}
         />
       </div>
@@ -47,7 +49,7 @@ export function Hero() {
             id="hero-h1"
             className="text-ink"
             style={{
-              fontSize: "clamp(2.75rem, 5.4vw, 5.75rem)",
+              fontSize: "clamp(2.5rem, 4.6vw, 5rem)",
               fontWeight: 600,
               letterSpacing: "-0.035em",
               lineHeight: 1.05,

@@ -20,6 +20,13 @@ export const solutionEnum = [
 
 export type SolutionValue = (typeof solutionEnum)[number];
 
+// Secteur d'activité du chantier. Sert au filtre /realisations?secteur=…
+// et aux liens depuis les cartes secteurs de l'accueil. Slugs URL-safe.
+export const sectorEnum = ["industrie", "tertiaire", "collectivites"] as const;
+export type SectorValue = (typeof sectorEnum)[number];
+
+export type GalleryItem = { url: string; alt: string };
+
 export const realisations = pgTable("realisations", {
   id: uuid("id").defaultRandom().primaryKey(),
   slug: varchar("slug", { length: 96 }).notNull().unique(),
@@ -27,6 +34,7 @@ export const realisations = pgTable("realisations", {
   client: varchar("client", { length: 160 }).notNull(),
   city: varchar("city", { length: 96 }).notNull(),
   solution: text("solution").$type<SolutionValue>().notNull(),
+  sector: text("sector").$type<SectorValue>().notNull().default("tertiaire"),
   surface: varchar("surface", { length: 32 }),
   duration: varchar("duration", { length: 64 }).notNull(),
   year: varchar("year", { length: 8 }).notNull(),
@@ -35,6 +43,11 @@ export const realisations = pgTable("realisations", {
   results: jsonb("results").$type<{ value: string; label: string }[]>(),
   imageSrc: text("image_src").notNull(),
   imageAlt: varchar("image_alt", { length: 220 }).notNull(),
+  // Galerie complémentaire (photos additionnelles du chantier). Ordre signifiant.
+  gallery: jsonb("gallery").$type<GalleryItem[]>().notNull().default([]),
+  // URL libre : YouTube, Vimeo, ou direct .mp4 (Vercel Blob). Le rendu
+  // public détecte l'hôte et choisit iframe vs <video>.
+  videoUrl: text("video_url"),
   logo: text("logo"),
   sortIndex: integer("sort_index").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

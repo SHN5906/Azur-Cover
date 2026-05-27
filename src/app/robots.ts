@@ -8,7 +8,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/admin/", "/admin"],
+        // /admin n'est volontairement pas listé : le rapport l'exposerait
+        // dans un fichier public. La section admin est déjà en noindex via
+        // les metadata de src/app/admin/layout.tsx.
+        disallow: ["/api/"],
       },
     ],
     sitemap: `${base}/sitemap.xml`,

@@ -18,6 +18,8 @@ export function BreadcrumbJsonLd({ items }: { items: Crumb[] }) {
       item: item.url.startsWith("http") ? item.url : `${base}${item.url}`,
     })),
   };
+  // No nonce: a JSON-LD data block is not an executable script, so the CSP
+  // script-src never applies to it.
   return (
     <script type="application/ld+json">{JSON.stringify(data)}</script>
   );

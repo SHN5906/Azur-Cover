@@ -39,7 +39,7 @@ export async function loginAction(
   // façon, mais ceinture+bretelles).
   const ip = await getClientIp();
   const rlKey = `admin:login:${ip}`;
-  const rate = checkRateLimit(rlKey, 5, 60_000);
+  const rate = await checkRateLimit(rlKey, 5, 60_000);
   if (!rate.ok) {
     return {
       ok: false,
@@ -55,13 +55,13 @@ export async function loginAction(
       password: parsed.data.password,
       redirectTo,
     });
-    resetRateLimit(rlKey);
+    await resetRateLimit(rlKey);
     return { ok: true };
   } catch (err) {
     // Côté succès, signIn() throw NEXT_REDIRECT — laisser remonter pour que
     // Next.js gère la redirection vers redirectTo.
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {
-      resetRateLimit(rlKey);
+      await resetRateLimit(rlKey);
       throw err;
     }
     if (err instanceof AuthError) {

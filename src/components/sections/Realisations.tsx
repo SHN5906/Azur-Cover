@@ -14,7 +14,7 @@ export async function Realisations() {
     <section
       id="realisations"
       aria-labelledby="realisations-h"
-      className="py-[clamp(120px,18vw,200px)]"
+      className="py-[clamp(56px,9vw,110px)]"
     >
       <Container>
         {/* Header row: text left, "voir toutes" right */}

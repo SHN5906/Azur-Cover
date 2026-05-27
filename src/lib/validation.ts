@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { solutionEnum } from "@/db/schema";
+import { solutionEnum, sectorEnum } from "@/db/schema";
 
 const optionalString = (max: number) =>
   z
@@ -38,6 +38,7 @@ export const RealisationSchema = z.object({
   client: z.string().min(2, "Client requis").max(160),
   city: z.string().min(2, "Ville requise").max(96),
   solution: z.enum(solutionEnum),
+  sector: z.enum(sectorEnum),
   surface: optionalString(32),
   duration: z.string().min(1, "Durée requise").max(64),
   year: z.string().regex(/^\d{4}$/, "Année sur 4 chiffres (ex: 2024)"),
@@ -69,6 +70,29 @@ export const RealisationSchema = z.object({
     .string()
     .min(5, "Texte alternatif requis (min 5 caractères)")
     .max(220),
+  // Galerie : max 24 entrées (limite pratique pour ne pas exploser la
+  // page de détail). Chaque entrée a sa propre image + alt.
+  gallery: z
+    .array(
+      z.object({
+        url: imagePathOrUrl,
+        alt: z
+          .string()
+          .min(5, "Texte alternatif requis (min 5)")
+          .max(220),
+      }),
+    )
+    .max(24, "Galerie limitée à 24 photos")
+    .optional()
+    .default([]),
+  // URL vidéo : on accepte large (YouTube, Vimeo, .mp4 via Blob). Le rendu
+  // public refait la détection. Refus strict de javascript:/data:/file:.
+  videoUrl: z
+    .string()
+    .url("URL vidéo invalide")
+    .max(500)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   logo: optionalImagePathOrUrl,
 });
 

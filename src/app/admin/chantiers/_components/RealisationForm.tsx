@@ -1,11 +1,24 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { solutionEnum, type SolutionValue } from "@/db/schema";
+import {
+  solutionEnum,
+  sectorEnum,
+  type SolutionValue,
+  type SectorValue,
+} from "@/db/schema";
 import { ImageUpload } from "./ImageUpload";
+import { GalleryManager } from "./GalleryManager";
 import type { ActionResult } from "../../_actions/realisations";
 
 type ResultRow = { value: string; label: string };
+
+// Libellés humains pour le select secteur (la DB stocke des slugs).
+const SECTOR_LABELS: Record<SectorValue, string> = {
+  industrie: "Industrie",
+  tertiaire: "Tertiaire",
+  collectivites: "Collectivités",
+};
 
 const FIELD_LABELS: Record<string, string> = {
   slug: "Slug",
@@ -13,6 +26,7 @@ const FIELD_LABELS: Record<string, string> = {
   client: "Client",
   city: "Ville",
   solution: "Solution",
+  sector: "Secteur",
   surface: "Surface",
   duration: "Durée",
   year: "Année",
@@ -21,6 +35,8 @@ const FIELD_LABELS: Record<string, string> = {
   results: "Résultats",
   imageSrc: "Image",
   imageAlt: "Texte alternatif (alt)",
+  gallery: "Galerie",
+  videoUrl: "Vidéo",
   logo: "Logo",
 };
 
@@ -30,6 +46,7 @@ export type RealisationFormInitial = {
   client: string;
   city: string;
   solution: SolutionValue;
+  sector: SectorValue;
   surface?: string | null;
   duration: string;
   year: string;
@@ -38,6 +55,8 @@ export type RealisationFormInitial = {
   results?: ResultRow[] | null;
   imageSrc: string;
   imageAlt: string;
+  gallery?: { url: string; alt: string }[] | null;
+  videoUrl?: string | null;
   logo?: string | null;
 };
 
@@ -122,6 +141,15 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
           defaultValue={initial?.solution}
           options={solutionEnum}
           error={fieldErrors?.solution}
+        />
+        <SelectField
+          name="sector"
+          label="Secteur"
+          required
+          defaultValue={initial?.sector}
+          options={sectorEnum}
+          labels={SECTOR_LABELS}
+          error={fieldErrors?.sector}
         />
         <TextField
           name="surface"
@@ -238,6 +266,35 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         )}
       </fieldset>
 
+      <fieldset className="space-y-3">
+        <legend className="text-xs uppercase tracking-wider text-muted">
+          Galerie photo (optionnel)
+        </legend>
+        <p className="text-xs text-muted">
+          Photos additionnelles du chantier. Affichées en grille sous l&apos;image
+          principale sur la fiche publique.
+        </p>
+        <GalleryManager initial={initial?.gallery ?? []} slug={slugValue} />
+        {fieldErrors?.gallery && (
+          <p className="text-xs text-red-600">{fieldErrors.gallery.join(", ")}</p>
+        )}
+      </fieldset>
+
+      <fieldset>
+        <legend className="text-xs uppercase tracking-wider text-muted">
+          Vidéo du chantier (optionnel)
+        </legend>
+        <TextField
+          name="videoUrl"
+          label="URL vidéo"
+          defaultValue={initial?.videoUrl ?? ""}
+          placeholder="https://www.youtube.com/watch?v=… ou https://…/chantier.mp4"
+          hint="YouTube, Vimeo, ou URL directe .mp4 (ex: fichier hébergé sur Vercel Blob)."
+          error={fieldErrors?.videoUrl}
+          maxLength={500}
+        />
+      </fieldset>
+
       <fieldset>
         <legend className="text-xs uppercase tracking-wider text-muted">
           Logo client (optionnel)
@@ -332,10 +389,18 @@ type SelectFieldProps = {
   name: string;
   label: string;
   options: readonly string[];
+  labels?: Record<string, string>;
   error?: string[];
 } & React.SelectHTMLAttributes<HTMLSelectElement>;
 
-function SelectField({ name, label, options, error, ...props }: SelectFieldProps) {
+function SelectField({
+  name,
+  label,
+  options,
+  labels,
+  error,
+  ...props
+}: SelectFieldProps) {
   return (
     <label className="block">
       <span className="text-xs uppercase tracking-wider text-muted">
@@ -352,7 +417,7 @@ function SelectField({ name, label, options, error, ...props }: SelectFieldProps
         </option>
         {options.map((o) => (
           <option key={o} value={o}>
-            {o}
+            {labels?.[o] ?? o}
           </option>
         ))}
       </select>

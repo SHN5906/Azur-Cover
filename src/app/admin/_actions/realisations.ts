@@ -21,7 +21,7 @@ import { deleteBlobIfHosted } from "./upload";
  */
 async function rateLimitAdmin(action: string) {
   const ip = await getClientIp();
-  const result = checkRateLimit(`admin:${action}:${ip}`, 30, 60_000);
+  const result = await checkRateLimit(`admin:${action}:${ip}`, 30, 60_000);
   if (!result.ok) {
     return {
       ok: false as const,
@@ -45,12 +45,26 @@ function parseFormData(formData: FormData) {
     if (value && label) results.push({ value, label });
     i++;
   }
+
+  // gallery = série de champs `gallery[i][url]` et `gallery[i][alt]`.
+  // Les entrées partielles (alt vide ou url vide) sont éliminées ici, la
+  // validation Zod s'occupe du reste.
+  const gallery: { url: string; alt: string }[] = [];
+  let g = 0;
+  while (formData.has(`gallery[${g}][url]`) || formData.has(`gallery[${g}][alt]`)) {
+    const url = String(formData.get(`gallery[${g}][url]`) ?? "").trim();
+    const alt = String(formData.get(`gallery[${g}][alt]`) ?? "").trim();
+    if (url && alt) gallery.push({ url, alt });
+    g++;
+  }
+
   return {
     slug: String(formData.get("slug") ?? "").trim().toLowerCase(),
     title: String(formData.get("title") ?? "").trim(),
     client: String(formData.get("client") ?? "").trim(),
     city: String(formData.get("city") ?? "").trim(),
     solution: String(formData.get("solution") ?? "").trim(),
+    sector: String(formData.get("sector") ?? "").trim(),
     surface: String(formData.get("surface") ?? "").trim(),
     duration: String(formData.get("duration") ?? "").trim(),
     year: String(formData.get("year") ?? "").trim(),
@@ -59,6 +73,8 @@ function parseFormData(formData: FormData) {
     results: results.length > 0 ? results : undefined,
     imageSrc: String(formData.get("imageSrc") ?? "").trim(),
     imageAlt: String(formData.get("imageAlt") ?? "").trim(),
+    gallery,
+    videoUrl: String(formData.get("videoUrl") ?? "").trim(),
     logo: String(formData.get("logo") ?? "").trim(),
   };
 }
@@ -135,6 +151,12 @@ export async function updateRealisation(
     await deleteBlobIfHosted(existing.imageSrc);
   }
 
+  // Galerie : supprimer du Blob les images retirées (présentes avant, plus
+  // dans la nouvelle liste). Évite l'accumulation de fichiers orphelins.
+  const newUrls = new Set(parsed.data.gallery.map((g) => g.url));
+  const removed = (existing.gallery ?? []).filter((g) => !newUrls.has(g.url));
+  await Promise.all(removed.map((g) => deleteBlobIfHosted(g.url)));
+
   await updateRealisationBySlug(slug, parsed.data);
   revalidatePublic(parsed.data.slug, slug);
   redirect("/admin/chantiers");
@@ -149,6 +171,11 @@ export async function deleteRealisation(slug: string) {
     throw new Error(rl.error);
   }
   const row = await deleteRealisationBySlug(slug);
-  if (row) await deleteBlobIfHosted(row.imageSrc);
+  if (row) {
+    await deleteBlobIfHosted(row.imageSrc);
+    await Promise.all(
+      (row.gallery ?? []).map((g) => deleteBlobIfHosted(g.url)),
+    );
+  }
   revalidatePublic(slug);
 }

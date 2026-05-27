@@ -2,12 +2,16 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { BotIdClient } from "botid/client";
 import { site } from "@/content/site";
 import { expertises } from "@/content/expertises";
+import { BotIdGuard } from "@/components/layout/BotIdGuard";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
 import "./globals.css";
+
+// The nonce CSP (src/proxy.ts) requires server-side rendering on every
+// request so each page gets a fresh nonce — static pages have none.
+export const dynamic = "force-dynamic";
 
 const inter = localFont({
   src: [
@@ -131,14 +135,16 @@ export default function RootLayout({
     >
       <body className="overflow-x-clip">
         {/* Vercel BotID — patches fetch/XHR for protected routes (invisible) */}
-        <BotIdClient protect={[{ path: "/api/contact", method: "POST" }]} />
+        <BotIdGuard />
         <a href="#main" className="skip-link">
           Aller au contenu principal
         </a>
         <ScrollProgress />
         {children}
         <CommandPalette />
-        {/* Static JSON-LD graph. rendered inline so crawlers see it on first byte */}
+        {/* Static JSON-LD graph, rendered inline so crawlers see it on first
+            byte. No nonce: a JSON-LD data block is not an executable script,
+            so the CSP script-src never applies to it. */}
         <script type="application/ld+json">{jsonLd}</script>
         <Analytics />
         <SpeedInsights />

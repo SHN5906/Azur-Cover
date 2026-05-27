@@ -50,6 +50,7 @@ export default async function EditChantier({
             client: row.client,
             city: row.city,
             solution: row.solution,
+            sector: row.sector,
             surface: row.surface,
             duration: row.duration,
             year: row.year,
@@ -58,6 +59,8 @@ export default async function EditChantier({
             results: row.results,
             imageSrc: row.imageSrc,
             imageAlt: row.imageAlt,
+            gallery: row.gallery,
+            videoUrl: row.videoUrl,
             logo: row.logo,
           }}
         />

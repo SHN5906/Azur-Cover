@@ -1,4 +1,5 @@
 export type Solution = "Étanchéité" | "Cool Roofing" | "Azur Reflect" | "Multi-solutions";
+export type Sector = "industrie" | "tertiaire" | "collectivites";
 
 export type Realisation = {
   slug: string;
@@ -6,6 +7,7 @@ export type Realisation = {
   client: string;
   city: string;
   solution: Solution;
+  sector: Sector;
   surface?: string;
   duration: string;
   year: string;
@@ -15,6 +17,10 @@ export type Realisation = {
   story: string[];
   results?: { value: string; label: string }[];
   image: { src: string; alt: string };
+  /** Photos additionnelles du chantier. Ordre signifiant. */
+  gallery?: { url: string; alt: string }[];
+  /** URL vidéo libre : YouTube, Vimeo ou .mp4 direct. */
+  videoUrl?: string;
   /** Path to the client logo PNG, when one exists in the client list. */
   logo?: string;
 };
@@ -29,6 +35,7 @@ export const realisations: Realisation[] = [
     client: "Promocash",
     city: "Grasse",
     solution: "Cool Roofing",
+    sector: "industrie",
     surface: "2 700 m²",
     duration: "3 semaines",
     year: "2024",
@@ -48,6 +55,7 @@ export const realisations: Realisation[] = [
     client: "Mairie de Cannes",
     city: "Cannes",
     solution: "Azur Reflect",
+    sector: "collectivites",
     duration: "2 semaines",
     year: "2024",
     short:
@@ -72,6 +80,7 @@ export const realisations: Realisation[] = [
     client: "Netto",
     city: "Grasse",
     solution: "Cool Roofing",
+    sector: "tertiaire",
     surface: "1 800 m²",
     duration: "3 semaines",
     year: "2023",
@@ -91,6 +100,7 @@ export const realisations: Realisation[] = [
     client: "U Express",
     city: "Saint-Laurent-du-Var",
     solution: "Azur Reflect",
+    sector: "tertiaire",
     duration: "2 jours",
     year: "2024",
     short:
@@ -111,6 +121,7 @@ export const realisations: Realisation[] = [
     client: "Centre Hospitalier de Grasse",
     city: "Grasse",
     solution: "Azur Reflect",
+    sector: "collectivites",
     duration: "3 jours",
     year: "2024",
     short: "Intervention Azur Reflect au Centre Hospitalier de Grasse.",
@@ -129,6 +140,7 @@ export const realisations: Realisation[] = [
     client: "Mairie de Fayence",
     city: "Fayence",
     solution: "Cool Roofing",
+    sector: "collectivites",
     duration: "1 semaine",
     year: "2024",
     short: "Cool Roofing sur la mairie de Fayence (83440).",
@@ -147,6 +159,7 @@ export const realisations: Realisation[] = [
     client: "Marcel & Fils",
     city: "La Fare-les-Oliviers",
     solution: "Azur Reflect",
+    sector: "tertiaire",
     duration: "1 jour",
     year: "2024",
     short: "Application Azur Reflect chez Marcel & Fils, La Fare-les-Oliviers.",
@@ -163,6 +176,7 @@ export const realisations: Realisation[] = [
     client: "Satoriz Magasins Bio",
     city: "Antibes",
     solution: "Azur Reflect",
+    sector: "tertiaire",
     duration: "1 jour",
     year: "2024",
     short: "Application Azur Reflect chez Satoriz à Antibes.",
@@ -179,6 +193,7 @@ export const realisations: Realisation[] = [
     client: "Intermarché",
     city: "Nice",
     solution: "Azur Reflect",
+    sector: "tertiaire",
     duration: "2 jours",
     year: "2024",
     short: "Application Azur Reflect dans un Intermarché à Nice.",
@@ -195,6 +210,7 @@ export const realisations: Realisation[] = [
     client: "Ville de Vitrolles",
     city: "Vitrolles",
     solution: "Cool Roofing",
+    sector: "collectivites",
     duration: "1 semaine",
     year: "2024",
     short: "Intervention Cool Roofing pour la commune de Vitrolles.",
@@ -210,6 +226,7 @@ export const realisations: Realisation[] = [
     client: "Groupe Braja",
     city: "Gardanne",
     solution: "Cool Roofing",
+    sector: "industrie",
     duration: "1 semaine",
     year: "2024",
     short:
@@ -229,6 +246,7 @@ export const realisations: Realisation[] = [
     client: "EHPAD Le Petit Paris",
     city: "Grasse",
     solution: "Azur Reflect",
+    sector: "collectivites",
     duration: "1 jour",
     year: "2024",
     short: "Application Azur Reflect à l’EHPAD Le Petit Paris à Grasse.",

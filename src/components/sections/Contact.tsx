@@ -10,7 +10,7 @@ export function Contact() {
       id="contact"
 
       aria-labelledby="contact-h"
-      className="py-[clamp(120px,18vw,200px)]"
+      className="py-[clamp(56px,9vw,110px)]"
     >
       <Container>
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20">
@@ -110,38 +110,44 @@ export function Contact() {
             </ScrollReveal>
           </div>
 
-          {/* Right. CTA card linking to Google Maps */}
+          {/* Right. Embedded Google Maps with overlay caption */}
           <ScrollReveal delay={120}>
-            <a
-              href={site.mapLink}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="group relative flex aspect-[4/3] w-full flex-col justify-end overflow-hidden rounded-md bg-ink p-8 text-white transition-shadow hover:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)] md:p-10 lg:aspect-square"
-              aria-label={`Voir ${site.address.full} sur Google Maps`}
-            >
-              {/* Discrete brand gradient accent */}
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-30"
-                style={{
-                  background:
-                    "radial-gradient(circle at 80% 20%, var(--color-azur) 0%, transparent 55%), radial-gradient(circle at 15% 90%, var(--color-lime) 0%, transparent 50%)",
-                }}
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-graphite/5 lg:aspect-square">
+              <iframe
+                title={`Carte Google Maps de ${site.address.full}`}
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(site.address.full)}&hl=fr&z=15&output=embed`}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 h-full w-full border-0"
               />
 
-              <div className="relative">
-                <p className="font-mono text-[12px] uppercase tracking-[0.22em] text-white/55">
-                  Notre siège
-                </p>
-                <p className="mt-2 text-lg font-medium text-white" style={{ letterSpacing: "-0.01em" }}>
-                  {site.address.building}, {site.address.city}
-                </p>
-                <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white underline-grow">
-                  Voir sur Google Maps
-                  <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              {/* Caption + CTA overlay, semi-transparent so the map breathes. */}
+              <a
+                href={site.mapLink}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={`Ouvrir ${site.address.full} dans Google Maps`}
+                className="group absolute inset-x-3 bottom-3 flex items-end justify-between gap-4 rounded bg-ink/90 p-5 text-white backdrop-blur-sm transition-colors hover:bg-ink md:inset-x-5 md:bottom-5 md:p-6"
+              >
+                <div>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/55">
+                    Notre siège
+                  </p>
+                  <p
+                    className="mt-1.5 text-sm font-medium text-white sm:text-base"
+                    style={{ letterSpacing: "-0.01em" }}
+                  >
+                    {site.address.building}, {site.address.city}
+                  </p>
+                </div>
+                <span
+                  aria-hidden
+                  className="mb-0.5 shrink-0 text-sm transition-transform duration-300 group-hover:translate-x-1"
+                >
+                  →
                 </span>
-              </div>
-            </a>
+              </a>
+            </div>
           </ScrollReveal>
         </div>
       </Container>

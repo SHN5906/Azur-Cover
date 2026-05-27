@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -41,13 +42,14 @@ type Slot = {
   z: number;
 };
 
-// Active devient HÉROÏQUE (scale 1.0, full saturation). Autres deviennent
-// quasi fantomatiques (0.20 opacity, blur 14px) — l'œil ne lit que l'active.
+// Layout centré : active au centre horizontal, légèrement décalée vers le bas
+// pour laisser place aux 3 planètes périphériques en arc au-dessus d'elle.
+// Coordonnées en % de la zone planets (relative, max-w-1100, h-clamp 360-480).
 const SLOTS: Record<number, Slot> = {
-  0: { x: 52, y: 50, scale: 1.0,  opacity: 1.0,  blur: 0,  saturate: 1.0,  brightness: 1.0,  z: 50 },
-  1: { x: 95, y: 28, scale: 0.32, opacity: 0.22, blur: 14, saturate: 0.2,  brightness: 0.55, z: 30 },
-  2: { x: 60, y: 6,  scale: 0.22, opacity: 0.14, blur: 18, saturate: 0.1,  brightness: 0.45, z: 20 },
-  3: { x: 9,  y: 22, scale: 0.32, opacity: 0.22, blur: 14, saturate: 0.2,  brightness: 0.55, z: 30 },
+  0: { x: 50, y: 62, scale: 1.0,  opacity: 1.0,  blur: 0,  saturate: 1.0,  brightness: 1.0,  z: 50 },
+  1: { x: 82, y: 18, scale: 0.32, opacity: 0.22, blur: 14, saturate: 0.2,  brightness: 0.55, z: 30 },
+  2: { x: 50, y: 6,  scale: 0.22, opacity: 0.14, blur: 18, saturate: 0.1,  brightness: 0.45, z: 20 },
+  3: { x: 18, y: 18, scale: 0.32, opacity: 0.22, blur: 14, saturate: 0.2,  brightness: 0.55, z: 30 },
 };
 
 function slotForOffset(offset: number): Slot {
@@ -69,11 +71,18 @@ function getDesktopServerSnapshot() {
 }
 
 export function SolutionsCarousel() {
+  const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const planetRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+
+  // Prefetch toutes les pages solutions au mount : le clic sur la planète
+  // active doit naviguer instantanément.
+  useEffect(() => {
+    expertises.forEach((s) => router.prefetch(`/expertises/${s.slug}`));
+  }, [router]);
 
   const isDesktop = useSyncExternalStore(
     subscribeDesktop,
@@ -170,133 +179,32 @@ export function SolutionsCarousel() {
         {
           "--tint": tint,
           background: isDesktop
-            ? "radial-gradient(ellipse 75% 90% at 72% 50%, var(--tint), #0a0a0c 75%)"
+            ? "radial-gradient(ellipse 65% 80% at 50% 32%, var(--tint), #0a0a0c 78%)"
             : undefined,
           transition: "background 2200ms cubic-bezier(0.16,1,0.3,1)",
           minHeight: isDesktop ? "100vh" : "auto",
         } as React.CSSProperties
       }
     >
-      {/* Desktop layout */}
+      {/* Desktop layout — planète active centrée, texte juste sous elle.
+          Layout 1-colonne : la rotation des planètes et le crossfade du texte
+          sont alignés visuellement (même axe vertical), donc l'œil perçoit
+          le changement comme un seul mouvement synchrone. */}
       {isDesktop && (
-        <div className="relative grid h-screen min-h-[820px] grid-cols-12 z-10">
-          {/* Text column — plus de place, typo plus généreuse */}
-          <div
-            role="tabpanel"
-            id={`panel-${current.slug}`}
-            aria-labelledby={`tab-a11y-${current.slug}`}
-            tabIndex={0}
-            className="col-span-5 flex items-center pl-[clamp(48px,7vw,140px)] pr-12 z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]"
+        <div className="relative z-10 flex h-screen min-h-[900px] flex-col items-center pt-[clamp(40px,6vh,72px)] pb-[clamp(40px,5vh,72px)]">
+          {/* Section label — au-dessus des planètes pour annoncer la section.
+              Forcé en blanc plein + tracking large pour lever toute ambiguïté
+              sur le fond carbone + tint radial. */}
+          <Eyebrow
+            tone="white"
+            id="solutions-h"
+            className="!text-white !text-[18px] [letter-spacing:0.28em]"
           >
-            <div className="w-full max-w-[500px]">
-              <Eyebrow tone="white" id="solutions-h">
-                Nos solutions
-              </Eyebrow>
+            Nos solutions
+          </Eyebrow>
 
-              <div className="relative mt-10 min-h-[460px]">
-                {expertises.map((s, i) => (
-                  <div
-                    key={s.slug}
-                    aria-hidden={i !== active}
-                    className={cn(
-                      "absolute inset-0 transition-opacity duration-[1400ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
-                      i === active
-                        ? "opacity-100 pointer-events-auto"
-                        : "opacity-0 pointer-events-none",
-                    )}
-                  >
-                    {/* Title : mask reveal mot par mot (clean, plus subtil que slide+fade) */}
-                    <h2
-                      key={`h2-${s.slug}-${i === active ? "a" : "i"}`}
-                      className="text-white solutions-title"
-                      style={{
-                        fontSize: "clamp(3rem, 4.6vw, 5.5rem)",
-                        fontWeight: 600,
-                        letterSpacing: "-0.035em",
-                        lineHeight: 1.05,
-                      }}
-                      aria-label={`${s.title}.`}
-                    >
-                      {(s.title + ".").split(/(\s+)/).map((part, idx) =>
-                        /^\s+$/.test(part) ? (
-                          <span key={idx}>{part}</span>
-                        ) : (
-                          <span
-                            key={idx}
-                            aria-hidden
-                            className="solutions-title-word"
-                            style={{ animationDelay: i === active ? `${idx * 90}ms` : "0ms" }}
-                          >
-                            <span className="solutions-title-word-inner">{part}</span>
-                          </span>
-                        ),
-                      )}
-                    </h2>
-
-                    <p
-                      className="mt-8 text-white/65"
-                      style={{
-                        fontSize: "1.1rem",
-                        lineHeight: 1.65,
-                        animationDelay: `${(s.title.split(" ").length + 2) * 90}ms`,
-                      }}
-                    >
-                      {s.short}
-                    </p>
-
-                    <ul className="mt-8 space-y-3">
-                      {s.bullets.slice(0, 4).map((b) => (
-                        <li
-                          key={b}
-                          className="flex items-start gap-3 text-sm text-white/75"
-                        >
-                          <span
-                            aria-hidden
-                            className="mt-2 inline-block h-px w-5 shrink-0 bg-azur"
-                          />
-                          {b}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Link
-                      href={`/expertises/${s.slug}`}
-                      className="underline-grow mt-10 inline-flex items-center gap-2 text-sm font-medium text-white"
-                    >
-                      {s.cta}
-                      <span aria-hidden>→</span>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-
-              {/* Compteur + arrows — minimaliste, pas de pagination redondante */}
-              <div className="mt-14 flex items-center gap-5">
-                <button
-                  type="button"
-                  onClick={() => goTo(active - 1)}
-                  aria-label="Solution précédente"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/75 transition hover:border-white/50 hover:text-white"
-                >
-                  ←
-                </button>
-                <button
-                  type="button"
-                  onClick={() => goTo(active + 1)}
-                  aria-label="Solution suivante"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/75 transition hover:border-white/50 hover:text-white"
-                >
-                  →
-                </button>
-                <span className="ml-2 font-mono text-[13px] uppercase tracking-[0.22em] text-white/35">
-                  {String(active + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Planets stage — épuré : pas d'orbit SVG, pas de ring, pas de caption */}
-          <div className="col-span-7 relative">
+          {/* Planets stage — zone supérieure, planètes absolument positionnées */}
+          <div className="relative mt-[clamp(16px,2.5vh,32px)] w-full max-w-[1100px] h-[clamp(360px,42vh,480px)]">
             {expertises.map((s, i) => (
               <button
                 type="button"
@@ -304,12 +212,22 @@ export function SolutionsCarousel() {
                 ref={(el) => {
                   planetRefs.current[i] = el;
                 }}
-                onClick={() => goTo(i)}
-                aria-label={`Voir ${s.title}`}
+                onClick={() => {
+                  if (i === active) {
+                    router.push(`/expertises/${s.slug}`);
+                  } else {
+                    goTo(i);
+                  }
+                }}
+                aria-label={
+                  i === active
+                    ? `Voir la page ${s.title}`
+                    : `Afficher la solution ${s.title}`
+                }
                 className={cn(
-                  "planet group absolute left-0 top-0 h-[clamp(320px,32vw,460px)] w-[clamp(320px,32vw,460px)] overflow-visible rounded-full",
+                  "planet group absolute left-0 top-0 h-[clamp(220px,22vw,320px)] w-[clamp(220px,22vw,320px)] overflow-visible rounded-full",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]",
-                  i === active && "planet-active",
+                  i === active && "planet-active cursor-pointer",
                 )}
               >
                 <span
@@ -331,7 +249,7 @@ export function SolutionsCarousel() {
                       src={s.image.src}
                       alt={s.image.alt}
                       fill
-                      sizes="460px"
+                      sizes="320px"
                       className="object-cover"
                       priority={i === 0}
                     />
@@ -360,6 +278,104 @@ export function SolutionsCarousel() {
             ))}
           </div>
 
+          {/* Nav (flèches + compteur) — directement sous la planète, au-dessus
+              du texte. Sert de transition visuelle entre l'illustration et
+              le contenu. */}
+          <div className="mt-[clamp(16px,2.5vh,32px)] flex items-center gap-5">
+            <button
+              type="button"
+              onClick={() => goTo(active - 1)}
+              aria-label="Solution précédente"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/75 transition hover:border-white/50 hover:text-white"
+            >
+              ←
+            </button>
+            <span className="font-mono text-[13px] uppercase tracking-[0.22em] text-white/35">
+              {String(active + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}
+            </span>
+            <button
+              type="button"
+              onClick={() => goTo(active + 1)}
+              aria-label="Solution suivante"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/75 transition hover:border-white/50 hover:text-white"
+            >
+              →
+            </button>
+          </div>
+
+          {/* Texte — sous la nav, centré horizontalement. Le crossfade (1400ms)
+              démarre en même temps que GSAP repositionne les planètes (1800ms)
+              — perception d'un seul mouvement synchrone. */}
+          <div
+            role="tabpanel"
+            id={`panel-${current.slug}`}
+            aria-labelledby={`tab-a11y-${current.slug}`}
+            tabIndex={0}
+            className="relative mt-[clamp(20px,3vh,40px)] w-full max-w-[640px] px-6 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]"
+          >
+            <div className="relative min-h-[220px]">
+              {expertises.map((s, i) => (
+                <div
+                  key={s.slug}
+                  aria-hidden={i !== active}
+                  className={cn(
+                    "absolute inset-0 transition-opacity duration-[1400ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+                    i === active
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none",
+                  )}
+                >
+                  {/* Title : mask reveal mot par mot. Le remount via key force
+                      le redémarrage de l'animation à chaque slide actif. */}
+                  <h2
+                    key={`h2-${s.slug}-${i === active ? "a" : "i"}`}
+                    className="text-white solutions-title"
+                    style={{
+                      fontSize: "clamp(2.25rem, 3.6vw, 3.75rem)",
+                      fontWeight: 600,
+                      letterSpacing: "-0.035em",
+                      lineHeight: 1.05,
+                    }}
+                    aria-label={`${s.title}.`}
+                  >
+                    {(s.title + ".").split(/(\s+)/).map((part, idx) =>
+                      /^\s+$/.test(part) ? (
+                        <span key={idx}>{part}</span>
+                      ) : (
+                        <span
+                          key={idx}
+                          aria-hidden
+                          className="solutions-title-word"
+                          style={{ animationDelay: i === active ? `${idx * 90}ms` : "0ms" }}
+                        >
+                          <span className="solutions-title-word-inner">{part}</span>
+                        </span>
+                      ),
+                    )}
+                  </h2>
+
+                  <p
+                    className="mx-auto mt-5 max-w-[540px] text-white/65"
+                    style={{
+                      fontSize: "1.0625rem",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {s.short}
+                  </p>
+
+                  <Link
+                    href={`/expertises/${s.slug}`}
+                    className="underline-grow mt-8 inline-flex items-center gap-2 text-sm font-medium text-white"
+                  >
+                    {s.cta}
+                    <span aria-hidden>→</span>
+                  </Link>
+                </div>
+              ))}
+            </div>
+
+          </div>
         </div>
       )}
 
@@ -369,6 +385,17 @@ export function SolutionsCarousel() {
           <SolutionsMobile />
         </div>
       )}
+
+      {/* Fondu vers la section suivante (bg-ink = #0d2537) — évite la coupe
+          nette entre le fond carbone du carousel et le navy de l'AerogelStory. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[160px]"
+        style={{
+          background:
+            "linear-gradient(to bottom, transparent 0%, var(--color-ink) 100%)",
+        }}
+      />
 
       {/* Hidden a11y tablist */}
       <div role="tablist" aria-label="Choisir une solution" className="sr-only">

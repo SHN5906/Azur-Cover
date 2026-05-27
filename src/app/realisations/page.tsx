@@ -7,6 +7,12 @@ import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { listRealisations } from "@/lib/realisations-repo";
+import {
+  SECTOR_LABELS,
+  parseSectorParam,
+  parseSolutionParam,
+} from "@/lib/realisations-filters";
+import { RealisationsFilters } from "./_components/RealisationsFilters";
 
 export const metadata: Metadata = {
   title: "Réalisations",
@@ -15,8 +21,26 @@ export const metadata: Metadata = {
   alternates: { canonical: "/realisations" },
 };
 
-export default async function RealisationsIndex() {
-  const realisations = await listRealisations();
+type SearchParams = Promise<{
+  secteur?: string;
+  solution?: string;
+}>;
+
+export default async function RealisationsIndex({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const sp = await searchParams;
+  const sector = parseSectorParam(sp.secteur);
+  const solution = parseSolutionParam(sp.solution);
+  const realisations = await listRealisations({ sector, solution });
+
+  const activeLabel = sector
+    ? SECTOR_LABELS[sector]
+    : solution
+      ? solution
+      : null;
 
   return (
     <>
@@ -30,45 +54,70 @@ export default async function RealisationsIndex() {
 
         <section className="pb-[clamp(120px,18vw,200px)]">
           <Container>
-            <ul className="grid grid-cols-1 gap-x-6 gap-y-10 sm:gap-y-14 md:grid-cols-2 md:gap-y-20 lg:gap-y-24">
-              {realisations.map((r, i) => (
-                <ScrollReveal as="li" key={r.slug} delay={Math.min(i, 6) * 60}>
-                  <Link href={`/realisations/${r.slug}`} className="group block">
-                    <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-graphite/5 sm:aspect-[4/3]">
-                      <Image
-                        src={r.imageSrc}
-                        alt={r.imageAlt}
-                        fill
-                        loading={i < 4 ? "eager" : "lazy"}
-                        sizes="(min-width: 768px) 50vw, 100vw"
-                        className="object-cover photo-treatment transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                      />
-                    </div>
-                    <p className="mt-4 font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
-                      {r.client} · {r.city} · {r.year}
-                    </p>
-                    <h2
-                      className="mt-2 text-ink"
-                      style={{
-                        fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
-                        fontWeight: 600,
-                        letterSpacing: "-0.02em",
-                        lineHeight: 1.1,
-                      }}
-                    >
-                      {r.title}.
-                    </h2>
-                    <p className="mt-3 max-w-[480px] text-sm text-muted sm:text-base" style={{ lineHeight: 1.55 }}>
-                      {r.short}
-                    </p>
-                    <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-ink underline-grow">
-                      Lire l&apos;étude de cas
-                      <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
-                    </span>
-                  </Link>
-                </ScrollReveal>
-              ))}
-            </ul>
+            <RealisationsFilters activeSector={sector} activeSolution={solution} />
+
+            {realisations.length === 0 ? (
+              <div className="mt-16 rounded border border-dashed border-line/60 p-12 text-center">
+                <p className="text-sm text-muted">
+                  Aucun chantier ne correspond à ce filtre
+                  {activeLabel && (
+                    <>
+                      {" "}(<span className="text-ink">{activeLabel}</span>)
+                    </>
+                  )}
+                  .
+                </p>
+                <Link
+                  href="/realisations"
+                  className="mt-4 inline-block text-sm font-medium text-ink underline-grow"
+                >
+                  Voir toutes les réalisations →
+                </Link>
+              </div>
+            ) : (
+              <ul className="mt-12 grid grid-cols-1 gap-x-6 gap-y-10 sm:gap-y-14 md:grid-cols-2 md:gap-y-20 lg:gap-y-24">
+                {realisations.map((r, i) => (
+                  <ScrollReveal as="li" key={r.slug} delay={Math.min(i, 6) * 60}>
+                    <Link href={`/realisations/${r.slug}`} className="group block">
+                      <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-graphite/5 sm:aspect-[4/3]">
+                        <Image
+                          src={r.imageSrc}
+                          alt={r.imageAlt}
+                          fill
+                          loading={i < 4 ? "eager" : "lazy"}
+                          sizes="(min-width: 768px) 50vw, 100vw"
+                          className="object-cover photo-treatment transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                        />
+                      </div>
+                      <p className="mt-4 font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
+                        {r.client} · {r.city} · {r.year}
+                      </p>
+                      <h2
+                        className="mt-2 text-ink"
+                        style={{
+                          fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
+                          fontWeight: 600,
+                          letterSpacing: "-0.02em",
+                          lineHeight: 1.1,
+                        }}
+                      >
+                        {r.title}.
+                      </h2>
+                      <p
+                        className="mt-3 max-w-[480px] text-sm text-muted sm:text-base"
+                        style={{ lineHeight: 1.55 }}
+                      >
+                        {r.short}
+                      </p>
+                      <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-ink underline-grow">
+                        Lire l&apos;étude de cas
+                        <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
+                      </span>
+                    </Link>
+                  </ScrollReveal>
+                ))}
+              </ul>
+            )}
           </Container>
         </section>
       </main>

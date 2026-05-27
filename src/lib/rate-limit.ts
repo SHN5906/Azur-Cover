@@ -1,17 +1,19 @@
 import "server-only";
 import { headers } from "next/headers";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 /**
- * Rate limit en mémoire process — best-effort sur Vercel Fluid Compute
- * (partagé entre requêtes concurrentes du même instance, pas global).
- * Pour un usage admin solo c'est suffisant ; pour une charge élevée
- * passer sur Upstash Redis + @upstash/ratelimit.
+ * Rate limiting, sliding window.
  *
- * Fenêtre glissante simple : on garde le timestamp de chaque hit et
- * on filtre ceux hors fenêtre à chaque check.
+ * Production: backed by Upstash Redis, so the limit is global across every
+ * Fluid Compute instance. Provision a store and set UPSTASH_REDIS_REST_URL +
+ * UPSTASH_REDIS_REST_TOKEN (Vercel Marketplace → Upstash).
+ *
+ * Local dev / unconfigured: falls back to a per-process in-memory map. This
+ * is best-effort only (not shared across instances) — fine for local work,
+ * but a production deploy should provision Upstash.
  */
-type Entry = { hits: number[] };
-const buckets = new Map<string, Entry>();
 
 export async function getClientIp(): Promise<string> {
   const h = await headers();
@@ -23,21 +25,46 @@ export async function getClientIp(): Promise<string> {
 }
 
 export type RateLimitResult =
-  | { ok: true; remaining: number; resetMs: number }
+  | { ok: true }
   | { ok: false; retryAfterSec: number };
 
-/**
- * Sliding-window rate limit. Returns ok=true if under limit, false
- * otherwise with retryAfterSec to display to the user.
- */
-export function checkRateLimit(
-  key: string,
-  maxHits: number,
-  windowMs: number,
-): RateLimitResult {
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const redis =
+  REDIS_URL && REDIS_TOKEN ? new Redis({ url: REDIS_URL, token: REDIS_TOKEN }) : null;
+
+// One Ratelimit instance per (maxHits, windowMs) pair — reused across calls.
+const limiters = new Map<string, Ratelimit>();
+
+function getLimiter(maxHits: number, windowMs: number): Ratelimit {
+  const cacheKey = `${maxHits}:${windowMs}`;
+  let limiter = limiters.get(cacheKey);
+  if (!limiter) {
+    limiter = new Ratelimit({
+      redis: redis!,
+      limiter: Ratelimit.slidingWindow(maxHits, `${windowMs} ms`),
+      prefix: "rl",
+    });
+    limiters.set(cacheKey, limiter);
+  }
+  return limiter;
+}
+
+// In-memory fallback — used only when Upstash is not configured.
+type Entry = { hits: number[] };
+const buckets = new Map<string, Entry>();
+let warnedNoRedis = false;
+
+function checkInMemory(key: string, maxHits: number, windowMs: number): RateLimitResult {
+  if (!warnedNoRedis && process.env.NODE_ENV === "production") {
+    warnedNoRedis = true;
+    console.warn(
+      "[rate-limit] UPSTASH_REDIS_REST_URL/TOKEN not set — using per-instance " +
+        "in-memory rate limiting. Provision Upstash Redis for a global limit.",
+    );
+  }
   const now = Date.now();
   const entry = buckets.get(key) ?? { hits: [] };
-  // Drop hits outside the window
   entry.hits = entry.hits.filter((t) => now - t < windowMs);
   if (entry.hits.length >= maxHits) {
     const oldest = entry.hits[0];
@@ -45,13 +72,32 @@ export function checkRateLimit(
   }
   entry.hits.push(now);
   buckets.set(key, entry);
-  return { ok: true, remaining: maxHits - entry.hits.length, resetMs: windowMs };
+  return { ok: true };
 }
 
 /**
- * Manual reset (e.g. on successful action that should "absolve" the
- * client). Use sparingly.
+ * Records a hit and reports whether the caller is under the limit.
+ * Returns ok=false with retryAfterSec to surface to the user.
  */
-export function resetRateLimit(key: string) {
-  buckets.delete(key);
+export async function checkRateLimit(
+  key: string,
+  maxHits: number,
+  windowMs: number,
+): Promise<RateLimitResult> {
+  if (!redis) return checkInMemory(key, maxHits, windowMs);
+  const { success, reset } = await getLimiter(maxHits, windowMs).limit(key);
+  if (success) return { ok: true };
+  return { ok: false, retryAfterSec: Math.max(1, Math.ceil((reset - Date.now()) / 1000)) };
+}
+
+/**
+ * Clears the counters for a key (e.g. on a successful login that should
+ * "absolve" the client). Use sparingly.
+ */
+export async function resetRateLimit(key: string): Promise<void> {
+  if (!redis) {
+    buckets.delete(key);
+    return;
+  }
+  await Promise.all([...limiters.values()].map((l) => l.resetUsedTokens(key)));
 }
