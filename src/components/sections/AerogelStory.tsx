@@ -149,12 +149,12 @@ export function AerogelStory() {
 
               {/* Texte — chapitres en crossfade */}
               <div className="col-span-5">
-                <span
+                <h2
                   id="aerogel-h"
                   className="block font-mono text-[17px] uppercase tracking-[0.22em] text-white/55"
                 >
                   Le matériau qui réfléchit
-                </span>
+                </h2>
 
                 <div className="relative mt-7 min-h-[340px]">
                   {CHAPTERS.map((chapter, i) => (
@@ -173,7 +173,7 @@ export function AerogelStory() {
                       key={chapter.index}
                       className={cn(
                         "flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.22em] transition-colors duration-300",
-                        i === activeChapter ? "text-white" : "text-white/35"
+                        i === activeChapter ? "text-white" : "text-white/55"
                       )}
                     >
                       {chapter.index}
@@ -211,12 +211,12 @@ export function AerogelStory() {
           }}
         />
         <Container className="relative">
-          <span
+          <h2
             id="aerogel-h-mobile"
             className="block font-mono text-[17px] uppercase tracking-[0.22em] text-white/55"
           >
             Le matériau qui réfléchit
-          </span>
+          </h2>
 
           <div className="relative mt-6 aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-white shadow-[0_30px_60px_-25px_rgba(0,0,0,0.6)]">
             <Image
@@ -234,14 +234,14 @@ export function AerogelStory() {
             {CHAPTERS.map((chapter) => (
               <li key={chapter.index} className="border-l border-white/15 pl-6">
                 <div className="flex items-baseline gap-3">
-                  <span className="font-mono text-[13px] tracking-[0.18em] text-azur">
+                  <span className="font-mono text-[13px] tracking-[0.18em] text-azur-light">
                     {chapter.index}
                   </span>
                   <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-white/50">
                     {chapter.kicker}
                   </span>
                 </div>
-                <h2
+                <h3
                   className="mt-3 text-white"
                   style={{
                     fontSize: "clamp(1.75rem, 6vw, 2.5rem)",
@@ -251,7 +251,7 @@ export function AerogelStory() {
                   }}
                 >
                   {chapter.title.join(" ")}
-                </h2>
+                </h3>
                 <p
                   className="mt-4 text-white/65"
                   style={{ fontSize: "1rem", lineHeight: 1.65 }}
@@ -283,10 +283,10 @@ function Chapter({
 
   return (
     <motion.div style={{ opacity, y }} className="absolute inset-0">
-      <span className="font-mono text-[13px] uppercase tracking-[0.22em] text-azur">
+      <span className="font-mono text-[13px] uppercase tracking-[0.22em] text-azur-light">
         {chapter.kicker}
       </span>
-      <h2
+      <h3
         className="mt-4 text-white"
         style={{
           fontSize: "clamp(2.25rem, 3.4vw, 3.5rem)",
@@ -298,7 +298,7 @@ function Chapter({
         {chapter.title[0]}
         <br />
         {chapter.title[1]}
-      </h2>
+      </h3>
       <p
         className="mt-6 max-w-[420px] text-white/65"
         style={{ fontSize: "1.0625rem", lineHeight: 1.6 }}

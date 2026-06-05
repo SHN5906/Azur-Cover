@@ -191,7 +191,7 @@ export function Footer() {
           </div>
         </div>
 
-        <p className="mt-8 text-center font-mono text-[12px] uppercase tracking-[0.18em] text-white/45">
+        <p className="mt-8 text-center font-mono text-[12px] uppercase tracking-[0.18em] text-white/65">
           Site conçu par Renew Editing
         </p>
       </Container>

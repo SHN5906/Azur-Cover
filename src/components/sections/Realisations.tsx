@@ -80,7 +80,7 @@ export async function Realisations() {
                     />
                   ) : (
                     <span
-                      className="font-display text-ink/30 transition-colors duration-500 group-hover:text-ink"
+                      className="font-display text-ink/50 transition-colors duration-500 group-hover:text-ink"
                       style={{
                         fontSize: "clamp(1.5rem, 4vw, 4rem)",
                         fontWeight: 200,
@@ -110,7 +110,7 @@ export async function Realisations() {
                   </h3>
                   <p className="mt-1 text-xs text-muted sm:text-sm">{r.city}</p>
 
-                  <span className="mt-4 hidden items-center gap-1.5 text-xs font-medium text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100 lg:inline-flex">
+                  <span className="mt-4 hidden items-center gap-1.5 text-xs font-medium text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 lg:inline-flex">
                     Voir le projet
                     <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-0.5">
                       →

@@ -32,6 +32,7 @@ export function CommandPalette() {
   const [activeIdx, setActiveIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   const commands: Command[] = useMemo(
     () => [
@@ -87,18 +88,41 @@ export function CommandPalette() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Focus input + scroll lock on open (pas de setState ici, juste DOM)
+  // Ouverture via un événement global : permet à un déclencheur visible
+  // (bouton "Rechercher" du header / drawer) d'ouvrir la palette, pas
+  // seulement le raccourci ⌘K qui n'est ni découvrable ni tactile.
+  useEffect(() => {
+    const openHandler = () => {
+      setQuery("");
+      setActiveIdx(0);
+      setOpen(true);
+    };
+    window.addEventListener("open-command-palette", openHandler);
+    return () => window.removeEventListener("open-command-palette", openHandler);
+  }, []);
+
+  // Focus input + scroll lock à l'ouverture, restauration du focus sur le
+  // déclencheur à la fermeture (WCAG 2.4.3).
   useEffect(() => {
     if (!open) return;
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
     const t = window.setTimeout(() => inputRef.current?.focus(), 30);
     document.documentElement.style.overflow = "hidden";
     return () => {
       window.clearTimeout(t);
       document.documentElement.style.overflow = "";
+      previouslyFocusedRef.current?.focus?.();
     };
   }, [open]);
 
-  // Arrow keys + Enter inside the modal
+  // Garde l'option active visible pendant la navigation au clavier.
+  useEffect(() => {
+    if (!open) return;
+    const el = listRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    el?.scrollIntoView({ block: "nearest" });
+  }, [activeIdx, open, query]);
+
+  // Arrow keys + Enter + focus-trap (Tab) inside the modal
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -110,6 +134,10 @@ export function CommandPalette() {
       e.preventDefault();
       const cmd = filtered[activeIdx];
       if (cmd) runCommand(cmd);
+    } else if (e.key === "Tab") {
+      // Seul l'input est focusable (les options sont pilotées via
+      // aria-activedescendant) — on garde le focus dans la palette.
+      e.preventDefault();
     }
   };
 
@@ -132,6 +160,9 @@ export function CommandPalette() {
 
   // Flat index map for keyboard nav (matches filtered order)
   let runningIdx = -1;
+  const activeId = filtered[activeIdx]
+    ? `cmd-opt-${filtered[activeIdx].id}`
+    : undefined;
 
   return (
     <div
@@ -143,7 +174,7 @@ export function CommandPalette() {
         if (e.target === e.currentTarget) setOpen(false);
       }}
     >
-      <div 
+      <div
         className="command-panel w-full max-w-[600px] overflow-hidden rounded-xl border border-line/60 bg-bg shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]"
         style={{ overscrollBehavior: "contain" }}
       >
@@ -154,6 +185,11 @@ export function CommandPalette() {
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
+            aria-expanded
+            aria-controls="command-listbox"
+            aria-autocomplete="list"
+            aria-activedescendant={activeId}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -172,16 +208,25 @@ export function CommandPalette() {
           </kbd>
         </div>
 
-        <ul ref={listRef} className="max-h-[60vh] overflow-y-auto py-2">
+        <ul
+          ref={listRef}
+          id="command-listbox"
+          role="listbox"
+          aria-label="Résultats de recherche"
+          className="max-h-[60vh] overflow-y-auto py-2"
+        >
           {grouped.length === 0 ? (
             <li className="px-5 py-6 text-sm text-muted">Aucun résultat.</li>
           ) : (
             grouped.map(({ group, items }) => (
-              <li key={group} className="py-1">
-                <div className="px-5 pb-1 pt-3 font-mono text-[10px] uppercase tracking-[0.22em] text-muted/70">
+              <li key={group} role="group" aria-label={group} className="py-1">
+                <div
+                  aria-hidden
+                  className="px-5 pb-1 pt-3 font-mono text-[10px] uppercase tracking-[0.22em] text-muted"
+                >
                   {group}
                 </div>
-                <ul>
+                <ul role="presentation">
                   {items.map((c) => {
                     runningIdx++;
                     const isActive = runningIdx === activeIdx;
@@ -189,6 +234,10 @@ export function CommandPalette() {
                       <li key={c.id}>
                         <button
                           type="button"
+                          id={`cmd-opt-${c.id}`}
+                          role="option"
+                          aria-selected={isActive}
+                          tabIndex={-1}
                           onClick={() => runCommand(c)}
                           onMouseEnter={() => setActiveIdx(runningIdx)}
                           className={`flex w-full items-center justify-between gap-4 px-5 py-2.5 text-left text-sm transition-colors ${

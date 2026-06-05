@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import {
   solutionEnum,
   sectorEnum,
@@ -74,11 +74,37 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
   const [results, setResults] = useState<ResultRow[]>(initial?.results ?? []);
   const slugValue = initial?.slug ?? "";
   const fieldErrors = state?.ok === false ? state.fieldErrors : undefined;
+  const isEditing = !!initial;
+  const [dirty, setDirty] = useState(false);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  // Échec serveur : on déplace le focus sur le récapitulatif (annonce via
+  // role="alert" + repère visuel) plutôt que de le laisser sur le bouton.
+  useEffect(() => {
+    if (state?.ok === false) errorRef.current?.focus();
+  }, [state]);
+
+  // Avertit avant de quitter la page avec des modifications non enregistrées.
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
 
   return (
-    <form action={formAction} className="space-y-10">
+    <form
+      action={formAction}
+      onChange={() => setDirty(true)}
+      className="space-y-12"
+    >
       {state?.ok === false && (
-        <div className="rounded border border-red-500/40 bg-red-50 p-3 text-sm text-red-700">
+        <div
+          ref={errorRef}
+          role="alert"
+          tabIndex={-1}
+          className="rounded border border-red-500/40 bg-red-50 p-3 text-sm text-red-700 outline-none"
+        >
           <p>{state.error}</p>
           {state.fieldErrors && Object.keys(state.fieldErrors).length > 0 && (
             <ul className="mt-2 list-disc space-y-0.5 pl-5 text-xs">
@@ -94,8 +120,8 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         </div>
       )}
 
-      <fieldset className="grid gap-5 md:grid-cols-2">
-        <legend className="mb-3 text-xs uppercase tracking-wider text-muted md:col-span-2">
+      <fieldset className="grid gap-x-8 gap-y-8 md:grid-cols-2">
+        <legend className="mb-3 text-sm uppercase tracking-wider text-muted md:col-span-2">
           Identité du chantier
         </legend>
         <TextField
@@ -107,7 +133,11 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
           minLength={2}
           maxLength={96}
           placeholder="promocash-grasse"
-          hint="Minuscules, chiffres, tirets. Apparaît dans l'URL /realisations/[slug]."
+          hint={
+            isEditing
+              ? "Minuscules, chiffres, tirets. Attention : changer le slug modifie l'URL publique et casse les liens existants."
+              : "Minuscules, chiffres, tirets. Apparaît dans l'URL /realisations/[slug]."
+          }
           error={fieldErrors?.slug}
         />
         <TextField
@@ -151,28 +181,14 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
           labels={SECTOR_LABELS}
           error={fieldErrors?.sector}
         />
-        <TextField
-          name="surface"
-          label="Surface"
-          defaultValue={initial?.surface ?? ""}
-          maxLength={32}
-          placeholder="2 700 m²"
-          hint="Optionnel."
-        />
-        <TextField
-          name="duration"
-          label="Durée chantier"
-          required
-          defaultValue={initial?.duration}
-          maxLength={64}
-          placeholder="3 semaines"
-          error={fieldErrors?.duration}
-        />
+        <SurfaceField initialValue={initial?.surface} />
+        <DurationField initialValue={initial?.duration} error={fieldErrors?.duration} />
         <TextField
           name="year"
           label="Année"
           required
           defaultValue={initial?.year}
+          inputMode="numeric"
           pattern="\d{4}"
           maxLength={4}
           placeholder="2024"
@@ -180,8 +196,8 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         />
       </fieldset>
 
-      <fieldset className="space-y-5">
-        <legend className="text-xs uppercase tracking-wider text-muted">
+      <fieldset className="space-y-6">
+        <legend className="text-sm uppercase tracking-wider text-muted">
           Description
         </legend>
         <TextAreaField
@@ -204,8 +220,8 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         />
       </fieldset>
 
-      <fieldset className="space-y-3">
-        <legend className="text-xs uppercase tracking-wider text-muted">
+      <fieldset className="space-y-4">
+        <legend className="text-sm uppercase tracking-wider text-muted">
           Résultats chiffrés (optionnel)
         </legend>
         {results.length === 0 && (
@@ -219,16 +235,18 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
             <input
               name={`results[${i}][value]`}
               defaultValue={r.value}
+              aria-label={`Valeur du résultat ${i + 1}`}
               placeholder="3 à 4 °C"
               maxLength={32}
-              className="flex-1 border-b border-line/80 bg-transparent py-2 outline-none focus:border-ink"
+              className="flex-1 border-b border-line/80 bg-transparent py-3 outline-none focus:border-ink"
             />
             <input
               name={`results[${i}][label]`}
               defaultValue={r.label}
+              aria-label={`Légende du résultat ${i + 1}`}
               placeholder="vs classes témoins"
               maxLength={120}
-              className="flex-[2] border-b border-line/80 bg-transparent py-2 outline-none focus:border-ink"
+              className="flex-[2] border-b border-line/80 bg-transparent py-3 outline-none focus:border-ink"
             />
             <button
               type="button"
@@ -249,8 +267,8 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         </button>
       </fieldset>
 
-      <fieldset className="space-y-3">
-        <legend className="text-xs uppercase tracking-wider text-muted">
+      <fieldset className="space-y-4">
+        <legend className="text-sm uppercase tracking-wider text-muted">
           Image principale
         </legend>
         <ImageUpload
@@ -266,8 +284,8 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         )}
       </fieldset>
 
-      <fieldset className="space-y-3">
-        <legend className="text-xs uppercase tracking-wider text-muted">
+      <fieldset className="space-y-4">
+        <legend className="text-sm uppercase tracking-wider text-muted">
           Galerie photo (optionnel)
         </legend>
         <p className="text-xs text-muted">
@@ -281,12 +299,13 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
       </fieldset>
 
       <fieldset>
-        <legend className="text-xs uppercase tracking-wider text-muted">
+        <legend className="text-sm uppercase tracking-wider text-muted">
           Vidéo du chantier (optionnel)
         </legend>
         <TextField
           name="videoUrl"
           label="URL vidéo"
+          type="url"
           defaultValue={initial?.videoUrl ?? ""}
           placeholder="https://www.youtube.com/watch?v=… ou https://…/chantier.mp4"
           hint="YouTube, Vimeo, ou URL directe .mp4 (ex: fichier hébergé sur Vercel Blob)."
@@ -296,7 +315,7 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
       </fieldset>
 
       <fieldset>
-        <legend className="text-xs uppercase tracking-wider text-muted">
+        <legend className="text-sm uppercase tracking-wider text-muted">
           Logo client (optionnel)
         </legend>
         <TextField
@@ -335,23 +354,36 @@ type TextFieldProps = {
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 function TextField({ name, label, hint, error, ...props }: TextFieldProps) {
+  const hasError = !!error?.length;
+  const errorId = hasError ? `${name}-error` : undefined;
+  const hintId = hint ? `${name}-hint` : undefined;
   return (
     <label className="block">
-      <span className="text-xs uppercase tracking-wider text-muted">
+      <span className="text-sm uppercase tracking-wider text-muted">
         {label}
         {props.required && " *"}
       </span>
       <input
         name={name}
-        className="mt-1 block w-full border-b border-line/80 bg-transparent py-2 outline-none transition-colors focus:border-ink"
+        aria-invalid={hasError || undefined}
+        aria-describedby={errorId ?? hintId}
+        className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 outline-none transition-colors focus:border-ink"
         {...props}
       />
-      {hint && !error && <p className="mt-1 text-xs text-muted">{hint}</p>}
-      {error?.map((e) => (
-        <p key={e} className="mt-1 text-xs text-red-600">
-          {e}
+      {hint && !hasError && (
+        <p id={hintId} className="mt-1 text-xs text-muted">
+          {hint}
         </p>
-      ))}
+      )}
+      {hasError && (
+        <span id={errorId}>
+          {error!.map((e) => (
+            <p key={e} className="mt-1 text-xs text-red-600">
+              {e}
+            </p>
+          ))}
+        </span>
+      )}
     </label>
   );
 }
@@ -364,23 +396,36 @@ type TextAreaFieldProps = {
 } & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 function TextAreaField({ name, label, hint, error, ...props }: TextAreaFieldProps) {
+  const hasError = !!error?.length;
+  const errorId = hasError ? `${name}-error` : undefined;
+  const hintId = hint ? `${name}-hint` : undefined;
   return (
     <label className="block">
-      <span className="text-xs uppercase tracking-wider text-muted">
+      <span className="text-sm uppercase tracking-wider text-muted">
         {label}
         {props.required && " *"}
       </span>
       <textarea
         name={name}
-        className="mt-1 block w-full resize-y border border-line/60 bg-transparent p-3 outline-none transition-colors focus:border-ink"
+        aria-invalid={hasError || undefined}
+        aria-describedby={errorId ?? hintId}
+        className="mt-2 block w-full resize-y border border-line/60 bg-transparent p-3 outline-none transition-colors focus:border-ink"
         {...props}
       />
-      {hint && !error && <p className="mt-1 text-xs text-muted">{hint}</p>}
-      {error?.map((e) => (
-        <p key={e} className="mt-1 text-xs text-red-600">
-          {e}
+      {hint && !hasError && (
+        <p id={hintId} className="mt-1 text-xs text-muted">
+          {hint}
         </p>
-      ))}
+      )}
+      {hasError && (
+        <span id={errorId}>
+          {error!.map((e) => (
+            <p key={e} className="mt-1 text-xs text-red-600">
+              {e}
+            </p>
+          ))}
+        </span>
+      )}
     </label>
   );
 }
@@ -401,15 +446,19 @@ function SelectField({
   error,
   ...props
 }: SelectFieldProps) {
+  const hasError = !!error?.length;
+  const errorId = hasError ? `${name}-error` : undefined;
   return (
     <label className="block">
-      <span className="text-xs uppercase tracking-wider text-muted">
+      <span className="text-sm uppercase tracking-wider text-muted">
         {label}
         {props.required && " *"}
       </span>
       <select
         name={name}
-        className="mt-1 block w-full border-b border-line/80 bg-transparent py-2 outline-none transition-colors focus:border-ink"
+        aria-invalid={hasError || undefined}
+        aria-describedby={errorId}
+        className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 outline-none transition-colors focus:border-ink"
         {...props}
       >
         <option value="" disabled>
@@ -421,11 +470,130 @@ function SelectField({
           </option>
         ))}
       </select>
-      {error?.map((e) => (
-        <p key={e} className="mt-1 text-xs text-red-600">
-          {e}
-        </p>
-      ))}
+      {hasError && (
+        <span id={errorId}>
+          {error!.map((e) => (
+            <p key={e} className="mt-1 text-xs text-red-600">
+              {e}
+            </p>
+          ))}
+        </span>
+      )}
     </label>
+  );
+}
+
+// --- Champs numériques avec unité ----------------------------------------
+// L'admin ne saisit que le nombre ; l'unité est gérée (suffixe fixe ou
+// sélecteur). La valeur stockée reste au même format texte qu'avant
+// ("2 700 m²", "3 semaines") → aucun impact sur la fiche publique ni la DB.
+
+function parseSurface(value: string): string {
+  return value.replace(/\s*m(²|2)\s*$/i, "").trim();
+}
+
+function SurfaceField({ initialValue }: { initialValue?: string | null }) {
+  const [val, setVal] = useState(parseSurface(initialValue ?? ""));
+  const composed = val.trim() ? `${val.trim()} m²` : "";
+  return (
+    <div>
+      <span className="text-sm uppercase tracking-wider text-muted">Surface</span>
+      <div className="mt-2 flex items-center border-b border-line/80 transition-colors focus-within:border-ink">
+        <input
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          inputMode="numeric"
+          maxLength={28}
+          aria-label="Surface, en mètres carrés"
+          placeholder="2 700"
+          className="w-full bg-transparent py-3 outline-none"
+        />
+        <span aria-hidden className="shrink-0 pl-2 text-sm text-muted">
+          m²
+        </span>
+      </div>
+      <input type="hidden" name="surface" value={composed} />
+      <p className="mt-1 text-xs text-muted">Optionnel — saisissez seulement le nombre.</p>
+    </div>
+  );
+}
+
+const DURATION_UNITS = ["jours", "semaines", "mois"] as const;
+
+// Accord singulier/pluriel pour respecter le format existant
+// ("1 semaine" vs "3 semaines" ; "mois" est invariable).
+function durationWord(unit: string, n: number): string {
+  if (unit === "mois") return "mois";
+  return n === 1 ? unit.replace(/s$/, "") : unit;
+}
+
+function parseDuration(value: string): { num: string; unit: string } {
+  const m = /^\s*(\d+)\s*(jours?|semaines?|mois)?\s*$/i.exec(value);
+  if (!m) return { num: value.trim(), unit: "semaines" };
+  const raw = (m[2] ?? "").toLowerCase();
+  const unit = raw.startsWith("jour")
+    ? "jours"
+    : raw === "mois"
+      ? "mois"
+      : "semaines";
+  return { num: m[1] ?? "", unit };
+}
+
+function DurationField({
+  initialValue,
+  error,
+}: {
+  initialValue?: string | null;
+  error?: string[];
+}) {
+  const parsed = parseDuration(initialValue ?? "");
+  const [num, setNum] = useState(parsed.num);
+  const [unit, setUnit] = useState(parsed.unit);
+  const n = Number.parseInt(num, 10);
+  const composed = num.trim() ? `${num.trim()} ${durationWord(unit, n)}` : "";
+  const hasError = !!error?.length;
+  const errorId = hasError ? "duration-error" : undefined;
+  return (
+    <div>
+      <span className="text-sm uppercase tracking-wider text-muted">Durée chantier *</span>
+      <div className="mt-2 flex items-center gap-2">
+        <input
+          value={num}
+          onChange={(e) => setNum(e.target.value)}
+          inputMode="numeric"
+          required
+          aria-invalid={hasError || undefined}
+          aria-describedby={errorId}
+          aria-label="Durée du chantier (nombre)"
+          placeholder="3"
+          className="w-20 border-b border-line/80 bg-transparent py-3 outline-none transition-colors focus:border-ink"
+        />
+        <select
+          value={unit}
+          onChange={(e) => setUnit(e.target.value)}
+          aria-label="Unité de durée"
+          className="border-b border-line/80 bg-transparent py-3 outline-none transition-colors focus:border-ink"
+        >
+          {DURATION_UNITS.map((u) => (
+            <option key={u} value={u}>
+              {u}
+            </option>
+          ))}
+        </select>
+      </div>
+      <input type="hidden" name="duration" value={composed} />
+      {composed && (
+        <p className="mt-1 text-xs text-muted">Enregistré : « {composed} »</p>
+      )}
+      {hasError && (
+        <span id={errorId}>
+          {error!.map((e) => (
+            <p key={e} className="mt-1 text-xs text-red-600">
+              {e}
+            </p>
+          ))}
+        </span>
+      )}
+    </div>
   );
 }

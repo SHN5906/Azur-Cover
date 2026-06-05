@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { site } from "@/content/site";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,14 @@ type Status = "idle" | "sending" | "sent" | "error";
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  // Après un envoi réussi, on revient à l'état initial pour autoriser une
+  // nouvelle demande (sinon le bouton resterait désactivé indéfiniment).
+  useEffect(() => {
+    if (status !== "sent") return;
+    const t = window.setTimeout(() => setStatus("idle"), 6000);
+    return () => window.clearTimeout(t);
+  }, [status]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -78,6 +86,7 @@ export function ContactForm() {
         <Textarea
           label="Décrivez votre besoin"
           name="message"
+          required
           placeholder="Surface approximative, contraintes, planning souhaité…"
         />
 
@@ -234,7 +243,7 @@ function Field({ label, name, type = "text", required, full, autoComplete, spell
         required={required}
         autoComplete={autoComplete}
         spellCheck={spellCheck}
-        className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 placeholder:text-muted/50 focus-visible:border-ink focus-visible:ring-0"
+        className="mt-2 block w-full border-b border-muted/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 placeholder:text-muted/70 focus-visible:border-ink focus-visible:ring-0"
         style={{ fontSize: "1.0625rem" }}
       />
     </label>
@@ -245,21 +254,25 @@ function Textarea({
   label,
   name,
   placeholder,
+  required,
 }: {
   label: string;
   name: string;
   placeholder?: string;
+  required?: boolean;
 }) {
   return (
     <label className="md:col-span-2">
       <span className="block font-mono text-[13px] uppercase tracking-[0.18em] text-muted">
         {label}
+        {required && " *"}
       </span>
       <textarea
         name={name}
         rows={5}
+        required={required}
         placeholder={placeholder}
-        className="mt-2 block w-full resize-y border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 placeholder:text-muted/50 focus-visible:border-ink focus-visible:ring-0"
+        className="mt-2 block w-full resize-y border-b border-muted/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 placeholder:text-muted/70 focus-visible:border-ink focus-visible:ring-0"
         style={{ fontSize: "1.0625rem" }}
       />
     </label>
@@ -285,7 +298,7 @@ function Select({
       <select
         name={name}
         defaultValue=""
-        className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 focus-visible:border-ink focus-visible:ring-0"
+        className="mt-2 block w-full border-b border-muted/80 bg-transparent py-3 text-ink outline-none transition-colors duration-200 focus-visible:border-ink focus-visible:ring-0"
         style={{ fontSize: "1.0625rem" }}
       >
         <option value="" disabled>

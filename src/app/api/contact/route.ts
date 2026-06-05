@@ -10,15 +10,27 @@ export const runtime = "nodejs";
 // Zod schema — aligné sur le reste de l'app (CMS, login). `website` est le
 // honeypot : un humain le laisse vide, les bots le remplissent.
 const ContactSchema = z.object({
-  company: z.string().trim().min(1).max(5000),
-  name: z.string().trim().min(1).max(5000),
+  company: z.string().trim().min(2).max(160),
+  name: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(320),
-  phone: z.string().trim().max(5000).optional(),
-  city: z.string().trim().max(5000).optional(),
-  project: z.string().trim().max(5000).optional(),
+  phone: z.string().trim().max(40).optional(),
+  city: z.string().trim().max(120).optional(),
+  project: z.string().trim().max(120).optional(),
   message: z.string().trim().min(1).max(5000),
   website: z.string().max(5000).optional(),
 });
+
+// Libellés FR pour les messages d'erreur côté client — jamais les noms
+// techniques des champs. `website` (honeypot) est volontairement absent.
+const FIELD_LABELS: Record<string, string> = {
+  company: "Entreprise",
+  name: "Nom & prénom",
+  email: "Email",
+  phone: "Téléphone",
+  city: "Ville du bâtiment",
+  project: "Type de projet",
+  message: "Votre besoin",
+};
 
 function escapeHtml(s: string): string {
   return s
@@ -46,11 +58,13 @@ export async function POST(req: Request) {
 
   const parsed = ContactSchema.safeParse(raw);
   if (!parsed.success) {
-    const fields = [...new Set(parsed.error.issues.map((i) => i.path[0]))].join(", ");
-    return NextResponse.json(
-      { error: `Champs invalides ou manquants : ${fields}.` },
-      { status: 400 },
-    );
+    const labels = [...new Set(parsed.error.issues.map((i) => String(i.path[0])))]
+      .filter((k) => k !== "website")
+      .map((k) => FIELD_LABELS[k] ?? k);
+    const detail = labels.length
+      ? `Vérifiez ces champs : ${labels.join(", ")}.`
+      : "Vérifiez les informations saisies.";
+    return NextResponse.json({ error: detail }, { status: 400 });
   }
   const body = parsed.data;
 
@@ -66,7 +80,7 @@ export async function POST(req: Request) {
   const rl = await checkRateLimit(rlKey, 1, 60_000);
   if (!rl.ok) {
     return NextResponse.json(
-      { error: `Trop de demandes. Réessayez dans ${rl.retryAfterSec} s.` },
+      { error: `Trop de demandes. Patientez ${rl.retryAfterSec} s, ou écrivez-nous à ${site.email}.` },
       { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
     );
   }

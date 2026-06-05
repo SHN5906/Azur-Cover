@@ -19,7 +19,7 @@ export default async function EditChantier({
   const action = updateRealisation.bind(null, slug);
 
   return (
-    <main className="mx-auto max-w-3xl p-10">
+    <main className="mx-auto max-w-4xl p-6 md:p-10">
       <nav className="text-xs">
         <Link href="/admin/chantiers" className="text-muted hover:text-ink">
           ← Tous les chantiers

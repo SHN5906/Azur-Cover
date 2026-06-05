@@ -11,6 +11,7 @@
   --color-white: #ffffff;
   --color-azur: #008eb9; /* bleu cyan officiel (charte) */
   --color-azur-deep: #006a8c; /* dérivé plus sombre pour hover/focus */
+  --color-azur-light: #1f9ec9; /* dérivé éclairci — texte cyan sur fond sombre (contraste AA) */
   --color-lime: #bdd577; /* vert lime officiel (charte) */
 
   --font-sans: "Inter", "Inter Variable", system-ui, -apple-system, sans-serif;

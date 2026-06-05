@@ -52,7 +52,7 @@ export default async function FAQPage() {
               {order.map((cat) =>
                 groups[cat] ? (
                   <section key={cat}>
-                    <Eyebrow>{cat}</Eyebrow>
+                    <Eyebrow as="h2">{cat}</Eyebrow>
                     <div className="mt-8 divide-y divide-line/60 border-y border-line/60">
                       {groups[cat].map((item) => (
                         <details key={item.question} className="group py-6">

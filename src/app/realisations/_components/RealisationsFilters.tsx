@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 type Props = {
   activeSector?: SectorValue;
   activeSolution?: SolutionValue;
+  // Facettes réellement présentes en base — évite d'afficher un filtre vide.
+  availableSectors?: readonly SectorValue[];
+  availableSolutions?: readonly SolutionValue[];
 };
 
 // Construit l'URL cible en remplaçant un seul paramètre — les filtres
@@ -29,7 +32,12 @@ function buildHref(
   return qs ? `/realisations?${qs}` : "/realisations";
 }
 
-export function RealisationsFilters({ activeSector, activeSolution }: Props) {
+export function RealisationsFilters({
+  activeSector,
+  activeSolution,
+  availableSectors = sectorEnum,
+  availableSolutions = solutionEnum,
+}: Props) {
   const searchParams = useSearchParams();
   const hasFilter = Boolean(activeSector || activeSolution);
 
@@ -43,7 +51,7 @@ export function RealisationsFilters({ activeSector, activeSolution }: Props) {
           >
             Tous
           </FilterChip>
-          {sectorEnum.map((s) => (
+          {availableSectors.map((s) => (
             <FilterChip
               key={s}
               href={buildHref(searchParams, "secteur", s)}
@@ -61,7 +69,7 @@ export function RealisationsFilters({ activeSector, activeSolution }: Props) {
           >
             Toutes
           </FilterChip>
-          {solutionEnum.map((s) => (
+          {availableSolutions.map((s) => (
             <FilterChip
               key={s}
               href={buildHref(searchParams, "solution", SOLUTION_TO_SLUG[s])}
@@ -75,7 +83,7 @@ export function RealisationsFilters({ activeSector, activeSolution }: Props) {
         {hasFilter && (
           <Link
             href="/realisations"
-            className="self-start text-sm text-muted underline-grow hover:text-ink md:self-end"
+            className="inline-flex min-h-[44px] items-center self-start text-sm text-muted underline-grow hover:text-ink md:self-end"
           >
             Réinitialiser
           </Link>
@@ -93,7 +101,11 @@ function FilterGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+    <div
+      role="group"
+      aria-label={`Filtrer par ${label.toLowerCase()}`}
+      className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4"
+    >
       <span className="font-mono text-[12px] uppercase tracking-[0.22em] text-muted">
         {label}
       </span>
@@ -115,9 +127,9 @@ function FilterChip({
     <Link
       href={href}
       scroll={false}
-      aria-pressed={active}
+      aria-current={active ? "true" : undefined}
       className={cn(
-        "inline-flex items-center rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+        "inline-flex min-h-[44px] items-center rounded-full border px-4 py-2 text-sm transition-colors",
         active
           ? "border-ink bg-ink text-white"
           : "border-line/70 text-muted hover:border-ink hover:text-ink",

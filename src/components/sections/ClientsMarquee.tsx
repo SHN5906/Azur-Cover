@@ -12,10 +12,9 @@ export function ClientsMarquee() {
         Ils nous font confiance
       </Eyebrow>
 
-      {/* Bandeau auto-défilant, non interactif : le défilement est piloté
-          uniquement par l'animation CSS. La piste contient 2 listes
-          identiques et translate(-50%) tombe pile au début de la copie 2,
-          donc la boucle est parfaitement continue (jamais de vide). */}
+      {/* Bandeau auto-défilant : 2 listes identiques, translate(-50%) tombe
+          pile au début de la copie 2 → boucle continue. Pause au survol,
+          figé en prefers-reduced-motion. */}
       <div className="mt-10">
         <div
           role="region"
@@ -28,6 +27,10 @@ export function ClientsMarquee() {
           </div>
         </div>
       </div>
+
+      <p className="mt-8 text-center font-mono text-[12px] uppercase tracking-[0.18em] text-muted">
+        Site conçu par Renew
+      </p>
 
       <style>{`
         .marquee-track {

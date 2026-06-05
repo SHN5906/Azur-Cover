@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { uploadRealisationImage } from "../../_actions/upload";
 
@@ -15,6 +15,7 @@ export function ImageUpload({ initialUrl, initialAlt, slug }: Props) {
   const [alt, setAlt] = useState(initialAlt ?? "");
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,33 +56,42 @@ export function ImageUpload({ initialUrl, initialAlt, slug }: Props) {
       <input type="hidden" name="imageSrc" value={url} />
 
       <input
+        ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp,image/avif"
         onChange={handleFile}
         disabled={pending}
         className="block text-sm file:mr-3 file:rounded file:border-0 file:bg-ink file:px-3 file:py-2 file:text-xs file:font-medium file:text-white file:hover:opacity-90"
       />
+      <p className="text-xs text-muted">JPG / PNG / WebP / AVIF, max 4 Mo.</p>
 
-      {pending && <p className="text-xs text-muted">Upload en cours…</p>}
-      {error && <p className="text-xs text-red-600">{error}</p>}
-      {url && !pending && (
-        <p className="text-xs text-muted">
-          ✓ Uploadé.{" "}
-          <button
-            type="button"
-            onClick={() => {
-              setUrl("");
-              setAlt("");
-            }}
-            className="underline hover:text-ink"
-          >
-            Retirer
-          </button>
+      <p role="status" aria-live="polite" className="text-xs text-muted">
+        {pending && "Upload en cours…"}
+        {url && !pending && (
+          <>
+            ✓ Uploadé.{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setUrl("");
+                setAlt("");
+                if (inputRef.current) inputRef.current.value = "";
+              }}
+              className="underline hover:text-ink"
+            >
+              Retirer
+            </button>
+          </>
+        )}
+      </p>
+      {error && (
+        <p role="alert" className="text-xs text-red-600">
+          {error}
         </p>
       )}
 
       <label className="block">
-        <span className="text-xs uppercase tracking-wider text-muted">
+        <span className="text-sm uppercase tracking-wider text-muted">
           Texte alternatif (alt)
         </span>
         <input
@@ -92,7 +102,7 @@ export function ImageUpload({ initialUrl, initialAlt, slug }: Props) {
           minLength={5}
           maxLength={220}
           placeholder="Ex: Toiture industrielle après Cool Roofing"
-          className="mt-1 block w-full border-b border-line/80 bg-transparent py-2 outline-none focus:border-ink"
+          className="mt-2 block w-full border-b border-line/80 bg-transparent py-3 outline-none focus:border-ink"
         />
       </label>
     </div>

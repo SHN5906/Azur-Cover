@@ -3,9 +3,19 @@ import { requireAdmin } from "@/lib/admin";
 import { listRealisations } from "@/lib/realisations-repo";
 import { DeleteButton } from "./_components/DeleteButton";
 
-export default async function ChantiersList() {
+export default async function ChantiersList({
+  searchParams,
+}: {
+  searchParams: Promise<{ created?: string; updated?: string }>;
+}) {
   await requireAdmin();
   const rows = await listRealisations();
+  const sp = await searchParams;
+  const flash = sp.created
+    ? `Chantier créé : ${sp.created}`
+    : sp.updated
+      ? `Modifications enregistrées : ${sp.updated}`
+      : null;
 
   return (
     <main className="mx-auto max-w-5xl p-10">
@@ -31,6 +41,15 @@ export default async function ChantiersList() {
         </Link>
       </header>
 
+      {flash && (
+        <p
+          role="status"
+          className="mt-6 rounded border border-lime/50 bg-lime/10 px-4 py-3 text-sm text-ink"
+        >
+          ✓ {flash}
+        </p>
+      )}
+
       {rows.length === 0 ? (
         <div className="mt-12 rounded border border-dashed border-line/60 p-10 text-center text-sm text-muted">
           Aucun chantier pour l&apos;instant.{" "}
@@ -40,7 +59,8 @@ export default async function ChantiersList() {
           .
         </div>
       ) : (
-        <table className="mt-8 w-full border-collapse text-sm">
+        <div className="mt-8 overflow-x-auto">
+        <table className="w-full min-w-[680px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-line/60 text-left text-xs uppercase tracking-wider text-muted">
               <th className="py-3 font-normal">Titre</th>
@@ -74,13 +94,13 @@ export default async function ChantiersList() {
                     href={`/realisations/${r.slug}`}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="text-xs underline hover:text-ink"
+                    className="inline-block py-1.5 text-xs underline hover:text-ink"
                   >
                     Voir
                   </Link>
                   <Link
                     href={`/admin/chantiers/${r.slug}/edit`}
-                    className="text-xs underline hover:text-ink"
+                    className="inline-block py-1.5 text-xs underline hover:text-ink"
                   >
                     Éditer
                   </Link>
@@ -90,6 +110,7 @@ export default async function ChantiersList() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </main>
   );

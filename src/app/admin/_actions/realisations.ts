@@ -112,7 +112,7 @@ export async function createRealisation(
 
   await insertRealisation(parsed.data);
   revalidatePublic(parsed.data.slug);
-  redirect("/admin/chantiers");
+  redirect(`/admin/chantiers?created=${parsed.data.slug}`);
 }
 
 export async function updateRealisation(
@@ -159,17 +159,13 @@ export async function updateRealisation(
 
   await updateRealisationBySlug(slug, parsed.data);
   revalidatePublic(parsed.data.slug, slug);
-  redirect("/admin/chantiers");
+  redirect(`/admin/chantiers?updated=${parsed.data.slug}`);
 }
 
-export async function deleteRealisation(slug: string) {
+export async function deleteRealisation(slug: string): Promise<ActionResult> {
   await requireAdmin();
   const rl = await rateLimitAdmin("delete");
-  if (rl) {
-    // void return type sur l'action de delete — pas de UI pour signaler.
-    // On throw pour faire surfacer dans la console et empêcher la suite.
-    throw new Error(rl.error);
-  }
+  if (rl) return rl;
   const row = await deleteRealisationBySlug(slug);
   if (row) {
     await deleteBlobIfHosted(row.imageSrc);
@@ -178,4 +174,5 @@ export async function deleteRealisation(slug: string) {
     );
   }
   revalidatePublic(slug);
+  return { ok: true };
 }

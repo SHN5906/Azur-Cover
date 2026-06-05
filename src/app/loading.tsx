@@ -12,6 +12,9 @@ export default function Loading() {
       className="flex min-h-screen items-center justify-center bg-bg"
       aria-label="Chargement"
     >
+      <span role="status" className="sr-only">
+        Chargement de la page…
+      </span>
       <div className="relative">
         <Image
           src="/images/brand/logo.png"

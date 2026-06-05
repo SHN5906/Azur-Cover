@@ -35,7 +35,7 @@ export default function NotFound() {
                 style={{ fontSize: "1.125rem", lineHeight: 1.55 }}
               >
                 Le lien que vous avez suivi est cassé, ou la page a été déplacée.
-                Pas grave. voilà comment retrouver votre chemin.
+                Pas grave : voilà comment retrouver votre chemin.
               </p>
 
               <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:gap-6">
@@ -54,22 +54,22 @@ export default function NotFound() {
                 <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <li>
                     <Link href="/expertises" className="text-ink hover:text-azur-deep">
-                      Nos expertises →
+                      Nos expertises <span aria-hidden>→</span>
                     </Link>
                   </li>
                   <li>
                     <Link href="/realisations" className="text-ink hover:text-azur-deep">
-                      Nos réalisations →
+                      Nos réalisations <span aria-hidden>→</span>
                     </Link>
                   </li>
                   <li>
                     <Link href="/qui-sommes-nous" className="text-ink hover:text-azur-deep">
-                      Qui sommes-nous →
+                      Qui sommes-nous <span aria-hidden>→</span>
                     </Link>
                   </li>
                   <li>
                     <Link href="/faq" className="text-ink hover:text-azur-deep">
-                      FAQ →
+                      FAQ <span aria-hidden>→</span>
                     </Link>
                   </li>
                 </ul>

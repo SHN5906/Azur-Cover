@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { site } from "@/content/site";
 import { Button } from "@/components/ui/Button";
@@ -74,6 +74,15 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+              aria-label="Rechercher sur le site"
+              title="Rechercher (⌘K / Ctrl K)"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-ink transition-colors hover:bg-ink/5"
+            >
+              <Search className="h-5 w-5" aria-hidden />
+            </button>
             <div className="hidden lg:block">
               {/* Always render the Button to keep a stable width — nav items
                   ne décalent plus au scroll. Le visuel s'adapte : transparent

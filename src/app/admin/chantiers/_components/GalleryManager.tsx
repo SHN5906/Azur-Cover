@@ -160,12 +160,14 @@ export function GalleryManager({ initial = [], slug }: Props) {
           disabled={progress !== null || items.length >= MAX_ITEMS}
           className="block text-sm file:mr-3 file:rounded file:border-0 file:bg-ink file:px-3 file:py-2 file:text-xs file:font-medium file:text-white file:hover:opacity-90 disabled:opacity-50"
         />
-        {progress && (
-          <p className="mt-2 text-xs text-muted">
-            Upload {progress.done}/{progress.total}…
+        <p role="status" aria-live="polite" className="mt-2 text-xs text-muted">
+          {progress && `Upload ${progress.done}/${progress.total}…`}
+        </p>
+        {error && (
+          <p role="alert" className="mt-2 text-xs text-red-600">
+            {error}
           </p>
         )}
-        {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
         <p className="mt-2 text-xs text-muted">
           {items.length}/{MAX_ITEMS} photos. JPG / PNG / WebP / AVIF, max 4 Mo
           par fichier.

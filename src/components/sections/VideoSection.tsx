@@ -21,6 +21,9 @@ export function VideoSection() {
     const v = ref.current;
     const section = sectionRef.current;
     if (!v || !section) return;
+    // Respecte prefers-reduced-motion : pas de lecture automatique, l'utilisateur
+    // déclenche lui-même via le bouton Lire.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let triggered = false;
     const io = new IntersectionObserver(

@@ -12,6 +12,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import gsap from "gsap";
+import { Pause, Play } from "lucide-react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { expertises } from "@/content/expertises";
 import { cn } from "@/lib/utils";
@@ -77,6 +78,9 @@ export function SolutionsCarousel() {
 
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  // Pause explicite déclenchée par l'utilisateur (bouton) — distincte de la
+  // pause au survol/focus. Requis par WCAG 2.2.2 (mécanisme de pause).
+  const [userPaused, setUserPaused] = useState(false);
 
   // Prefetch toutes les pages solutions au mount : le clic sur la planète
   // active doit naviguer instantanément.
@@ -137,11 +141,11 @@ export function SolutionsCarousel() {
   }, [isDesktop]);
 
   useEffect(() => {
-    if (!isDesktop || paused) return;
+    if (!isDesktop || paused || userPaused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const t = window.setTimeout(() => setActive((i) => (i + 1) % N), AUTOPLAY_MS);
     return () => window.clearTimeout(t);
-  }, [active, paused, isDesktop]);
+  }, [active, paused, userPaused, isDesktop]);
 
   const goTo = useCallback((i: number) => {
     setActive(((i % N) + N) % N);
@@ -203,31 +207,32 @@ export function SolutionsCarousel() {
             Nos solutions
           </Eyebrow>
 
-          {/* Planets stage — zone supérieure, planètes absolument positionnées */}
-          <div className="relative mt-[clamp(16px,2.5vh,32px)] w-full max-w-[1100px] h-[clamp(360px,42vh,480px)]">
+          {/* Planets stage — vraies "tabs" ARIA (une seule UI, pas de tablist
+              sr-only dupliqué). Sélection au clic ; la navigation vers la page
+              se fait via le lien "En savoir plus" du panneau. */}
+          <div
+            role="tablist"
+            aria-label="Choisir une solution"
+            className="relative mt-[clamp(16px,2.5vh,32px)] w-full max-w-[1100px] h-[clamp(360px,42vh,480px)]"
+          >
             {expertises.map((s, i) => (
               <button
                 type="button"
                 key={s.slug}
+                id={`tab-${s.slug}`}
+                role="tab"
+                aria-selected={i === active}
+                aria-controls="solutions-panel"
+                tabIndex={i === active ? 0 : -1}
                 ref={(el) => {
                   planetRefs.current[i] = el;
                 }}
-                onClick={() => {
-                  if (i === active) {
-                    router.push(`/expertises/${s.slug}`);
-                  } else {
-                    goTo(i);
-                  }
-                }}
-                aria-label={
-                  i === active
-                    ? `Voir la page ${s.title}`
-                    : `Afficher la solution ${s.title}`
-                }
+                onClick={() => goTo(i)}
+                aria-label={s.title}
                 className={cn(
                   "planet group absolute left-0 top-0 h-[clamp(220px,22vw,320px)] w-[clamp(220px,22vw,320px)] overflow-visible rounded-full",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]",
-                  i === active && "planet-active cursor-pointer",
+                  i === active && "planet-active",
                 )}
               >
                 <span
@@ -251,7 +256,6 @@ export function SolutionsCarousel() {
                       fill
                       sizes="320px"
                       className="object-cover"
-                      priority={i === 0}
                     />
                   </div>
                   {/* Sphère : ombre interne très douce */}
@@ -290,7 +294,7 @@ export function SolutionsCarousel() {
             >
               ←
             </button>
-            <span className="font-mono text-[13px] uppercase tracking-[0.22em] text-white/35">
+            <span className="font-mono text-[13px] uppercase tracking-[0.22em] text-white/60">
               {String(active + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}
             </span>
             <button
@@ -301,6 +305,23 @@ export function SolutionsCarousel() {
             >
               →
             </button>
+            <button
+              type="button"
+              onClick={() => setUserPaused((p) => !p)}
+              aria-pressed={userPaused}
+              aria-label={
+                userPaused
+                  ? "Reprendre le défilement automatique"
+                  : "Mettre en pause le défilement automatique"
+              }
+              className="ml-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/75 transition hover:border-white/50 hover:text-white"
+            >
+              {userPaused ? (
+                <Play className="h-4 w-4" aria-hidden />
+              ) : (
+                <Pause className="h-4 w-4" aria-hidden />
+              )}
+            </button>
           </div>
 
           {/* Texte — sous la nav, centré horizontalement. Le crossfade (1400ms)
@@ -308,8 +329,8 @@ export function SolutionsCarousel() {
               — perception d'un seul mouvement synchrone. */}
           <div
             role="tabpanel"
-            id={`panel-${current.slug}`}
-            aria-labelledby={`tab-a11y-${current.slug}`}
+            id="solutions-panel"
+            aria-labelledby={`tab-${current.slug}`}
             tabIndex={0}
             className="relative mt-[clamp(20px,3vh,40px)] w-full max-w-[640px] px-6 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]"
           >
@@ -396,23 +417,6 @@ export function SolutionsCarousel() {
             "linear-gradient(to bottom, transparent 0%, var(--color-ink) 100%)",
         }}
       />
-
-      {/* Hidden a11y tablist */}
-      <div role="tablist" aria-label="Choisir une solution" className="sr-only">
-        {expertises.map((s, i) => (
-          <button
-            key={`a11y-${s.slug}`}
-            id={`tab-a11y-${s.slug}`}
-            role="tab"
-            aria-selected={i === active}
-            aria-controls={`panel-${s.slug}`}
-            tabIndex={i === active ? 0 : -1}
-            onClick={() => goTo(i)}
-          >
-            {s.title}
-          </button>
-        ))}
-      </div>
 
       <style>{`
         /* Ken-burns lent et imperceptible — juste assez pour donner vie. */

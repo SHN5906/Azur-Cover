@@ -7,6 +7,7 @@ import { PageHero } from "@/components/sections/PageHero";
 import { Container } from "@/components/ui/Container";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { listRealisations } from "@/lib/realisations-repo";
+import { sectorEnum, solutionEnum } from "@/db/schema";
 import {
   SECTOR_LABELS,
   parseSectorParam,
@@ -34,7 +35,20 @@ export default async function RealisationsIndex({
   const sp = await searchParams;
   const sector = parseSectorParam(sp.secteur);
   const solution = parseSolutionParam(sp.solution);
-  const realisations = await listRealisations({ sector, solution });
+  // Charger tout une fois pour dériver les facettes réellement présentes en
+  // base (on n'affiche pas un filtre qui ne renverrait jamais de résultat),
+  // puis filtrer en mémoire. L'ordre DB (sortIndex) est préservé.
+  const all = await listRealisations();
+  const realisations = all.filter(
+    (r) =>
+      (!sector || r.sector === sector) && (!solution || r.solution === solution),
+  );
+  const availableSectors = sectorEnum.filter((s) =>
+    all.some((r) => r.sector === s),
+  );
+  const availableSolutions = solutionEnum.filter((s) =>
+    all.some((r) => r.solution === s),
+  );
 
   const activeLabel = sector
     ? SECTOR_LABELS[sector]
@@ -49,12 +63,25 @@ export default async function RealisationsIndex({
         <PageHero
           eyebrow="Nos réalisations"
           title="Le terrain. Toujours."
-          lead="Sélection de chantiers récents qui illustrent notre savoir-faire dans la performance thermique et l'étanchéité. bâtiments tertiaires, industriels et publics."
+          lead="Sélection de chantiers récents qui illustrent notre savoir-faire dans la performance thermique et l'étanchéité : bâtiments tertiaires, industriels et publics."
         />
 
         <section className="pb-[clamp(120px,18vw,200px)]">
           <Container>
-            <RealisationsFilters activeSector={sector} activeSolution={solution} />
+            <RealisationsFilters
+              activeSector={sector}
+              activeSolution={solution}
+              availableSectors={availableSectors}
+              availableSolutions={availableSolutions}
+            />
+            <p
+              role="status"
+              aria-live="polite"
+              className="mt-6 font-mono text-[13px] uppercase tracking-[0.18em] text-muted"
+            >
+              {realisations.length}{" "}
+              {realisations.length > 1 ? "réalisations" : "réalisation"}
+            </p>
 
             {realisations.length === 0 ? (
               <div className="mt-16 rounded border border-dashed border-line/60 p-12 text-center">
@@ -78,7 +105,11 @@ export default async function RealisationsIndex({
               <ul className="mt-12 grid grid-cols-1 gap-x-6 gap-y-10 sm:gap-y-14 md:grid-cols-2 md:gap-y-20 lg:gap-y-24">
                 {realisations.map((r, i) => (
                   <ScrollReveal as="li" key={r.slug} delay={Math.min(i, 6) * 60}>
-                    <Link href={`/realisations/${r.slug}`} className="group block">
+                    <Link
+                      href={`/realisations/${r.slug}`}
+                      aria-label={`Lire l'étude de cas : ${r.title}`}
+                      className="group block"
+                    >
                       <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-graphite/5 sm:aspect-[4/3]">
                         <Image
                           src={r.imageSrc}

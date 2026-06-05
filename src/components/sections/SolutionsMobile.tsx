@@ -32,7 +32,14 @@ export function SolutionsMobile() {
         spaceBetween={20}
         slidesPerView={1.05}
         pagination={{ clickable: true }}
-        className="mt-10 [&_.swiper-pagination-bullet]:!bg-white/30 [&_.swiper-pagination-bullet-active]:!bg-azur"
+        a11y={{
+          paginationBulletMessage: "Aller à la solution {{index}}",
+          prevSlideMessage: "Solution précédente",
+          nextSlideMessage: "Solution suivante",
+          firstSlideMessage: "Première solution",
+          lastSlideMessage: "Dernière solution",
+        }}
+        className="mt-10 [&_.swiper-pagination]:!static [&_.swiper-pagination]:!mt-8 [&_.swiper-pagination-bullet]:!mx-1 [&_.swiper-pagination-bullet]:!h-11 [&_.swiper-pagination-bullet]:!w-11 [&_.swiper-pagination-bullet]:!bg-clip-content [&_.swiper-pagination-bullet]:!p-[18px] [&_.swiper-pagination-bullet]:!opacity-100 [&_.swiper-pagination-bullet]:!bg-white/30 [&_.swiper-pagination-bullet-active]:!bg-azur"
       >
         {expertises.map((s) => (
           <SwiperSlide key={s.slug}>
