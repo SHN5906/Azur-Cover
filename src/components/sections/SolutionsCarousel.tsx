@@ -81,6 +81,9 @@ export function SolutionsCarousel() {
   // Pause explicite déclenchée par l'utilisateur (bouton) — distincte de la
   // pause au survol/focus. Requis par WCAG 2.2.2 (mécanisme de pause).
   const [userPaused, setUserPaused] = useState(false);
+  // Compteur incrémenté à chaque cycle — sert de clé unique pour la barre
+  // de progression (force un vrai remount → l'animation CSS redémarre).
+  const [progressKey, setProgressKey] = useState(0);
 
   // Prefetch toutes les pages solutions au mount : le clic sur la planète
   // active doit naviguer instantanément.
@@ -143,12 +146,21 @@ export function SolutionsCarousel() {
   useEffect(() => {
     if (!isDesktop || paused || userPaused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = window.setTimeout(() => setActive((i) => (i + 1) % N), AUTOPLAY_MS);
+    const t = window.setTimeout(() => {
+      setActive((i) => (i + 1) % N);
+      setProgressKey((k) => k + 1);
+    }, AUTOPLAY_MS);
     return () => window.clearTimeout(t);
   }, [active, paused, userPaused, isDesktop]);
 
+  // Déclenche la barre de progression dès que le desktop s'affiche.
+  useEffect(() => {
+    if (isDesktop) setProgressKey((k) => k + 1);
+  }, [isDesktop]);
+
   const goTo = useCallback((i: number) => {
     setActive(((i % N) + N) % N);
+    setProgressKey((k) => k + 1);
   }, []);
 
   useEffect(() => {
@@ -324,7 +336,7 @@ export function SolutionsCarousel() {
             className="mt-4 h-[2px] w-[180px] overflow-hidden rounded-full bg-white/10"
           >
             <div
-              key={`progress-${active}-${isDesktop}`}
+              key={progressKey}
               className="carousel-progress h-full origin-left bg-azur"
               style={{
                 animationPlayState: paused || userPaused ? "paused" : "running",
