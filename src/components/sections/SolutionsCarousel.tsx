@@ -317,6 +317,21 @@ export function SolutionsCarousel() {
             </button>
           </div>
 
+          {/* Barre de progression — se remplit pendant AUTOPLAY_MS puis
+              reset au changement de slide. Pause au survol/focus. */}
+          <div
+            aria-hidden
+            className="mt-4 h-[2px] w-[180px] overflow-hidden rounded-full bg-white/10"
+          >
+            <div
+              key={active}
+              className="carousel-progress h-full origin-left bg-azur"
+              style={{
+                animationPlayState: paused || userPaused ? "paused" : "running",
+              }}
+            />
+          </div>
+
           {/* Texte — sous la nav, centré horizontalement. Le crossfade (1400ms)
               démarre en même temps que GSAP repositionne les planètes (1800ms)
               — perception d'un seul mouvement synchrone. */}
@@ -412,6 +427,15 @@ export function SolutionsCarousel() {
       />
 
       <style>{`
+        /* Barre de progression autoplay — se remplit en AUTOPLAY_MS */
+        .carousel-progress {
+          animation: carousel-fill 10s linear forwards;
+        }
+        @keyframes carousel-fill {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+
         /* Ken-burns lent et imperceptible — juste assez pour donner vie. */
         .ken-burns {
           animation: ken-burns 16s cubic-bezier(0.33,0,0.67,1) forwards;
@@ -470,9 +494,11 @@ export function SolutionsCarousel() {
         @media (prefers-reduced-motion: reduce) {
           .ken-burns,
           .solutions-title-word-inner,
-          .planet-gloss-band {
+          .planet-gloss-band,
+          .carousel-progress {
             animation: none !important;
           }
+          .carousel-progress { transform: scaleX(1); }
           .solutions-title-word-inner { transform: none; }
           .planet-gloss-band { opacity: 0; }
         }
