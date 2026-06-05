@@ -79,8 +79,8 @@ export default async function ExpertisePage({
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
               <div className="lg:col-span-7">
                 <nav aria-label="Fil d'Ariane" className="mb-6 flex items-center gap-2 text-sm text-muted">
-                  <Link href="/" className="transition-colors hover:text-ink">
-                    Accueil
+                  <Link href="/#solutions" className="transition-colors hover:text-ink">
+                    Nos solutions
                   </Link>
                   <span aria-hidden>/</span>
                   <Link href="/expertises" className="transition-colors hover:text-ink">
