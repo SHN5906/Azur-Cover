@@ -93,6 +93,9 @@ export function CommandPalette() {
   // seulement le raccourci ⌘K qui n'est ni découvrable ni tactile.
   useEffect(() => {
     const openHandler = () => {
+      // Lock scroll immédiatement (pas dans le useEffect open, qui arrive
+      // après le render) pour éviter un flash de scroll vers une ancre.
+      document.documentElement.style.overflow = "hidden";
       setQuery("");
       setActiveIdx(0);
       setOpen(true);

@@ -76,7 +76,11 @@ export function Header() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.dispatchEvent(new Event("open-command-palette"));
+              }}
               aria-label="Rechercher sur le site"
               title="Rechercher (⌘K / Ctrl K)"
               className="inline-flex h-11 w-11 items-center justify-center rounded-md text-ink transition-colors hover:bg-ink/5"
