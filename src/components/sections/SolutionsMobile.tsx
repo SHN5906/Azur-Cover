@@ -47,7 +47,7 @@ export function SolutionsMobile() {
               <Link
                 href={`/expertises/${s.slug}`}
                 aria-label={`Voir la solution ${s.title}`}
-                className="group relative block aspect-[4/5] w-full overflow-hidden rounded-md bg-graphite-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]"
+                className="group relative block aspect-[3/4] w-full overflow-hidden rounded-md bg-graphite-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]"
               >
                 <Image
                   src={s.image.src}
