@@ -97,7 +97,14 @@ export async function uploadRealisationImage(formData: FormData): Promise<Upload
 
 export async function deleteBlobIfHosted(url: string | null | undefined) {
   if (!url) return;
-  if (!url.includes(".public.blob.vercel-storage.com/")) return;
+  // Validate by hostname, not substring (INFO-01). Prevents a crafted URL
+  // like "https://evil.com/x?.public.blob.vercel-storage.com/" from passing.
+  try {
+    const host = new URL(url).hostname;
+    if (!host.endsWith(".public.blob.vercel-storage.com")) return;
+  } catch {
+    return;
+  }
   try {
     await del(url);
   } catch {

@@ -9,9 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/mentions-legales" },
 };
 
-// Page obligatoire (LCEN article 6, III). Les informations sociales détaillées
-// (forme juridique, capital, SIREN/SIRET, TVA, directeur de publication) sont
-// communiquées sur demande à l'éditeur — voir email ci-dessus.
+// Page obligatoire (LCEN article 6, III).
+// LCEN art. 6 III — toutes les mentions obligatoires sont renseignées.
 export default function MentionsLegales() {
   return (
     <LegalPage
@@ -21,10 +20,13 @@ export default function MentionsLegales() {
         {
           heading: "Éditeur du site",
           paragraphs: [
-            `Le site ${site.url} est édité par Azur Cover.`,
-            `Adresse : ${site.address.full}, ${site.address.country}.`,
+            `Le site ${site.url} est édité par Azur Cover, SAS (société par actions simplifiée) au capital de 2 000 €.`,
+            `Siège social : ${site.address.full}, ${site.address.country}.`,
+            `SIREN : 932 197 999 — SIRET : 932 197 999 00034.`,
+            `RCS Grasse — Code APE : 74.90B.`,
+            `TVA intracommunautaire : FR07 932 197 999.`,
             `Téléphone : ${site.phones[0]} · Email : ${site.email}.`,
-            `Les informations sociales détaillées (forme juridique, capital social, numéro SIREN/SIRET, TVA intracommunautaire, directeur de publication) sont communiquées sur simple demande à l'adresse ci-dessus.`,
+            `Directeurs de la publication : Théo Cilins, Président — Tony Ramos, Directeur Général.`,
           ],
         },
         {

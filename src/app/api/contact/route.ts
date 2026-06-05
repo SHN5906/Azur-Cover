@@ -46,14 +46,14 @@ export async function POST(req: Request) {
   // calls the Kasada API in prod via Vercel OIDC.
   const verification = await checkBotId();
   if (verification.isBot) {
-    return NextResponse.json({ error: "Requête refusée." }, { status: 403 });
+    return NextResponse.json({ error: "Requête refusée." }, { status: 403, headers: { "Cache-Control": "no-store" } });
   }
 
   let raw: unknown;
   try {
     raw = await req.json();
   } catch {
-    return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+    return NextResponse.json({ error: "Requête invalide." }, { status: 400, headers: { "Cache-Control": "no-store" } });
   }
 
   const parsed = ContactSchema.safeParse(raw);
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     const detail = labels.length
       ? `Vérifiez ces champs : ${labels.join(", ")}.`
       : "Vérifiez les informations saisies.";
-    return NextResponse.json({ error: detail }, { status: 400 });
+    return NextResponse.json({ error: detail }, { status: 400, headers: { "Cache-Control": "no-store" } });
   }
   const body = parsed.data;
 
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
   if (!rl.ok) {
     return NextResponse.json(
       { error: `Trop de demandes. Patientez ${rl.retryAfterSec} s, ou écrivez-nous à ${site.email}.` },
-      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec), "Cache-Control": "no-store" } },
     );
   }
 
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
     await resetRateLimit(rlKey);
     return NextResponse.json(
       { error: "Service email indisponible. Écrivez-nous à " + site.email + "." },
-      { status: 500 },
+      { status: 500, headers: { "Cache-Control": "no-store" } },
     );
   }
 
@@ -149,16 +149,16 @@ export async function POST(req: Request) {
       await resetRateLimit(rlKey);
       return NextResponse.json(
         { error: "Échec de l'envoi. Réessayez ou écrivez à " + site.email + "." },
-        { status: 502 },
+        { status: 502, headers: { "Cache-Control": "no-store" } },
       );
     }
-    return NextResponse.json({ ok: true, id: data?.id });
+    return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("Resend threw:", err);
     await resetRateLimit(rlKey);
     return NextResponse.json(
       { error: "Échec de l'envoi. Réessayez ou écrivez à " + site.email + "." },
-      { status: 500 },
+      { status: 500, headers: { "Cache-Control": "no-store" } },
     );
   }
 }

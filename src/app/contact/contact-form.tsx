@@ -101,7 +101,16 @@ export function ContactForm() {
         </label>
       </div>
 
-      <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-6">
+      <p className="mt-8 text-xs text-muted">
+        En soumettant ce formulaire, vous acceptez que vos données soient
+        traitées conformément à notre{" "}
+        <a href="/confidentialite" className="underline hover:text-ink">
+          politique de confidentialité
+        </a>
+        .
+      </p>
+
+      <div className="mt-6 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-6">
         <SubmitButton status={status} />
         <p className="text-xs text-muted">
           Vous serez contacté sous 48&nbsp;h.

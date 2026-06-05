@@ -11,8 +11,6 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import gsap from "gsap";
-import { Pause, Play } from "lucide-react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { expertises } from "@/content/expertises";
 import { cn } from "@/lib/utils";
@@ -57,6 +55,38 @@ function slotForOffset(offset: number): Slot {
   return SLOTS[offset] ?? SLOTS[0];
 }
 
+/** Animate a planet element to a slot via the native Web Animations API.
+ *  Replaces the previous gsap.to() call — zero runtime dependency. */
+function animatePlanet(el: HTMLElement, slot: Slot, immediate: boolean) {
+  el.style.zIndex = String(slot.z);
+
+  const target: Keyframe = {
+    left: `${slot.x}%`,
+    top: `${slot.y}%`,
+    transform: `translate(-50%, -50%) scale(${slot.scale})`,
+    opacity: slot.opacity,
+    filter: `blur(${slot.blur}px) saturate(${slot.saturate}) brightness(${slot.brightness})`,
+  };
+
+  if (immediate) {
+    Object.assign(el.style, target);
+    return;
+  }
+
+  el.style.willChange = "transform, opacity, filter";
+  const anim = el.animate([target], {
+    duration: TRANSITION_MS,
+    easing: "cubic-bezier(0.65, 0, 0.35, 1)", // power3.inOut equivalent
+    fill: "forwards",
+  });
+  anim.onfinish = () => {
+    // Commit final values to inline style, remove the animation, and clean up.
+    Object.assign(el.style, target);
+    anim.cancel();
+    el.style.willChange = "auto";
+  };
+}
+
 const DESKTOP_MQ = "(min-width: 1024px)";
 function subscribeDesktop(callback: () => void) {
   if (typeof window === "undefined") return () => {};
@@ -77,13 +107,11 @@ export function SolutionsCarousel() {
   const planetRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const [active, setActive] = useState(0);
+  // Pause au focus clavier uniquement (mécanisme WCAG 2.2.2). Pas de pause
+  // au survol : la section fait 100vh, la souris serait toujours dessus.
   const [paused, setPaused] = useState(false);
-  // Pause explicite déclenchée par l'utilisateur (bouton) — distincte de la
-  // pause au survol/focus. Requis par WCAG 2.2.2 (mécanisme de pause).
-  const [userPaused, setUserPaused] = useState(false);
-  // Compteur incrémenté à chaque cycle — sert de clé unique pour la barre
-  // de progression (force un vrai remount → l'animation CSS redémarre).
-  const [progressKey, setProgressKey] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const progressAnimRef = useRef<Animation | null>(null);
 
   // Prefetch toutes les pages solutions au mount : le clic sur la planète
   // active doit naviguer instantanément.
@@ -103,26 +131,7 @@ export function SolutionsCarousel() {
         if (!el) return;
         const offset = (i - active + N) % N;
         const slot = slotForOffset(offset);
-        el.style.zIndex = String(slot.z);
-        gsap.to(el, {
-          left: `${slot.x}%`,
-          top: `${slot.y}%`,
-          xPercent: -50,
-          yPercent: -50,
-          scale: slot.scale,
-          opacity: slot.opacity,
-          filter: `blur(${slot.blur}px) saturate(${slot.saturate}) brightness(${slot.brightness})`,
-          duration: immediate ? 0 : TRANSITION_MS / 1000,
-          // power3.inOut = plus lent en début/fin, courbe plus cinématique
-          ease: "power3.inOut",
-          overwrite: "auto",
-          onStart: () => {
-            el.style.willChange = "transform, opacity, filter";
-          },
-          onComplete: () => {
-            el.style.willChange = "auto";
-          },
-        });
+        animatePlanet(el, slot, immediate);
       });
     },
     [active],
@@ -143,24 +152,38 @@ export function SolutionsCarousel() {
     if (!isDesktop) isFirstLayout.current = true;
   }, [isDesktop]);
 
+  // The WAAPI animation IS the timer: when it finishes → next slide.
+  // Pausing the animation automatically pauses the slide change.
+  // No setTimeout needed — one source of truth, always in sync.
   useEffect(() => {
-    if (!isDesktop || paused || userPaused) return;
+    if (!isDesktop) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = window.setTimeout(() => {
-      setActive((i) => (i + 1) % N);
-      setProgressKey((k) => k + 1);
-    }, AUTOPLAY_MS);
-    return () => window.clearTimeout(t);
-  }, [active, paused, userPaused, isDesktop]);
+    const el = progressRef.current;
+    if (!el) return;
 
-  // Déclenche la barre de progression dès que le desktop s'affiche.
+    const anim = el.animate(
+      [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }],
+      { duration: AUTOPLAY_MS, easing: "linear", fill: "forwards" },
+    );
+    progressAnimRef.current = anim;
+
+    if (paused) anim.pause();
+
+    anim.onfinish = () => setActive((i) => (i + 1) % N);
+
+    return () => { anim.cancel(); };
+  }, [active, isDesktop]); // intentionally excludes `paused` (handled below)
+
+  // Pause / resume — separate effect so it doesn't restart the animation.
   useEffect(() => {
-    if (isDesktop) setProgressKey((k) => k + 1);
-  }, [isDesktop]);
+    const anim = progressAnimRef.current;
+    if (!anim || anim.playState === "idle") return;
+    if (paused) anim.pause();
+    else anim.play();
+  }, [paused]);
 
   const goTo = useCallback((i: number) => {
     setActive(((i % N) + N) % N);
-    setProgressKey((k) => k + 1);
   }, []);
 
   useEffect(() => {
@@ -186,8 +209,10 @@ export function SolutionsCarousel() {
       ref={sectionRef}
       id="solutions"
       aria-labelledby="solutions-h"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      // Pas de pause au survol : la section fait 100vh, donc la souris est
+      // toujours dessus quand on la regarde → la barre resterait figée à 0.
+      // On garde uniquement la pause au focus clavier (mécanisme WCAG 2.2.2)
+      // — l'autoplay reste contrôlable via les flèches ‹ › et le clic planète.
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
       className="relative overflow-hidden bg-[#0a0a0c] text-white"
@@ -202,15 +227,9 @@ export function SolutionsCarousel() {
         } as React.CSSProperties
       }
     >
-      {/* Desktop layout — planète active centrée, texte juste sous elle.
-          Layout 1-colonne : la rotation des planètes et le crossfade du texte
-          sont alignés visuellement (même axe vertical), donc l'œil perçoit
-          le changement comme un seul mouvement synchrone. */}
+      {/* Desktop layout — planète active centrée, texte juste sous elle. */}
       {isDesktop && (
         <div className="relative z-10 flex h-screen min-h-[900px] flex-col items-center pt-[clamp(40px,6vh,72px)] pb-[clamp(40px,5vh,72px)]">
-          {/* Section label — au-dessus des planètes pour annoncer la section.
-              Forcé en blanc plein + tracking large pour lever toute ambiguïté
-              sur le fond carbone + tint radial. */}
           <Eyebrow
             tone="white"
             id="solutions-h"
@@ -219,9 +238,6 @@ export function SolutionsCarousel() {
             Nos solutions
           </Eyebrow>
 
-          {/* Planets stage — vraies "tabs" ARIA (une seule UI, pas de tablist
-              sr-only dupliqué). Sélection au clic ; la navigation vers la page
-              se fait via le lien "En savoir plus" du panneau. */}
           <div
             role="tablist"
             aria-label="Choisir une solution"
@@ -280,7 +296,6 @@ export function SolutionsCarousel() {
                       className="object-cover"
                     />
                   </div>
-                  {/* Sphère : ombre interne très douce */}
                   <span
                     aria-hidden
                     className="pointer-events-none absolute inset-0 rounded-full"
@@ -289,7 +304,6 @@ export function SolutionsCarousel() {
                         "radial-gradient(circle at 32% 28%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 38%), radial-gradient(circle at 72% 78%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 55%)",
                     }}
                   />
-                  {/* Reflet diagonal Azur Reflect (active seulement) */}
                   {i === active && (
                     <span
                       key={`gloss-${active}`}
@@ -304,9 +318,6 @@ export function SolutionsCarousel() {
             ))}
           </div>
 
-          {/* Nav (flèches + compteur) — directement sous la planète, au-dessus
-              du texte. Sert de transition visuelle entre l'illustration et
-              le contenu. */}
           <div className="mt-[clamp(16px,2.5vh,32px)] flex items-center gap-5">
             <button
               type="button"
@@ -329,24 +340,17 @@ export function SolutionsCarousel() {
             </button>
           </div>
 
-          {/* Barre de progression — se remplit pendant AUTOPLAY_MS puis
-              reset au changement de slide. Pause au survol/focus. */}
           <div
             aria-hidden
             className="mt-4 h-[2px] w-[180px] overflow-hidden rounded-full bg-white/10"
           >
             <div
-              key={progressKey}
-              className="carousel-progress h-full origin-left bg-azur"
-              style={{
-                animationPlayState: paused || userPaused ? "paused" : "running",
-              }}
+              ref={progressRef}
+              className="h-full origin-left bg-azur"
+              style={{ transform: "scaleX(0)" }}
             />
           </div>
 
-          {/* Texte — sous la nav, centré horizontalement. Le crossfade (1400ms)
-              démarre en même temps que GSAP repositionne les planètes (1800ms)
-              — perception d'un seul mouvement synchrone. */}
           <div
             role="tabpanel"
             id="solutions-panel"
@@ -366,8 +370,6 @@ export function SolutionsCarousel() {
                       : "opacity-0 pointer-events-none",
                   )}
                 >
-                  {/* Title : mask reveal mot par mot. Le remount via key force
-                      le redémarrage de l'animation à chaque slide actif. */}
                   <h2
                     key={`h2-${s.slug}-${i === active ? "a" : "i"}`}
                     className="text-white solutions-title"
@@ -427,8 +429,6 @@ export function SolutionsCarousel() {
         </div>
       )}
 
-      {/* Fondu vers la section suivante (bg-ink = #0d2537) — évite la coupe
-          nette entre le fond carbone du carousel et le navy de l'AerogelStory. */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[160px]"
@@ -439,15 +439,6 @@ export function SolutionsCarousel() {
       />
 
       <style>{`
-        /* Barre de progression autoplay — se remplit en AUTOPLAY_MS */
-        .carousel-progress {
-          animation: carousel-fill 10s linear forwards;
-        }
-        @keyframes carousel-fill {
-          from { transform: scaleX(0); }
-          to   { transform: scaleX(1); }
-        }
-
         /* Ken-burns lent et imperceptible — juste assez pour donner vie. */
         .ken-burns {
           animation: ken-burns 16s cubic-bezier(0.33,0,0.67,1) forwards;
@@ -474,10 +465,7 @@ export function SolutionsCarousel() {
           to { transform: translateY(0); }
         }
 
-        /* Reflet diagonal — vernis Azur Reflect appliqué littéralement.
-           Une bande blanche translucide qui balaie la planète une fois,
-           ~1.6s après l'arrivée de l'active (laisse le temps au mask + ken-burns
-           de poser). */
+        /* Reflet diagonal — vernis Azur Reflect */
         .planet-gloss-band {
           position: absolute;
           top: -50%;
@@ -506,11 +494,9 @@ export function SolutionsCarousel() {
         @media (prefers-reduced-motion: reduce) {
           .ken-burns,
           .solutions-title-word-inner,
-          .planet-gloss-band,
-          .carousel-progress {
+          .planet-gloss-band {
             animation: none !important;
           }
-          .carousel-progress { transform: scaleX(1); }
           .solutions-title-word-inner { transform: none; }
           .planet-gloss-band { opacity: 0; }
         }

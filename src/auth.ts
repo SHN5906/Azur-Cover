@@ -26,7 +26,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // les requêtes avec UntrustedHost.
   trustHost: true,
   // JWT strategy: pas besoin de DB adapter pour Credentials avec un seul admin
-  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 7 }, // 7 jours
+  session: { strategy: "jwt", maxAge: 60 * 60 * 2 }, // 2 h (P2-03)
   pages: {
     signIn: "/admin/login",
     error: "/admin/login",

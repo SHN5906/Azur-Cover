@@ -33,20 +33,27 @@ export default function PrivacyPage() {
           ],
         },
         {
-          heading: "3. Finalités",
+          heading: "3. Base légale du traitement",
+          paragraphs: [
+            "Le traitement de vos données repose sur votre consentement (article 6.1.a du RGPD), exprimé lors de l'envoi du formulaire de contact. Vous pouvez retirer ce consentement à tout moment en écrivant à " + site.email + ".",
+            "Pour les échanges faisant suite à une demande de devis, le traitement peut également reposer sur l'exécution de mesures précontractuelles (article 6.1.b du RGPD).",
+          ],
+        },
+        {
+          heading: "4. Finalités",
           paragraphs: [
             "Vos données sont utilisées exclusivement pour : répondre à votre demande, établir un devis ou un planning d'intervention, et assurer le suivi commercial associé.",
             "Elles ne sont jamais cédées, louées ou revendues à des tiers.",
           ],
         },
         {
-          heading: "4. Durée de conservation",
+          heading: "5. Durée de conservation",
           paragraphs: [
             "Vos données sont conservées 3 ans à compter du dernier contact actif, sauf demande explicite de suppression de votre part ou obligation légale de conservation plus longue.",
           ],
         },
         {
-          heading: "5. Vos droits",
+          heading: "6. Vos droits",
           paragraphs: [
             "Vous disposez des droits suivants sur vos données : accès, rectification, opposition, effacement, limitation du traitement, portabilité, et le droit de définir des directives sur le sort de vos données après votre décès.",
             `Pour exercer ces droits, écrivez à ${site.email}. Nous nous engageons à vous répondre sous un mois maximum.`,
@@ -54,7 +61,7 @@ export default function PrivacyPage() {
           ],
         },
         {
-          heading: "6. Sécurité",
+          heading: "7. Sécurité",
           paragraphs: [
             "Nous mettons en œuvre les mesures techniques et organisationnelles appropriées pour protéger vos données contre la perte, l'accès non autorisé, la divulgation ou l'altération.",
           ],

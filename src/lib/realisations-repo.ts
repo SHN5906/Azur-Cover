@@ -1,5 +1,6 @@
 import "server-only";
 import { and, eq, asc, desc, type SQL } from "drizzle-orm";
+import { unstable_cache, revalidateTag } from "next/cache";
 import { getDb } from "@/db";
 import {
   realisations,
@@ -15,32 +16,61 @@ export type RealisationFilters = {
   solution?: SolutionValue;
 };
 
-export async function listRealisations(
-  filters: RealisationFilters = {},
-): Promise<RealisationRow[]> {
-  const conditions: SQL[] = [];
-  if (filters.sector) conditions.push(eq(realisations.sector, filters.sector));
-  if (filters.solution)
-    conditions.push(eq(realisations.solution, filters.solution));
+/** Hard cap : empêche un data-flood d'exploser la mémoire (P3-05). */
+const MAX_REALISATIONS = 200;
 
-  const query = getDb().select().from(realisations);
-  const filtered =
-    conditions.length > 0 ? query.where(and(...conditions)) : query;
+/**
+ * Cache tag shared by all read queries. Admin mutations call
+ * `invalidateRealisations()` to bust the cache on write.
+ *
+ * Why unstable_cache? The root layout forces every page to SSR (for the
+ * CSP nonce), so the Full Route Cache is disabled. unstable_cache keeps
+ * DB reads cached across SSR requests — pages re-render (fresh nonce)
+ * but reuse the data until a mutation invalidates it.
+ */
+const CACHE_TAG = "realisations";
 
-  return filtered.orderBy(
-    asc(realisations.sortIndex),
-    desc(realisations.createdAt),
-  );
+/** Bust all cached reads after a mutation. */
+export function invalidateRealisations() {
+  revalidateTag(CACHE_TAG, "max");
 }
 
-export async function getRealisationBySlug(slug: string): Promise<RealisationRow | null> {
-  const rows = await getDb()
-    .select()
-    .from(realisations)
-    .where(eq(realisations.slug, slug))
-    .limit(1);
-  return rows[0] ?? null;
-}
+// ── Cached read queries ─────────────────────────────────────────────
+
+export const listRealisations = unstable_cache(
+  async (filters: RealisationFilters = {}): Promise<RealisationRow[]> => {
+    const conditions: SQL[] = [];
+    if (filters.sector)
+      conditions.push(eq(realisations.sector, filters.sector));
+    if (filters.solution)
+      conditions.push(eq(realisations.solution, filters.solution));
+
+    const query = getDb().select().from(realisations);
+    const filtered =
+      conditions.length > 0 ? query.where(and(...conditions)) : query;
+
+    return filtered
+      .orderBy(asc(realisations.sortIndex), desc(realisations.createdAt))
+      .limit(MAX_REALISATIONS);
+  },
+  [CACHE_TAG, "list"],
+  { tags: [CACHE_TAG], revalidate: 3600 },
+);
+
+export const getRealisationBySlug = unstable_cache(
+  async (slug: string): Promise<RealisationRow | null> => {
+    const rows = await getDb()
+      .select()
+      .from(realisations)
+      .where(eq(realisations.slug, slug))
+      .limit(1);
+    return rows[0] ?? null;
+  },
+  [CACHE_TAG, "bySlug"],
+  { tags: [CACHE_TAG], revalidate: 3600 },
+);
+
+// ── Write queries (not cached) ──────────────────────────────────────
 
 export async function insertRealisation(data: RealisationInsert) {
   const [row] = await getDb().insert(realisations).values(data).returning();

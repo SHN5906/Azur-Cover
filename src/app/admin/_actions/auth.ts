@@ -65,6 +65,9 @@ export async function loginAction(
       throw err;
     }
     if (err instanceof AuthError) {
+      console.warn(
+        `[auth] login failed ip=${ip} email=${parsed.data.email}`,
+      );
       return { ok: false, error: "Identifiants incorrects." };
     }
     throw err;

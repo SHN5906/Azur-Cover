@@ -8,20 +8,27 @@ export type VideoEmbed =
   | { kind: "vimeo"; embedUrl: string; title: string }
   | { kind: "file"; src: string; mime: string };
 
+/** YouTube video IDs are 11 alphanumeric/dash/underscore chars. */
+const YT_ID_RE = /^[\w-]{1,20}$/;
+
 function youtubeId(url: URL): string | null {
   const host = url.hostname.replace(/^www\./, "");
+  let id: string | null = null;
   if (host === "youtu.be") {
-    const id = url.pathname.slice(1).split("/")[0];
-    return id || null;
-  }
-  if (host === "youtube.com" || host === "m.youtube.com") {
+    id = url.pathname.slice(1).split("/")[0] || null;
+  } else if (host === "youtube.com" || host === "m.youtube.com") {
     const v = url.searchParams.get("v");
-    if (v) return v;
-    // /embed/<id> ou /shorts/<id>
-    const match = url.pathname.match(/^\/(?:embed|shorts)\/([\w-]+)/);
-    return match?.[1] ?? null;
+    if (v) {
+      id = v;
+    } else {
+      // /embed/<id> ou /shorts/<id>
+      const match = url.pathname.match(/^\/(?:embed|shorts)\/([\w-]+)/);
+      id = match?.[1] ?? null;
+    }
   }
-  return null;
+  // Validate ID shape — reject anything that doesn't look like a real YT id
+  // to avoid injecting arbitrary strings into the embed URL (INFO-02).
+  return id && YT_ID_RE.test(id) ? id : null;
 }
 
 function vimeoId(url: URL): string | null {

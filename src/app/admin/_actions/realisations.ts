@@ -10,8 +10,31 @@ import {
   insertRealisation,
   updateRealisationBySlug,
   deleteRealisationBySlug,
+  invalidateRealisations,
 } from "@/lib/realisations-repo";
 import { deleteBlobIfHosted } from "./upload";
+
+/**
+ * Structured audit log for admin mutations (P2-04). Outputs JSON so
+ * Vercel Logs / Datadog / any log aggregator can parse it automatically.
+ */
+async function auditLog(
+  action: string,
+  slug: string,
+  admin: { email: string },
+) {
+  const ip = await getClientIp();
+  console.info(
+    JSON.stringify({
+      audit: true,
+      action,
+      slug,
+      admin: admin.email,
+      ip,
+      ts: new Date().toISOString(),
+    }),
+  );
+}
 
 /**
  * Rate limit générique pour toutes les mutations admin (create/update/
@@ -92,7 +115,7 @@ export async function createRealisation(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const rl = await rateLimitAdmin("create");
   if (rl) return rl;
 
@@ -111,6 +134,8 @@ export async function createRealisation(
   }
 
   await insertRealisation(parsed.data);
+  invalidateRealisations();
+  await auditLog("create", parsed.data.slug, admin);
   revalidatePublic(parsed.data.slug);
   redirect(`/admin/chantiers?created=${parsed.data.slug}`);
 }
@@ -120,7 +145,7 @@ export async function updateRealisation(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const rl = await rateLimitAdmin("update");
   if (rl) return rl;
 
@@ -158,12 +183,14 @@ export async function updateRealisation(
   await Promise.all(removed.map((g) => deleteBlobIfHosted(g.url)));
 
   await updateRealisationBySlug(slug, parsed.data);
+  invalidateRealisations();
+  await auditLog("update", parsed.data.slug, admin);
   revalidatePublic(parsed.data.slug, slug);
   redirect(`/admin/chantiers?updated=${parsed.data.slug}`);
 }
 
 export async function deleteRealisation(slug: string): Promise<ActionResult> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const rl = await rateLimitAdmin("delete");
   if (rl) return rl;
   const row = await deleteRealisationBySlug(slug);
@@ -173,6 +200,8 @@ export async function deleteRealisation(slug: string): Promise<ActionResult> {
       (row.gallery ?? []).map((g) => deleteBlobIfHosted(g.url)),
     );
   }
+  invalidateRealisations();
+  await auditLog("delete", slug, admin);
   revalidatePublic(slug);
   return { ok: true };
 }

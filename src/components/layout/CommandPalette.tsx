@@ -248,7 +248,8 @@ export function CommandPalette() {
                 <ul role="presentation">
                   {items.map((c) => {
                     runningIdx++;
-                    const isActive = runningIdx === activeIdx;
+                    const itemIdx = runningIdx;
+                    const isActive = itemIdx === activeIdx;
                     return (
                       <li key={c.id}>
                         <button
@@ -258,7 +259,7 @@ export function CommandPalette() {
                           aria-selected={isActive}
                           tabIndex={-1}
                           onClick={() => runCommand(c)}
-                          onMouseEnter={() => setActiveIdx(runningIdx)}
+                          onMouseEnter={() => setActiveIdx(itemIdx)}
                           className={`flex w-full items-center justify-between gap-4 px-5 py-2.5 text-left text-sm transition-colors ${
                             isActive
                               ? "bg-azur/10 text-ink"
