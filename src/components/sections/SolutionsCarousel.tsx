@@ -227,12 +227,22 @@ export function SolutionsCarousel() {
                 ref={(el) => {
                   planetRefs.current[i] = el;
                 }}
-                onClick={() => goTo(i)}
-                aria-label={s.title}
+                onClick={() => {
+                  if (i === active) {
+                    router.push(`/expertises/${s.slug}`);
+                  } else {
+                    goTo(i);
+                  }
+                }}
+                aria-label={
+                  i === active
+                    ? `Voir la page ${s.title}`
+                    : `Afficher la solution ${s.title}`
+                }
                 className={cn(
                   "planet group absolute left-0 top-0 h-[clamp(220px,22vw,320px)] w-[clamp(220px,22vw,320px)] overflow-visible rounded-full",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azur focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0a0c]",
-                  i === active && "planet-active",
+                  i === active && "planet-active cursor-pointer",
                 )}
               >
                 <span
