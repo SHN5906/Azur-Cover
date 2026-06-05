@@ -33,6 +33,8 @@ export function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+  // Distingue navigation clavier (scrollIntoView utile) du hover souris (pas de scroll).
+  const keyboardNavRef = useRef(false);
 
   const commands: Command[] = useMemo(
     () => [
@@ -110,17 +112,29 @@ export function CommandPalette() {
     if (!open) return;
     previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
     const t = window.setTimeout(() => inputRef.current?.focus(), 30);
+    // Verrouille le scroll de la page derrière le dialog.
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
     document.documentElement.style.overflow = "hidden";
     return () => {
       window.clearTimeout(t);
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
       document.documentElement.style.overflow = "";
+      window.scrollTo(0, scrollY);
       previouslyFocusedRef.current?.focus?.();
     };
   }, [open]);
 
-  // Garde l'option active visible pendant la navigation au clavier.
+  // Garde l'option active visible — seulement au clavier (pas au hover).
   useEffect(() => {
-    if (!open) return;
+    if (!open || !keyboardNavRef.current) return;
+    keyboardNavRef.current = false;
     const el = listRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
     el?.scrollIntoView({ block: "nearest" });
   }, [activeIdx, open, query]);
@@ -129,9 +143,11 @@ export function CommandPalette() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
+      keyboardNavRef.current = true;
       setActiveIdx((i) => Math.min(i + 1, filtered.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
+      keyboardNavRef.current = true;
       setActiveIdx((i) => Math.max(i - 1, 0));
     } else if (e.key === "Enter") {
       e.preventDefault();
