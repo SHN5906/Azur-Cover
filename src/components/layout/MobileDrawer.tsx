@@ -101,7 +101,7 @@ export function MobileDrawer({ open, onClose }: Props) {
 
       <nav
         aria-label="Navigation mobile"
-        className="flex flex-1 flex-col justify-center px-6 pb-20"
+        className="flex flex-1 flex-col justify-center px-6 pb-20 pt-8"
       >
         <ul className="flex flex-col gap-2">
           {site.nav.map((item, i) => (
