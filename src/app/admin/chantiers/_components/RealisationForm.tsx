@@ -76,6 +76,12 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
   // Nouveau chantier : pré-rempli avec l'année courante. Édition : on garde
   // l'année enregistrée.
   const currentYear = String(new Date().getFullYear());
+
+  // Champs contrôlés : la suppression d'une ligne du milieu ne mélange plus
+  // les valeurs (l'ancien defaultValue + clé d'index laissait des valeurs
+  // fantômes dans le DOM).
+  const updateResult = (i: number, field: "value" | "label", val: string) =>
+    setResults((rs) => rs.map((r, j) => (j === i ? { ...r, [field]: val } : r)));
   const fieldErrors = state?.ok === false ? state.fieldErrors : undefined;
   const isEditing = !!initial;
   const [dirty, setDirty] = useState(false);
@@ -227,44 +233,61 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         <legend className="text-sm uppercase tracking-wider text-muted">
           Résultats chiffrés (optionnel)
         </legend>
-        {results.length === 0 && (
-          <p className="text-xs text-muted">
-            Ex: « 3 à 4 °C » / « vs classes témoins, en pic chaleur ». Affiché en
-            grand sur la fiche détaillée.
-          </p>
+        <p className="text-xs text-muted">
+          Chiffres clés affichés en grand sur la fiche. Ex : la valeur «&nbsp;3 à
+          4&nbsp;°C&nbsp;» avec la légende «&nbsp;vs classes témoins, en pic
+          chaleur&nbsp;».
+        </p>
+
+        {results.length > 0 && (
+          <ul className="space-y-3">
+            {results.map((r, i) => (
+              <li key={i} className="rounded border border-line/40 bg-bg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider text-muted">
+                    Résultat {i + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setResults((rs) => rs.filter((_, j) => j !== i))}
+                    className="py-1 text-xs text-red-600 underline hover:opacity-80"
+                  >
+                    Retirer
+                  </button>
+                </div>
+                <div className="mt-2 grid gap-3 sm:grid-cols-[1fr_2fr]">
+                  <label className="block">
+                    <span className="text-xs text-muted">Valeur</span>
+                    <input
+                      name={`results[${i}][value]`}
+                      value={r.value}
+                      onChange={(e) => updateResult(i, "value", e.target.value)}
+                      placeholder="3 à 4 °C"
+                      maxLength={32}
+                      className="mt-1 block w-full border-b border-line/80 bg-transparent py-2 outline-none focus:border-ink"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs text-muted">Légende</span>
+                    <input
+                      name={`results[${i}][label]`}
+                      value={r.label}
+                      onChange={(e) => updateResult(i, "label", e.target.value)}
+                      placeholder="vs classes témoins, en pic chaleur"
+                      maxLength={120}
+                      className="mt-1 block w-full border-b border-line/80 bg-transparent py-2 outline-none focus:border-ink"
+                    />
+                  </label>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
-        {results.map((r, i) => (
-          <div key={i} className="flex gap-2">
-            <input
-              name={`results[${i}][value]`}
-              defaultValue={r.value}
-              aria-label={`Valeur du résultat ${i + 1}`}
-              placeholder="3 à 4 °C"
-              maxLength={32}
-              className="flex-1 border-b border-line/80 bg-transparent py-3 outline-none focus:border-ink"
-            />
-            <input
-              name={`results[${i}][label]`}
-              defaultValue={r.label}
-              aria-label={`Légende du résultat ${i + 1}`}
-              placeholder="vs classes témoins"
-              maxLength={120}
-              className="flex-[2] border-b border-line/80 bg-transparent py-3 outline-none focus:border-ink"
-            />
-            <button
-              type="button"
-              onClick={() => setResults((rs) => rs.filter((_, j) => j !== i))}
-              className="text-xs text-red-600 underline"
-              aria-label={`Supprimer le résultat ${i + 1}`}
-            >
-              ×
-            </button>
-          </div>
-        ))}
+
         <button
           type="button"
           onClick={() => setResults((rs) => [...rs, { value: "", label: "" }])}
-          className="text-xs underline hover:text-ink"
+          className="rounded border border-line/60 px-3 py-2 text-xs font-medium transition-colors hover:border-ink"
         >
           + Ajouter un résultat
         </button>
