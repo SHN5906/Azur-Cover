@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { uploadRealisationImage } from "../../_actions/upload";
+import { compressImage, MAX_UPLOAD_BYTES } from "./compress-image";
 
 type Props = {
   initialUrl?: string;
@@ -22,8 +23,16 @@ export function ImageUpload({ initialUrl, initialAlt, slug }: Props) {
     if (!file) return;
     setError(null);
     start(async () => {
+      const compressed = await compressImage(file);
+      if (compressed.size > MAX_UPLOAD_BYTES) {
+        setError(
+          "Image trop lourde ou format non pris en charge (HEIC ?). " +
+            "Convertissez-la en JPG ou PNG, puis réessayez.",
+        );
+        return;
+      }
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", compressed);
       fd.append("slug", slug || "draft");
       const res = await uploadRealisationImage(fd);
       if (res.ok) {
@@ -63,7 +72,10 @@ export function ImageUpload({ initialUrl, initialAlt, slug }: Props) {
         disabled={pending}
         className="block text-sm file:mr-3 file:rounded file:border-0 file:bg-ink file:px-3 file:py-2 file:text-xs file:font-medium file:text-white file:hover:opacity-90"
       />
-      <p className="text-xs text-muted">JPG / PNG / WebP / AVIF, max 4 Mo.</p>
+      <p className="text-xs text-muted">
+        JPG / PNG / WebP / AVIF. Les photos sont automatiquement optimisées
+        avant l&apos;envoi.
+      </p>
 
       <p role="status" aria-live="polite" className="text-xs text-muted">
         {pending && "Upload en cours…"}

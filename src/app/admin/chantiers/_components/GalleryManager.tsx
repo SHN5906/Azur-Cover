@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { uploadRealisationImage } from "../../_actions/upload";
+import { compressImage, MAX_UPLOAD_BYTES } from "./compress-image";
 
 type Item = { url: string; alt: string };
 
@@ -35,8 +36,16 @@ export function GalleryManager({ initial = [], slug }: Props) {
     // Upload séquentiel : la server action rate-limite par IP. Parallèle
     // déclencherait des 429.
     for (let i = 0; i < toUpload.length; i++) {
+      const compressed = await compressImage(toUpload[i]);
+      if (compressed.size > MAX_UPLOAD_BYTES) {
+        setError(
+          `« ${toUpload[i].name} » : image trop lourde ou format non pris en ` +
+            "charge (HEIC ?). Convertissez-la en JPG ou PNG, puis réessayez.",
+        );
+        break;
+      }
       const fd = new FormData();
-      fd.append("file", toUpload[i]);
+      fd.append("file", compressed);
       fd.append("slug", slug || "draft");
       const res = await uploadRealisationImage(fd);
       if (res.ok) {
@@ -169,8 +178,8 @@ export function GalleryManager({ initial = [], slug }: Props) {
           </p>
         )}
         <p className="mt-2 text-xs text-muted">
-          {items.length}/{MAX_ITEMS} photos. JPG / PNG / WebP / AVIF, max 4 Mo
-          par fichier.
+          {items.length}/{MAX_ITEMS} photos. JPG / PNG / WebP / AVIF — les
+          photos sont automatiquement optimisées avant l&apos;envoi.
         </p>
       </div>
     </div>

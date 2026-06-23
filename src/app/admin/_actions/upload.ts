@@ -4,7 +4,11 @@ import { put, del } from "@vercel/blob";
 import { requireAdmin } from "@/lib/admin";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
-const MAX_BYTES = 4 * 1024 * 1024; // 4 MB (sous la limite serveur Vercel ~4.5MB)
+// Backstop serveur. La vraie contrainte est la limite de corps des server
+// actions Next.js (1 Mo par défaut) : les images sont compressées côté client
+// (voir compress-image.ts) pour rester en dessous AVANT d'arriver ici. Ce
+// plafond ne sert que de filet de sécurité.
+const MAX_BYTES = 4 * 1024 * 1024; // 4 MB
 
 // Le type MIME et l'extension fournis par le client ne sont pas dignes de
 // confiance : on les dérive des magic bytes du fichier réel.
