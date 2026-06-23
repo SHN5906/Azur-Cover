@@ -73,6 +73,9 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
   );
   const [results, setResults] = useState<ResultRow[]>(initial?.results ?? []);
   const slugValue = initial?.slug ?? "";
+  // Nouveau chantier : pré-rempli avec l'année courante. Édition : on garde
+  // l'année enregistrée.
+  const currentYear = String(new Date().getFullYear());
   const fieldErrors = state?.ok === false ? state.fieldErrors : undefined;
   const isEditing = !!initial;
   const [dirty, setDirty] = useState(false);
@@ -187,11 +190,11 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
           name="year"
           label="Année"
           required
-          defaultValue={initial?.year}
+          defaultValue={initial?.year ?? currentYear}
           inputMode="numeric"
           pattern="\d{4}"
           maxLength={4}
-          placeholder="2024"
+          placeholder={currentYear}
           error={fieldErrors?.year}
         />
       </fieldset>
