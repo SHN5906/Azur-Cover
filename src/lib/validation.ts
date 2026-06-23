@@ -46,17 +46,18 @@ export const RealisationSchema = z.object({
     .string()
     .min(10, "Description courte trop courte (min 10)")
     .max(220, "Description courte trop longue (max 220)"),
-  // textarea -> array de paragraphes, split sur ligne vide
+  // textarea -> array de paragraphes, split sur ligne vide. Optionnel :
+  // une histoire vide donne un tableau vide (la fiche publique masque alors
+  // la section). La colonne DB est notNull default [].
   story: z
     .string()
-    .min(1, "Histoire requise")
     .transform((s) =>
       s
         .split(/\n\s*\n/)
         .map((p) => p.trim())
         .filter(Boolean),
     )
-    .pipe(z.array(z.string()).min(1, "Au moins un paragraphe requis")),
+    .pipe(z.array(z.string())),
   results: z
     .array(
       z.object({

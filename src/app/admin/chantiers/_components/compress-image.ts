@@ -73,3 +73,58 @@ export async function compressImage(file: File): Promise<File> {
 function toJpegBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob | null> {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
 }
+
+// Plus grand côté d'un logo après redimensionnement. Un logo n'a pas besoin
+// d'être grand ; 800 px suffit largement.
+const LOGO_MAX_DIMENSION = 800;
+
+// Prépare un logo pour l'upload. Contrairement aux photos, on PRÉSERVE la
+// transparence (la plupart des logos sont des PNG à fond transparent) : sortie
+// PNG pour les formats à canal alpha, JPEG seulement pour les sources JPEG.
+// Redimensionne uniquement si nécessaire pour rester sous la limite de 1 Mo.
+export async function prepareLogo(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) return file;
+
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  } catch {
+    return file;
+  }
+
+  // Déjà petit et léger → on n'y touche pas (évite de re-encoder un logo net).
+  if (Math.max(bitmap.width, bitmap.height) <= LOGO_MAX_DIMENSION && file.size <= TARGET_BYTES) {
+    bitmap.close?.();
+    return file;
+  }
+
+  const scale = Math.min(1, LOGO_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+  const width = Math.round(bitmap.width * scale);
+  const height = Math.round(bitmap.height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    bitmap.close?.();
+    return file;
+  }
+  const keepAlpha = file.type !== "image/jpeg";
+  if (!keepAlpha) {
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, width, height);
+  }
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close?.();
+
+  const mime = keepAlpha ? "image/png" : "image/jpeg";
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, mime, 0.9),
+  );
+  if (!blob || blob.size >= file.size) return file;
+
+  const ext = keepAlpha ? "png" : "jpg";
+  const name = file.name.replace(/\.[^.]+$/, "") + "." + ext;
+  return new File([blob], name, { type: mime });
+}

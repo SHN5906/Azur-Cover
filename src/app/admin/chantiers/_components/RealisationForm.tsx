@@ -9,6 +9,7 @@ import {
 } from "@/db/schema";
 import { ImageUpload } from "./ImageUpload";
 import { GalleryManager } from "./GalleryManager";
+import { LogoUpload } from "./LogoUpload";
 import type { ActionResult } from "../../_actions/realisations";
 
 type ResultRow = { value: string; label: string };
@@ -211,7 +212,7 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         </legend>
         <TextAreaField
           name="short"
-          label="Description courte (carrousel + carte, max 220 c.)"
+          label="Description courte"
           required
           rows={2}
           defaultValue={initial?.short}
@@ -221,7 +222,6 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         <TextAreaField
           name="story"
           label="Histoire complète"
-          required
           rows={10}
           defaultValue={initial?.story.join("\n\n")}
           hint="Séparez les paragraphes par une LIGNE VIDE (Entrée x2)."
@@ -340,18 +340,14 @@ export function RealisationForm({ initial, action, submitLabel }: Props) {
         />
       </fieldset>
 
-      <fieldset>
+      <fieldset className="space-y-4">
         <legend className="text-sm uppercase tracking-wider text-muted">
           Logo client (optionnel)
         </legend>
-        <TextField
-          name="logo"
-          label="URL du logo"
-          defaultValue={initial?.logo ?? ""}
-          placeholder="/images/clients/xxx.png ou https://..."
-          hint="Chemin local /images/clients/* ou URL https://"
-          error={fieldErrors?.logo}
-        />
+        <LogoUpload initialUrl={initial?.logo ?? ""} slug={slugValue} />
+        {fieldErrors?.logo && (
+          <p className="text-xs text-red-600">{fieldErrors.logo.join(", ")}</p>
+        )}
       </fieldset>
 
       <div className="flex items-center gap-4 border-t border-line/40 pt-6">
@@ -539,7 +535,6 @@ function SurfaceField({ initialValue }: { initialValue?: string | null }) {
         </span>
       </div>
       <input type="hidden" name="surface" value={composed} />
-      <p className="mt-1 text-xs text-muted">Optionnel — saisissez seulement le nombre.</p>
     </div>
   );
 }
